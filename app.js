@@ -16,8 +16,8 @@ var app = express()
 // use ejs-locals for all ejs templates:
 app.engine('ejs', engine);
 
-app.configure(function(){
-  app.set('port', process.env.PORT || 3000);
+app.configure(function() {
+  app.set('port', config.PORT || 3000); // 28171 on webfaction
 
   // view templates
   app.set('views', __dirname + '/views');
@@ -43,47 +43,27 @@ app.get('/', function(req, res) {
 });
 
 app.get('/upload', function(req, res) {
+  var cur = new Date()
+    , folder = [cur.getFullYear(), cur.getMonth() + 1, cur.getDate()].join('-');
+
   res.render('form', { 
     title: '',
     aws_signature: config.AWSSignature, 
     aws_accesskeyid: config.AWSAccessKeyId,
     aws_policy: config.AWSPolicy,
-    scan_id: new Date().toLocaleDateString().split("/").join("-")
+    scan_id: folder
   });
 });
 
 app.get('/uploaded', function(req, res) {
   var bucket = req.query["bucket"]
-    , key = req.query["key"];
+    , key = decodeURIComponent(req.query["key"])
+    , base = 'http://{bucket}.s3.amazonaws.com/{key}'
+    , url = base.replace('{bucket}', bucket).replace('{key}', key);
 
-  var options = {
-      host: 'gifpop-uploads.s3.amazonaws.com'
-    , port: 80
-    , path: key
-  };
-
-  var request = http.get(options, function(response){
-      var imagedata = '';
-      response.setEncoding('binary');
-
-      response.on('data', function(chunk) {
-          imagedata += chunk;
-      });
-
-      response.on('end', function() {
-        var savedImage = './public/images/temporary/' + key.split('/').pop();
-        fs.writeFile(savedImage, imagedata, 'binary', function(err) {
-          if (err) throw err;
-          gm('./public/images/temporary/blank.gif')
-            .append(savedImage, true)
-            .stream(function streamOut (err, stdout, stderr) {
-                if (err) return console.log(err);
-                console.log('streaming image');
-                stdout.pipe(res); //pipe to response
-                stdout.on('error', console.log);
-            });
-        });
-      });
+  res.render('uploaded', { 
+    title: '',
+    image_url: url
   });
 });
 
@@ -124,14 +104,6 @@ app.get('/split/:image', function(req, res) {
       });
   });
 
-  // gm('http://cdn.shopify.com/s/files/1/0172/2296/products/wolf_pixelfuck_11_large.gif[5]')
-  // // gm('./public/images/0001.jpg')
-  //   .append('./public/images/wolf_pixelfuck_11.gif', true)
-  //   .stream(function streamOut (err, stdout, stderr) {
-  //       if (err) return console.log(err);
-  //       stdout.pipe(res); //pipe to response
-  //       stdout.on('error', console.log);
-  //   });
 });
 
 http.createServer(app).listen(app.get('port'), function(){
