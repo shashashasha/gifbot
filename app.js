@@ -48,6 +48,7 @@ app.get('/upload', function(req, res) {
 
   res.render('form', { 
     title: '',
+    base_url: config.HOST,
     aws_signature: config.AWSSignature, 
     aws_accesskeyid: config.AWSAccessKeyId,
     aws_policy: config.AWSPolicy,

@@ -4,7 +4,7 @@
     <input name="AWSAccessKeyId" type="hidden" value="<%=aws_accesskeyid%>" />
     <input name="x-amz-acl" type="hidden" value="public-read" />
     <input name="key" type="hidden" value="uploads/<%=scan_id%>/${filename}" />
-    <input name="success_action_redirect" type="hidden" value="http://127.0.0.1:3000/uploaded/" />
+    <input name="success_action_redirect" type="hidden" value="<%=base_url%>/uploaded/" />
 
     <input name="policy" type="hidden" value="<%=aws_policy%>" />
     <input name="signature" type="hidden" value="<%=aws_signature%>" />
