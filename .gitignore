@@ -17,3 +17,5 @@ node_modules
 public/images/temporary
 
 settings.json
+
+policy_document.py
