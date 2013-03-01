@@ -1,10 +1,59 @@
+#################
+# LOCALLY
+#################
+
+# pull down the gifpop git project into /whateverfolder
+# install virtualenv
+# http://alleged.org.uk/pdc/2012/08/16.html
+
+sudo pip install -U virtualenv
+sudo pip install virtualenvwrapper
+
+# add this to .bash_profile or .bashrc
+export WORKON_HOME=$HOME/Environments
+source /usr/local/bin/virtualenvwrapper.sh
+
+# then run this to reload the profile
+source ~/.bash_profile
+
+# make the virtual env
+mkvirtualenv gifpop
+
+# start working on gif pop
+workon gifpop
+
+# install node
+# http://nodejs.org
+brew install node
+
+# install npm if that wasn't automatic
+brew install npm
+# if that doesn't work, try this:
+curl http://npmjs.org/install.sh | sh
+
+# once you have that, cd into the gifbot github folder and do this
+# this will install everything listed as a dependency in package.json
+npm install
+
+# you can also install nodemon globally 
+# (it runs node servers and refreshes on updates)
+npm install nodemon -g
+
 # run locally:
 nodemon app.js
+
+#################
+# ON WEBFACTION
+#################
 
 # run on server 
 # http://blog.nodejitsu.com/keep-a-nodejs-server-up-with-forever
 forever stopall
 forever start app.js
+
+#################
+# ETC
+#################
 
 # signed form use policy doc script, it's in dropbox
 python policy_document.py
