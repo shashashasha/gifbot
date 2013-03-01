@@ -216,8 +216,11 @@ var gifcontrol = function(gif) {
 
       var updateFrame = function(num) {
         i = Math.max(0, Math.min(frames.length-1, num));
-        curFrame.value = i + 1;
-        delayInfo.value = frames[i].delay;
+        if (curFrame && delayInfo) { 
+          curFrame.value = i + 1;
+          delayInfo.value = frames[i].delay;
+        }
+        
         putFrame();
       };
 

@@ -6,10 +6,13 @@ var gifchopper = function() {
   var self = {},
     delay = 200,
     interval = 1,
+    initialStart = 0,
     start = 0,
     stop = -1,
     intervalID = null,
-    pingponging = false;
+    last = null,
+    pingponging = false,
+    dragging = false;
 
   // parse the gif on the page
   self.load = function(url, gif) {
@@ -24,36 +27,36 @@ var gifchopper = function() {
       var percent = e.offsetX / e.srcElement.clientWidth;
       self.controller.seekPercent(percent);
       self.stopPingPoinging();
+
+      if (dragging) {
+        var current = getFrame(e);
+        updateSelection(current);
+      }
     }, false);
 
     div.addEventListener('mousedown', function(e) {
-      start = getFrame(e);
+      var length = self.controller.length() - 1,
+        width = e.srcElement.clientWidth;
+
+      initialStart = start = getFrame(e);
+      stop = start + 1;
       dragging = true;
+
       $("#selection").css({
         'marginLeft': e.offsetX + 'px',
-        'marginRight': '0px'
+        'marginRight': '0px',
+        'width': ((1/length) * width) + 'px'
       });
     }, false);
 
     div.addEventListener('mouseup', function(e) {
       var current = getFrame(e);
-      if (current != start) {
-        if (start < current) {
-          stop = current;
-        } else {
-          stop = start;
-          start = current;
-        }
-      }
-      $("#selection").css({
-        'marginLeft': getPixel(start) + 'px',
-        'marginRight': ($("#timeline").width - getPixel(stop)) + 'px',
-        'width': (getPixel(stop) - getPixel(start)) + 'px'
-      });
 
-      console.log('new range:', start, stop);
+      updateSelection(current);
 
       self.startPingPoinging();
+
+      dragging = false;
     }, false);
 
     // toggle pingponging
@@ -79,7 +82,30 @@ var gifchopper = function() {
 
   var getPixel = function(f) {
     var length = self.controller.length() - 1;
-    return $("#timeline").width() * (f / length);
+    return $("#timeline").width() * (Math.round(f) / length);
+  };
+
+  var updateSelection = function(current) {
+      if (last == current) return;
+
+      stop = current;
+      if (current < initialStart) {
+        var end = initialStart;
+        stop = end;
+        start = current;
+      }
+
+      var sx = getPixel(start),
+          ex = getPixel(stop),
+          tw = $("#timeline").width();
+
+      $("#selection").css({
+        'marginLeft': sx + 'px',
+        'marginRight': (tw - ex) + 'px',
+        'width': (ex - sx) + 'px'
+      });
+
+      last = current;
   };
 
   /*
