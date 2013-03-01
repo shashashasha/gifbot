@@ -6,11 +6,12 @@
 
 
 
-<img id="gif" src='<%=image_url%>'>
+<img id="gif" src='<%=image_url%>' style="width: 800px;">
+<div id="timeline" style="width:500px; height: 100px; background:black;"></div>
 
 <script type="text/javascript">
 	var image_url = '<%=image_url%>';
-	// gifchopper.load(image_url);
 	var image = document.getElementById('gif');
-	gifcontroller(image);
+
+	gifchopper.load(image_url, image);
 </script>

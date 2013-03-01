@@ -4,7 +4,13 @@
 */
 var gifchopper = function() {
   var self = {},
-    stream = null;
+    stream = null,
+    delay = 200,
+    interval = 1,
+    start = 0,
+    stop = -1,
+    intervalID = null,
+    pingponging = false;
 
   self.parse = function() {
     try {
@@ -16,22 +22,57 @@ var gifchopper = function() {
     }
   };
 
-  self.load = function(url) {
-    var req = new XMLHttpRequest();
-    req.overrideMimeType('text/plain; charset=x-user-defined');
-    
-    req.onload = function(e) {
-      stream = new Stream(req.responseText);
-      setTimeout(self.parse, 0);
-    };
+  // parse the gif on the page
+  self.load = function(url, gif) {
+    self.url = url;
+    self.controller = gifcontrol(gif);
+    self.timeline(document.getElementById('timeline'));
+  };
 
-    req.onprogress = function(event) { console.log(event.loaded / event.total); };
-    req.onerror = function() { console.log('xhr error'); };
+  self.timeline = function(div) {
+    div.addEventListener('mousemove', function(e) {
+      var percent = e.x / e.srcElement.clientWidth;
+      self.controller.seekPercent(percent);
+      self.stopPingPoinging();
+    }, false);
 
-    req.open('GET', url, true);
-    req.send();
+    div.addEventListener('click', function(e) {
+      if (pingponging) {
+        self.stopPingPoinging();
+        return;
+      }
 
-    console.log(req, 'loading');
+      var length = self.controller.length() - 1;
+      var percent = e.x / e.srcElement.clientWidth;
+      start = Math.round(percent * length);
+      stop = start + 10;
+
+      console.log(start,stop);
+      self.startPingPoinging();
+    }, false);
+  };
+
+  self.startPingPoinging = function() {
+    self.controller.seekFrame(start);
+    intervalID = setInterval(function() {
+      var current = self.controller.currentFrame(), 
+          length = self.controller.length();
+      console.log(current, start, stop, length);
+      if (current >= stop || current >= length - 1) {
+        self.controller.seekFrame(start);
+      } else {
+        self.controller.nextFrame();  
+      }
+    }, delay);
+
+    pingponging = true;
+  };
+
+  self.stopPingPoinging = function() {
+    clearInterval(intervalID);
+
+    intervalID = null;
+    pingponging = false;
   };
 
   return self;

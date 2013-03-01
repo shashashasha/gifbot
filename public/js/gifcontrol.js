@@ -1,7 +1,10 @@
 /*
   Adapting much of JSGIF's html.js for our needs, rolling up into a gifcontroller module
 */
-var gifcontroller = function(gif) {
+var gifcontrol = function(gif) {
+  var self = {};
+
+
   var stream;
   var hdr;
 
@@ -71,12 +74,10 @@ var gifcontroller = function(gif) {
       var mid = (pos / length) * canvas.width;
 
       // XXX Figure out alpha fillRect.
-      //ctx.fillStyle = 'salmon';
-      ctx.fillStyle = 'rgba(255,160,122,0.5)';
+      ctx.fillStyle = 'rgba(200,200,200,0.5)';
       ctx.fillRect(mid, top, canvas.width - mid, height);
 
-      //ctx.fillStyle = 'teal';
-      ctx.fillStyle = 'rgba(0,128,128,0.5)';
+      ctx.fillStyle = 'rgba(30,30,30,0.5)';
       ctx.fillRect(0, top, (pos / length) * canvas.width, height);
     }
 
@@ -191,8 +192,31 @@ var gifcontroller = function(gif) {
       var showingInfo = false;
       var pinned = false;
 
-      var stepFrame = function(delta) { // XXX: Name is confusing.
-        i = (i + delta + frames.length) % frames.length;
+      // 
+      self.currentFrame = function() {
+        return i;
+      };
+
+      // gifcontrol hook
+      self.stepFrame = function(delta) { // XXX: Name is confusing.
+        var updated = (i + delta + frames.length) % frames.length;
+        updateFrame(updated);
+      };
+
+      // gifcontrol hook
+      self.seekFrame = function(i) {
+        var p = Math.max(0, Math.min(frames.length-1, i));
+        updateFrame(p);
+      };
+
+      // gifcontrol hook
+      self.seekPercent = function(percent) {
+        var p = Math.round(percent * (frames.length-1));
+        updateFrame(p);
+      };
+
+      var updateFrame = function(num) {
+        i = num;
         curFrame.value = i + 1;
         delayInfo.value = frames[i].delay;
         putFrame();
@@ -205,7 +229,7 @@ var gifcontroller = function(gif) {
           stepping = playing;
           if (!stepping) return;
 
-          stepFrame(forward ? 1 : -1);
+          self.stepFrame(forward ? 1 : -1);
           var delay = frames[i].delay * 10;
           if (!delay) delay = 100; // FIXME: Should this even default at all? What should it be?
           setTimeout(doStep, delay);
@@ -354,10 +378,22 @@ var gifcontroller = function(gif) {
           rev.focus(); // (because repack)
         };
 
-        var doNextFrame = function() { stepFrame(1); };
-        var doPrevFrame = function() { stepFrame(-1); };
+        self.nextFrame = function() { self.stepFrame(1); };
+        self.prevFrame = function() { self.stepFrame(-1); };
 
-        var doPlayPause = function() {
+        self.pause = function() {
+          playing = false;
+          updateTools();
+          step();
+        };
+
+        self.play = function() {
+          playing = true;
+          updateTools();
+          step();
+        };
+
+        self.playPause = function() {
           playing = !playing;
           updateTools();
           playPause.focus(); // In case this was called by clicking on the
@@ -402,15 +438,15 @@ var gifcontroller = function(gif) {
         showInfo.addEventListener('click', doToggleShowingInfo, false);
         rev.addEventListener('click', doRev, false);
         curFrame.addEventListener('change', doCurFrameChanged, false);
-        prev.addEventListener('click', doPrevFrame, false);
-        playPause.addEventListener('click', doPlayPause, false);
-        next.addEventListener('click', doNextFrame, false);
+        prev.addEventListener('click', self.prevFrame, false);
+        playPause.addEventListener('click', self.playPause, false);
+        next.addEventListener('click', self.nextFrame, false);
         pin.addEventListener('click', doTogglePinned, false);
         close.addEventListener('click', doClose, false);
 
         delayInfo.addEventListener('change', doCurDelayChanged, false);
 
-        canvas.addEventListener('click', doPlayPause, false);
+        canvas.addEventListener('click', self.playPause, false);
 
         // For now, to handle GIFs in <a> tags and so on. This needs to be handled better, though.
         div.addEventListener('click', function(e) { e.preventDefault(); }, false);
@@ -423,7 +459,7 @@ var gifcontroller = function(gif) {
         if (loadError) return;
         canvas.width = hdr.width;
         canvas.height = hdr.height;
-        step();
+        // step();
       };
   }());
 
@@ -512,4 +548,15 @@ var gifcontroller = function(gif) {
 
   doText('Loading...');
   doGet();
+
+  /*
+  
+    Handler functions for GIFController
+
+  */
+  self.length = function() {
+    return frames.length;
+  };
+
+  return self;
 };
