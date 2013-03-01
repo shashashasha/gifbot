@@ -1,16 +1,31 @@
 <% layout('base') -%>
 
 <% script('/lib/jsgif/gif.js') -%>
+<% script('/lib/jquery.min.js') -%>
 <% script('/js/gifcontrol.js') -%>
 <% script('/js/gifchop.js') -%>
 
 
 
 <img id="gif" src='<%=image_url%>'>
+<p id="received-message"></p>
 
 <script type="text/javascript">
 	var image_url = '<%=image_url%>';
 	// gifchopper.load(image_url);
 	var image = document.getElementById('gif');
 	gifcontroller(image);
+
+	function displayMessage (evt) {
+		// document.getElementById("gif").className = evt.data;
+		$(".jsgif").attr("class","jsgif "+evt.data);
+	}
+
+	if (window.addEventListener) {
+		// For standards-compliant web browsers
+		window.addEventListener("message", displayMessage, false);
+	}
+	else {
+		window.attachEvent("onmessage", displayMessage);
+	}
 </script>
