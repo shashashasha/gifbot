@@ -205,8 +205,7 @@ var gifcontrol = function(gif) {
 
       // gifcontrol hook
       self.seekFrame = function(i) {
-        var p = Math.max(0, Math.min(frames.length-1, i));
-        updateFrame(p);
+        updateFrame(i);
       };
 
       // gifcontrol hook
@@ -216,7 +215,7 @@ var gifcontrol = function(gif) {
       };
 
       var updateFrame = function(num) {
-        i = num;
+        i = Math.max(0, Math.min(frames.length-1, num));
         curFrame.value = i + 1;
         delayInfo.value = frames[i].delay;
         putFrame();
