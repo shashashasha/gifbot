@@ -1,4 +1,10 @@
-# run:
+# run locally:
 nodemon app.js
 
-# signed form use policy doc script
+# run on server 
+# http://blog.nodejitsu.com/keep-a-nodejs-server-up-with-forever
+forever stopall
+forever start app.js
+
+# signed form use policy doc script, it's in dropbox
+python policy_document.py

@@ -1,5 +1,4 @@
 //var bookmarklet = function() {
-var bookmarklet = function() {
 
  // INSERT_GIF_JS_HERE
 
@@ -621,7 +620,9 @@ var bookmarklet = function() {
   //}
 
   gifs.forEach(mkOverlay);
-};
+
+// Commenting out bookmarklet - Sha
+// };
 
 // So here we take advantage of the fact that we didn't tell Closure that we're
 // exporting this function, which means we can do "var b = ...; b();" and it'll

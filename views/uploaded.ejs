@@ -1,14 +1,16 @@
 <% layout('base') -%>
 
 <% script('/lib/jsgif/gif.js') -%>
+<% script('/js/gifcontrol.js') -%>
 <% script('/js/gifchop.js') -%>
 
 
 
-<img src='<%=image_url%>'>
+<img id="gif" src='<%=image_url%>'>
 
 <script type="text/javascript">
 	var image_url = '<%=image_url%>';
-	console.log(image_url);
-	gifchopper.load(image_url);
+	// gifchopper.load(image_url);
+	var image = document.getElementById('gif');
+	gifcontroller(image);
 </script>
