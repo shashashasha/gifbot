@@ -1,8 +1,24 @@
-body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+.jsgif {
+	overflow: hidden;
+	margin: 0 auto;
+	border: 1px solid black;
 }
-
-a {
-  color: #00B7FF;
+.jsgif.s_business_card {
+	width: 262px !important;
+	height: 150px;
+}
+.jsgif.s_postcard {
+	width: 450px !important;
+	height: 300px;
+}
+.jsgif.s_5x5_card {
+	width: 375px !important;
+	height: 375px;
+}
+.jsgif.s_3x3_card {
+	width: 225px !important;
+	height: 225px;
+}
+.jsgif canvas {
+	width: 100%;
 }
