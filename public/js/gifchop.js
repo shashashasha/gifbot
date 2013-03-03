@@ -75,6 +75,7 @@ var gifchopper = function() {
       dragging = true;
       var current = getFrame(e);
       centerSelection(current);
+      $("#instructions").hide();
     })
     .mouseup(function(e) {
       dragging = false;

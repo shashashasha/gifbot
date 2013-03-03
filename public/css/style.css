@@ -1,3 +1,46 @@
+body {
+	background-color: #808080;
+}
+#timeline {
+	margin: 10px auto; 
+	width:500px; 
+	height: 50px; 
+	border: 1px solid black;
+	background-color: #555;
+}
+#instructions {
+	color: white;
+	font-family: Helvetica;
+	text-align: center;
+	line-height: 50px;
+}
+#selection {
+	width:0px; 
+	height: 100%; 
+	margin: 0; 
+	background:#ff9900; 
+	cursor: pointer;
+}
+#gif-ui {
+	width: 500px;
+	margin: 10px auto 0;
+	color: white;
+	font-family: "Helvetica Neue", Helvetica;
+}
+#gif-submit {
+	-webkit-appearance: none;
+	border: none;
+	background-color: #ff9900;
+	text-transform: uppercase;
+	font-family: "Futura";
+	font-size: 30px;
+	color: white;
+	font-style: italic;
+	float: right;
+	cursor: pointer;
+}
+
+
 .jsgif {
 	overflow: hidden;
 	margin: 0 auto;
