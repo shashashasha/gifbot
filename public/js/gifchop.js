@@ -196,6 +196,27 @@ var gifchopper = function() {
       }
     }, delay);
 
+    /*
+  
+    // code for pingponging
+    var forwards = true;
+    self.controller.seekFrame(start);
+    intervalID = setInterval(function() {
+      var current = self.controller.currentFrame(), 
+          length = self.controller.length();
+
+      if (forwards == true && current == stop) {
+        forwards = false;
+        // self.controller.seekFrame(start);
+      } if (forwards == false && current == start) {
+        forwards = true;
+      }
+
+      self.controller.stepFrame(forwards ? interval : -interval);  
+    }, delay);
+
+    */
+
     pingponging = true;
   };
 
