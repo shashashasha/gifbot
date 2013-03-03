@@ -12,18 +12,31 @@ var gifchopper = function() {
     intervalID = null,
     last = null,
     pingponging = false,
-    dragging = false;
+    dragging = false,
+    allowautoplay = true;
 
   // parse the gif on the page
   self.load = function(url, gif) {
     self.url = url;
-    self.controller = gifcontrol(gif);
-    self.timeline(document.getElementById('timeline'));
+    self.controller = gifcontrol(gif, 300);
+    self.timeline();
 
     self.ui();
   };
 
   self.ui = function() {
+    // toggle pingponging
+    $("#gif-toggle").click(function() {
+      if (pingponging) {
+        self.stopPingPoinging();
+        allowautoplay = false;
+        return;
+      }
+
+      allowautoplay = true;
+      self.startPingPoinging();
+    });
+
     $("#gif-submit").click(function() {
       var frames = [], 
           j = 0;
@@ -36,81 +49,57 @@ var gifchopper = function() {
       if (parent)
         parent.postMessage(frames.toString(), 'http://gifpop.io');
     });
-
-    // Create IE + others compatible event handler
-    var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
-    var eventer = window[eventMethod];
-    var messageEvent = eventMethod == "attachEvent" ? "onmessage" : "message";
-
-    // Listen to message from child window
-    eventer(messageEvent,function(e) {
-      console.log('parent received message!:  ',e.data);
-    },false);
   };
 
-  self.timeline = function(div) {
-    // scrub the timeline
-    div.addEventListener('mousemove', function(e) {
+  self.timeline = function() {
+    $("#timeline").mousemove(function(e) {
+      // when we're on our selection, or outside of the frame, autoplay
+      if (e.target.id == 'selection') {
+        return;
+      }
       var percent = e.offsetX / e.srcElement.clientWidth;
       self.controller.seekPercent(percent);
       self.stopPingPoinging();
 
       if (dragging) {
         var current = getFrame(e);
-        updateSelection(current);
+        centerSelection(current);
       }
-    }, false);
-
-    div.addEventListener('mousedown', function(e) {
-      var length = self.controller.length() - 1,
-        width = e.srcElement.clientWidth;
-
-      initialStart = start = getFrame(e);
-      stop = start + 1;
+      else {
+        $(".jsgif").css({
+          opacity: .5
+        }); 
+      }
+    })
+    .mousedown(function(e) {
       dragging = true;
-
-      $("#selection").css({
-        'marginLeft': e.offsetX + 'px',
-        'marginRight': '0px',
-        'width': ((1/length) * width) + 'px'
-      });
-    }, false);
-
-    div.addEventListener('mouseup', function(e) {
       var current = getFrame(e);
-
-      // haven't dragged, set default length
-      if (current == initialStart) {
-        var length = self.controller.length() - 1;
-        current = Math.min(length, initialStart + 5);
-
-        // reset last
-        last = -1;
-      }
-
-      updateSelection(current);
-      self.startPingPoinging();
+      centerSelection(current);
+    })
+    .mouseup(function(e) {
       dragging = false;
-    }, false);
 
-    // toggle pingponging
-    // div.addEventListener('click', function(e) {
-    //   if (pingponging) {
-    //     self.stopPingPoinging();
-    //     return;
-    //   }
+      if (allowautoplay)
+        self.startPingPoinging();
 
-    //   start = getFrame(e);
-    //   stop = start + 10;
-
-    //   console.log(start,stop);
-    //   self.startPingPoinging();
-    // }, false);
+      $(".jsgif").css({
+        opacity: 1
+      });
+    })
+    .mouseout(function() {
+      if (allowautoplay && stop > 0) {
+        self.startPingPoinging();
+        $(".jsgif").css({
+          opacity: 1
+        });
+      }
+    });
   };
 
   var getFrame = function(e) {
+    var offset = e.target.id == 'selection' ? parseFloat(e.target.style.marginLeft) + e.offsetX : e.offsetX;
     var length = self.controller.length() - 1;
-    var percent = e.offsetX / e.srcElement.clientWidth;
+    var percent = offset / e.currentTarget.clientWidth;
     return Math.round(percent * length);  
   };
 
@@ -132,6 +121,36 @@ var gifchopper = function() {
         start = current;
       }
 
+      drawSelection();
+
+      last = current;
+
+      interval = Math.max(Math.floor((stop - start) / 10), 1);
+  };
+
+  var centerSelection = function(current) {
+      // prevent redraws
+      if (last == current) return;
+      var length = self.controller.length();
+
+      start = current - 5;
+      stop = current + 5;
+
+      if (start < 0) {
+        var dif = -start;
+        start += dif;
+        stop += dif;
+      } else if (stop >= length) {
+        var dif = stop - length;
+        start -= dif;
+        stop -= dif;
+      }
+
+      drawSelection();
+      last = current;
+  };
+
+  var drawSelection = function() {
       var sx = getPixel(start),
           ex = getPixel(stop),
           tw = $("#timeline").width();
@@ -142,10 +161,6 @@ var gifchopper = function() {
         'marginRight': (tw - ex) + 'px',
         'width': (ex - sx) + 'px'
       });
-
-      last = current;
-
-      interval = Math.max(Math.floor((stop - start) / 10), 1);
   };
 
   /*
@@ -154,6 +169,11 @@ var gifchopper = function() {
   self.startPingPoinging = function() {
     if (intervalID) {
       clearInterval(intervalID);
+    }
+
+    // ignore if autoplay is turned off
+    if (!allowautoplay) {
+      return;
     }
 
     self.controller.seekFrame(start);

@@ -1,7 +1,7 @@
 /*
   Adapting much of JSGIF's html.js for our needs, rolling up into a gifcontroller module
 */
-var gifcontrol = function(gif) {
+var gifcontrol = function(gif, maxheight) {
   var self = {};
 
 
@@ -112,14 +112,16 @@ var gifcontrol = function(gif) {
     hdr = _hdr;
     //console.assert(gif.width === hdr.width && gif.height === hdr.height); // See other TODO.
 
-    canvas.width = hdr.width;
-    canvas.height = hdr.height;
-    div.style.width = hdr.width + 'px';
-    //div.style.height = hdr.height + 'px';
-    toolbar.style.minWidth = hdr.width + 'px';
+    var scale = maxheight / hdr.height;
 
-    tmpCanvas.width = hdr.width;
-    tmpCanvas.height = hdr.height;
+    canvas.width = hdr.width * scale;
+    canvas.height = hdr.height * scale;
+    div.style.width = (hdr.width * scale) + 'px';
+    //div.style.height = hdr.height + 'px';
+    toolbar.style.minWidth = (hdr.width * scale) + 'px';
+
+    tmpCanvas.width = hdr.width * scale;
+    tmpCanvas.height = hdr.height * scale;
     //if (hdr.gctFlag) { // Fill background.
     //  rgb = hdr.gct[hdr.bgColor];
     //  tmpCanvas.fillStyle = 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',');
@@ -240,7 +242,9 @@ var gifcontrol = function(gif) {
       }());
 
       var putFrame = function() {
-        ctx.putImageData(frames[i].data, 0, 0);
+        if (frames[i].data) {
+          ctx.putImageData(frames[i].data, 0, 0);
+        }
       };
 
       var initToolbar = function() {
