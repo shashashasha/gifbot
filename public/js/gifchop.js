@@ -19,6 +19,33 @@ var gifchopper = function() {
     self.url = url;
     self.controller = gifcontrol(gif);
     self.timeline(document.getElementById('timeline'));
+
+    self.ui();
+  };
+
+  self.ui = function() {
+    $("#gif-submit").click(function() {
+      var frames = [], 
+          j = 0;
+      for (var i = start; i < stop; i++) {
+        frames[j] = i;
+        j++;
+      }
+
+      console.log('posting', frames.toString());
+      if (parent)
+        parent.postMessage(frames.toString(), 'http://gifpop.io');
+    });
+
+    // Create IE + others compatible event handler
+    var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
+    var eventer = window[eventMethod];
+    var messageEvent = eventMethod == "attachEvent" ? "onmessage" : "message";
+
+    // Listen to message from child window
+    eventer(messageEvent,function(e) {
+      console.log('parent received message!:  ',e.data);
+    },false);
   };
 
   self.timeline = function(div) {
@@ -52,10 +79,17 @@ var gifchopper = function() {
     div.addEventListener('mouseup', function(e) {
       var current = getFrame(e);
 
+      // haven't dragged, set default length
+      if (current == initialStart) {
+        var length = self.controller.length() - 1;
+        current = Math.min(length, initialStart + 5);
+
+        // reset last
+        last = -1;
+      }
+
       updateSelection(current);
-
       self.startPingPoinging();
-
       dragging = false;
     }, false);
 
@@ -86,9 +120,12 @@ var gifchopper = function() {
   };
 
   var updateSelection = function(current) {
+      // prevent redraws
       if (last == current) return;
 
       stop = current;
+
+      // flip
       if (current < initialStart) {
         var end = initialStart;
         stop = end;
@@ -99,6 +136,7 @@ var gifchopper = function() {
           ex = getPixel(stop),
           tw = $("#timeline").width();
 
+      // draw a rectangle for now
       $("#selection").css({
         'marginLeft': sx + 'px',
         'marginRight': (tw - ex) + 'px',
@@ -106,12 +144,18 @@ var gifchopper = function() {
       });
 
       last = current;
+
+      interval = Math.max(Math.floor((stop - start) / 10), 1);
   };
 
   /*
     loop between the *start* and *stop* frame numbers, with default *delay*
   */
   self.startPingPoinging = function() {
+    if (intervalID) {
+      clearInterval(intervalID);
+    }
+
     self.controller.seekFrame(start);
     intervalID = setInterval(function() {
       var current = self.controller.currentFrame(), 
@@ -120,7 +164,14 @@ var gifchopper = function() {
       if (current >= stop || current >= length - 1) {
         self.controller.seekFrame(start);
       } else {
-        self.controller.nextFrame();  
+
+        if (start != 0 && stop != -1) {
+          self.controller.stepFrame(interval);  
+        } 
+        else {
+          self.controller.nextFrame();
+        }
+          
       }
     }, delay);
 

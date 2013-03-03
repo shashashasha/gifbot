@@ -44,7 +44,6 @@ var gifcontrol = function(gif) {
     var h = new XMLHttpRequest();
     h.overrideMimeType('text/plain; charset=x-user-defined');
     h.onload = function(e) {
-      //doLoadProgress(e);
       // TODO: In IE, might be able to use h.responseBody instead of overrideMimeType.
       stream = new Stream(h.responseText);
       setTimeout(doParse, 0);
@@ -220,7 +219,7 @@ var gifcontrol = function(gif) {
           curFrame.value = i + 1;
           delayInfo.value = frames[i].delay;
         }
-        
+
         putFrame();
       };
 
@@ -548,7 +547,7 @@ var gifcontrol = function(gif) {
   parent.insertBefore(div, gif);
   parent.removeChild(gif);
 
-  doText('Loading...');
+  // doText('Loading...');
   doGet();
 
   /*
