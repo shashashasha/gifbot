@@ -3,6 +3,9 @@
 	margin: 0 auto;
 	border: 1px solid black;
 }
+.jsgif_simple_tools {
+	display: none;
+}
 .jsgif.s_3_5x2 {
 	width: 262px !important;
 	height: 150px;
