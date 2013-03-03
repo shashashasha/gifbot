@@ -120,8 +120,8 @@ var gifcontrol = function(gif, maxheight) {
     //div.style.height = hdr.height + 'px';
     toolbar.style.minWidth = (hdr.width * scale) + 'px';
 
-    tmpCanvas.width = hdr.width * scale;
-    tmpCanvas.height = hdr.height * scale;
+    tmpCanvas.width = hdr.width;
+    tmpCanvas.height = hdr.height;
     //if (hdr.gctFlag) { // Fill background.
     //  rgb = hdr.gct[hdr.bgColor];
     //  tmpCanvas.fillStyle = 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',');
@@ -133,6 +133,7 @@ var gifcontrol = function(gif, maxheight) {
   var doGCE = function(gce) {
     pushFrame();
     clear();
+    console.log('cleared');
     transparency = gce.transparencyGiven ? gce.transparencyIndex : null;
     delay = gce.delayTime;
     disposalMethod = gce.disposalMethod;
@@ -176,7 +177,9 @@ var gifcontrol = function(gif, maxheight) {
     frame.putImageData(cData, img.leftPos, img.topPos);
     // We could use the on-page canvas directly, except that we draw a progress
     // bar for each image chunk (not just the final image).
-    ctx.putImageData(cData, img.leftPos, img.topPos);
+    // ctx.putImageData(cData, img.leftPos, img.topPos);
+
+    ctx.drawImage(tmpCanvas, 0, 0, tmpCanvas.width, tmpCanvas.height, 0, 0, canvas.width, canvas.height);
   };
 
   var doPlay = (function() {
@@ -243,7 +246,14 @@ var gifcontrol = function(gif, maxheight) {
 
       var putFrame = function() {
         if (frames[i].data) {
-          ctx.putImageData(frames[i].data, 0, 0);
+
+          // draw it to the temp canvas so we can scale it properly
+          if (!frame) frame = tmpCanvas.getContext('2d');
+          frame.putImageData(frames[i].data, 0, 0);
+          
+          ctx.drawImage(tmpCanvas, 0, 0, tmpCanvas.width, tmpCanvas.height, 0, 0, canvas.width, canvas.height);
+
+          // ctx.putImageData(frames[i].data, 0, 0);
         }
       };
 
