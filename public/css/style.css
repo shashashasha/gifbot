@@ -1,5 +1,4 @@
 body {
-	background-color: #808080;
 }
 #timeline {
 	margin: 10px auto; 
@@ -49,11 +48,11 @@ body {
 .jsgif_simple_tools {
 	display: none;
 }
-.jsgif.s_3_5x2 {
+.jsgif.s_2x3 {
 	width: 262px !important;
 	height: 150px;
 }
-.jsgif.s_6x4 {
+.jsgif.s_4x6 {
 	width: 450px !important;
 	height: 300px;
 }

@@ -7,15 +7,16 @@
 
 
 <img id="gif" src='<%=image_url%>'>
-<div id="timeline">
-	<div id="instructions">click on the timeline to choose your frames</div>
-	<div id="selection"></div>
+<div id="gif-controls">
+	<div id="timeline">
+		<div id="instructions">click on the timeline to choose your frames</div>
+		<div id="selection"></div>
+	</div>
+	<div id="gif-ui">
+		<button id="gif-toggle">Autoplay: Off</button>
+		<button id="gif-submit">Done!</button>
+	</div>
 </div>
-<div id="gif-ui">
-	<button id="gif-toggle">Autoplay: Off</button>
-	<button id="gif-submit">Done!</button>
-</div>
-<p id="received-message"></p>
 
 <script type="text/javascript">
 	var image_url = '<%=image_url%>';
@@ -28,8 +29,11 @@
 		$(".jsgif").attr("class","jsgif "+evt.data);
 	}
 
+	// $("#gif-submit").click(function(){
+	// 	parent.postMessage("done!","http://gifpop.io");
+	// });
+
 	if (window.addEventListener) {
-		// For standards-compliant web browsers
 		window.addEventListener("message", displayMessage, false);
 	}
 	else {

@@ -45,8 +45,10 @@ var gifchopper = function() {
         j++;
       }
 
+      $("#gif-controls").slideUp();
+
       console.log('posting', frames.toString());
-      if (parent)
+      if (parent) 
         parent.postMessage(frames.toString(), 'http://gifpop.io');
     });
   };
