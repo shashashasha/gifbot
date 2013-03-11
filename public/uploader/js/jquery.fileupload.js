@@ -973,6 +973,7 @@
                 return false;
             }
             if (dataTransfer && $.inArray('Files', dataTransfer.types) !== -1) {
+                $("#dragMe").css("border-style","solid");
                 dataTransfer.dropEffect = 'copy';
                 e.preventDefault();
             }
