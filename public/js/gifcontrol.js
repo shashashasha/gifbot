@@ -66,19 +66,19 @@ var gifcontrol = function(gif, maxheight) {
     //toolbar.style.display = pos === length ? '' : 'block'; // FIXME Move this to doPlay() or something.
     toolbar.style.visibility = pos === length ? '' : 'visible'; // FIXME Move this to doPlay() or something.
 
-    if (draw) {
-      var height = Math.min(canvas.height >> 3, canvas.height);
-      var top = (canvas.height - height) >> 1;
-      var bottom = (canvas.height + height) >> 1;
-      var mid = (pos / length) * canvas.width;
+    // if (draw) {
+    //   var height = Math.min(canvas.height >> 3, canvas.height);
+    //   var top = (canvas.height - height) >> 1;
+    //   var bottom = (canvas.height + height) >> 1;
+    //   var mid = (pos / length) * canvas.width;
 
-      // XXX Figure out alpha fillRect.
-      ctx.fillStyle = 'rgba(200,200,200,0.5)';
-      ctx.fillRect(mid, top, canvas.width - mid, height);
+    //   // XXX Figure out alpha fillRect.
+    //   ctx.fillStyle = 'rgba(200,200,200,0.5)';
+    //   ctx.fillRect(mid, top, canvas.width - mid, height);
 
-      ctx.fillStyle = 'rgba(30,30,30,0.5)';
-      ctx.fillRect(0, top, (pos / length) * canvas.width, height);
-    }
+    //   ctx.fillStyle = 'rgba(30,30,30,0.5)';
+    //   ctx.fillRect(0, top, (pos / length) * canvas.width, height);
+    // }
 
     doText(prefix + ' ' + Math.floor(pos / length * 100) + '%');
   };
@@ -174,11 +174,11 @@ var gifcontrol = function(gif, maxheight) {
         }
       }
     });
-    frame.putImageData(cData, img.leftPos, img.topPos);
-    // We could use the on-page canvas directly, except that we draw a progress
-    // bar for each image chunk (not just the final image).
-    // ctx.putImageData(cData, img.leftPos, img.topPos);
 
+    // use tmpCanvas as a buffer for saving frame data (have to draw progress bar over the real one)
+    frame.putImageData(cData, img.leftPos, img.topPos);
+
+    // drawing from the tmpCanvas to do the scaling to the proper canvas size.
     ctx.drawImage(tmpCanvas, 0, 0, tmpCanvas.width, tmpCanvas.height, 0, 0, canvas.width, canvas.height);
   };
 

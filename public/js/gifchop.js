@@ -6,7 +6,6 @@ var gifchopper = function() {
   var self = {},
     delay = 200,
     interval = 1,
-    initialStart = 0,
     start = 0,
     stop = -1,
     intervalID = null,
@@ -19,8 +18,8 @@ var gifchopper = function() {
   self.load = function(url, gif) {
     self.url = url;
     self.controller = gifcontrol(gif, 300);
-    self.timeline();
 
+    self.timeline();
     self.ui();
   };
 
@@ -108,34 +107,16 @@ var gifchopper = function() {
     return $("#timeline").width() * (Math.round(f) / length);
   };
 
-  var updateSelection = function(current) {
-      // prevent redraws
-      if (last == current) return;
-
-      stop = current;
-
-      // flip
-      if (current < initialStart) {
-        var end = initialStart;
-        stop = end;
-        start = current;
-      }
-
-      drawSelection();
-
-      last = current;
-
-      interval = Math.max(Math.floor((stop - start) / 10), 1);
-  };
-
   var centerSelection = function(current) {
       // prevent redraws
       if (last == current) return;
       var length = self.controller.length();
 
+      // center on current
       start = current - 5;
       stop = current + 5;
 
+      // don't go over beginning or end of the animation
       if (start < 0) {
         var dif = -start;
         start += dif;
