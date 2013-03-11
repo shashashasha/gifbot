@@ -522,6 +522,8 @@ var gifcontrol = function(gif, maxheight) {
 
   var parent = gif.parentNode;
 
+  var wrapper = document.createElement('div');
+  wrapper.className = 'wrapper';
   var div = document.createElement('div');
   var canvas = document.createElement('canvas');
   var ctx = canvas.getContext('2d');
@@ -558,7 +560,8 @@ var gifcontrol = function(gif, maxheight) {
   div.appendChild(canvas);
   div.appendChild(toolbar);
 
-  parent.insertBefore(div, gif);
+  parent.insertBefore(wrapper, gif);
+  wrapper.appendChild(div);
   parent.removeChild(gif);
 
   // doText('Loading...');

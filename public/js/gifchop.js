@@ -45,6 +45,7 @@ var gifchopper = function() {
       }
 
       $("#gif-controls").slideUp();
+      $("body").addClass("done");
 
       console.log('posting', frames.toString());
       if (parent) 
