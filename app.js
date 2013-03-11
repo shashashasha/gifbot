@@ -68,6 +68,21 @@ app.get('/uploaded', function(req, res) {
   });
 });
 
+app.get('/dropform', function(req, res) {
+  var cur = new Date()
+    , folder = [cur.getFullYear(), cur.getMonth() + 1, cur.getDate()].join('-');
+
+  res.render('dropform', { 
+    title: '',
+    base_url: config.HOST,
+    aws_signature: config.AWSSignature, 
+    aws_accesskeyid: config.AWSAccessKeyId,
+    aws_policy: config.AWSPolicy,
+    scan_id: folder
+  });
+});
+
+
 app.get('/split/:image', function(req, res) {
   var filename = '/' + req.params.image + '.gif';
   var options = {

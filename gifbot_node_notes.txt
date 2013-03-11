@@ -22,6 +22,9 @@ mkvirtualenv gifpop
 # start working on gif pop
 workon gifpop
 
+# install imagemagick (for gif processing)
+brew install imagemagick
+
 # install node
 # http://nodejs.org
 brew install node
