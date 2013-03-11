@@ -7,14 +7,16 @@
 
 
 <img id="gif" src='<%=image_url%>'>
-<div id="timeline" style="margin: 0 auto; width:500px; height: 100px; border: 1px solid black;">
-	<div id="selection" style="width:0px; height: 100px; margin: 0; background:#ff9900; cursor: pointer;"></div>
+<div id="gif-controls">
+	<div id="timeline">
+		<div id="instructions">click on the timeline to choose your frames</div>
+		<div id="selection"></div>
+	</div>
+	<div id="gif-ui">
+		<button id="gif-toggle">Autoplay: Off</button>
+		<button id="gif-submit">Done!</button>
+	</div>
 </div>
-<div id="gif-ui" style="margin: 0 auto; width:500px;">
-	<button id="gif-toggle">Autoplay: Off</button>
-	<button id="gif-submit">Done!</button>
-</div>
-<p id="received-message"></p>
 
 <script type="text/javascript">
 	var image_url = '<%=image_url%>';
@@ -27,8 +29,11 @@
 		$(".jsgif").attr("class","jsgif "+evt.data);
 	}
 
+	// $("#gif-submit").click(function(){
+	// 	parent.postMessage("done!","http://gifpop.io");
+	// });
+
 	if (window.addEventListener) {
-		// For standards-compliant web browsers
 		window.addEventListener("message", displayMessage, false);
 	}
 	else {

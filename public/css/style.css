@@ -1,3 +1,45 @@
+body {
+}
+#timeline {
+	margin: 10px auto; 
+	width:500px; 
+	height: 50px; 
+	border: 1px solid black;
+	background-color: #555;
+}
+#instructions {
+	color: white;
+	font-family: Helvetica;
+	text-align: center;
+	line-height: 50px;
+}
+#selection {
+	width:0px; 
+	height: 100%; 
+	margin: 0; 
+	background:#ff9900; 
+	cursor: pointer;
+}
+#gif-ui {
+	width: 500px;
+	margin: 10px auto 0;
+	color: white;
+	font-family: "Helvetica Neue", Helvetica;
+}
+#gif-submit {
+	-webkit-appearance: none;
+	border: none;
+	background-color: #ff9900;
+	text-transform: uppercase;
+	font-family: "Futura";
+	font-size: 30px;
+	color: white;
+	font-style: italic;
+	float: right;
+	cursor: pointer;
+}
+
+
 .jsgif {
 	overflow: hidden;
 	margin: 0 auto;
@@ -6,20 +48,19 @@
 .jsgif_simple_tools {
 	display: none;
 }
-
-.jsgif.s_business_card {
+.jsgif.s_2x3 {
 	width: 262px !important;
 	height: 150px;
 }
-.jsgif.s_postcard {
+.jsgif.s_4x6 {
 	width: 450px !important;
 	height: 300px;
 }
-.jsgif.s_5x5_card {
+.jsgif.s_5x5 {
 	width: 375px !important;
 	height: 375px;
 }
-.jsgif.s_3x3_card {
+.jsgif.s_3x3 {
 	width: 225px !important;
 	height: 225px;
 }

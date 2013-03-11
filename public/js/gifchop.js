@@ -44,8 +44,10 @@ var gifchopper = function() {
         j++;
       }
 
+      $("#gif-controls").slideUp();
+
       console.log('posting', frames.toString());
-      if (parent)
+      if (parent) 
         parent.postMessage(frames.toString(), 'http://gifpop.io');
     });
   };
@@ -74,6 +76,7 @@ var gifchopper = function() {
       dragging = true;
       var current = getFrame(e);
       centerSelection(current);
+      $("#instructions").hide();
     })
     .mouseup(function(e) {
       dragging = false;
