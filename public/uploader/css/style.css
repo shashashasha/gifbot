@@ -9,27 +9,30 @@
  * Licensed under the MIT license:
  * http://www.opensource.org/licenses/MIT
  */
-
+html {
+	height: 100%;
+}
 body{
-  padding-top: 10px;
+  margin: 0;
+  padding: 0;
+  height: 100%;
 }
 .container {
-	width: 700px;
+	width: 100%;
+	height: 100%;
+	box-sizing: border-box;
 	margin: 0 auto;
-	border: 1px solid black;
-	background-color: #ddd;
+	border: 10px solid #dfdfdf;
+	background-color: #e7e7e7;
 }
 #drag-me {
-	border: 5px solid #ff9900;
-	border-style: dashed;
-	border-radius: 20px;
-	width: 200px;
+	border: 2px solid #ff9900;
+	background-color: white;
 	height: 200px;
 	margin: 10px auto;
-	font-size: 120px;
+	font-size: 20px;
 	text-align: center;
-	color: #fff;
-	line-height: 180px;
+	color: #000;
 }
 .btn, .btn input {
 	-webkit-appearance: none;
@@ -42,6 +45,10 @@ body{
 	font-size: 16px;
 	padding: 2px 6px 3px;
 	margin: 0;
+}
+.third {
+	width: 32%;
+	float: left;
 }
 td.size {
 	display: none;
