@@ -3,7 +3,7 @@ $(function() {
     forceIframeTransport: true,    // VERY IMPORTANT.  you will get 405 Method Not Allowed if you don't add this.
     autoUpload: true,
     add: function (event, data) {
-
+      console.log('sending', data);
       /*
         We already have the s3 info in the template
       */
