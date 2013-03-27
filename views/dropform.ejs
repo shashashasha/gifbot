@@ -30,17 +30,17 @@
     <!-- The file upload form used as target for the file upload widget -->
     <form id="file_upload" action="http://gifpop-uploads.s3.amazonaws.com/" method="POST" enctype="multipart/form-data">
 
+        <input name="key" type="hidden" value="uploads/<%=scan_id%>/${filename}" />
         <input name="AWSAccessKeyId" type="hidden" value="<%=aws_accesskeyid%>" />
         <input name="x-amz-acl" type="hidden" value="public-read" />
-        <input name="key" type="hidden" value="uploads/<%=scan_id%>/${filename}" />
+        
         <input name="success_action_redirect" type="hidden" value="<%=base_url%>/uploaded/" />
+        <input name="success_action_status" type="hidden" value="200" />
 
         <input name="policy" type="hidden" value="<%=aws_policy%>" />
         <input name="signature" type="hidden" value="<%=aws_signature%>" />
         <input type="hidden" name="Content-Type" value="image/gif" />
         
-        <!-- <input name="file" type="file"> -->
-
         <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
         <div id="drag-me" class="third">drag and drop any gif you'd like!</div>
         <div class="row fileupload-buttonbar">
@@ -49,7 +49,7 @@
                 <span class="btn btn-success fileinput-button third">
                     <i class="icon-plus icon-white"></i>
                     <span>Add file</span>
-                    <input type="file" name="file">
+                    <input type="file" name="file" />
                 </span>
                 <span class="btn third">
                     <span>Paste a URL</span>
@@ -171,7 +171,7 @@
     </tr>
 {% } %}
 </script>
-<script src="/lib/jquery.1.9.min.js"></script>
+<script src="/lib/jquery.1.8.js"></script>
 <!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
 <script src="/lib/fileupload/js/vendor/jquery.ui.widget.js"></script>
 <!-- The Templates plugin is included to render the upload/download listings -->
@@ -192,7 +192,7 @@
 <!-- The File Upload user interface plugin -->
 <script src="/lib/fileupload/js/jquery.fileupload-ui.js"></script>
 <!-- The main application script -->
-<script src="/js/s3upload.js"></script>/
+<script src="/js/s3upload.js"></script>
 <!-- The XDomainRequest Transport is included for cross-domain file deletion for IE8+ -->
 <!--[if gte IE 8]><script src="/lib/fileupload/js/cors/jquery.xdr-transport.js"></script><![endif]-->
 </body> 

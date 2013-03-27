@@ -8,7 +8,11 @@ var express = require('express')
   , gm = require('gm')
   , fs = require('fs')
   , http = require('http')
-  , path = require('path');
+  , path = require('path')
+  , util = require('util')
+  , couchdb = require('felix-couchdb')
+  , client = couchdb.createClient(5984, 'localhost') // may need to change this for webfaction
+  , db = client.db('gifpop');
 
 var app = express()
   , config = JSON.parse(fs.readFileSync('./settings.json'));
@@ -61,6 +65,16 @@ app.get('/uploaded', function(req, res) {
     , key = decodeURIComponent(req.query["key"])
     , base = 'http://{bucket}.s3.amazonaws.com/{key}'
     , url = base.replace('{bucket}', bucket).replace('{key}', key);
+
+  // save the uploaded gif information
+  db.saveDoc(key, {
+    url: url,
+    date: JSON.stringify(new Date()),
+    type: 'gif',
+    status: 'processed'
+  }, function(er, ok) {
+    console.log(ok);
+  });
 
   res.render('uploaded', { 
     title: '',

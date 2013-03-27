@@ -3,7 +3,7 @@ $(function() {
     forceIframeTransport: true,    // VERY IMPORTANT.  you will get 405 Method Not Allowed if you don't add this.
     autoUpload: true,
     add: function (event, data) {
-      console.log('sending', data);
+      console.log('sending', data, event);
       /*
         We already have the s3 info in the template
       */
@@ -26,12 +26,19 @@ $(function() {
       data.submit();
     },
     send: function(e, data) {
+      console.log('sending', e, data);
       // show a loading spinner because now the form will be submitted to amazon, 
       // and the file will be directly uploaded there, via an iframe in the background. 
       $('#loading').show();
     },
+    progress: function (e, data) {
+      console.log('progress', e);  
+    },
+    progressall: function (e, data) {
+      console.log('progressall', e);  
+    },
     fail: function(e, data) {
-      console.log('fail');
+      console.log('fail', e);
       console.log(data);
     },
     done: function (event, data) {
