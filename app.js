@@ -147,11 +147,13 @@ app.get('/preview/:doc', function(req, res) {
       });
 
       response.on('end', function() {
-
-        fs.writeFile(tempFolder + filename, imagedata, 'binary', function(err) {
+        var temp = tempFolder + filename;
+        console.log('writing to temp file ', temp);
+        fs.writeFile(temp, imagedata, 'binary', function(err) {
           if (err) throw err;
 
-          var output = tempFolder + filename + "-preview.gif";
+          var output = tempFolder + docId + "-preview.gif";
+          console.log('resizing to ', output);
           exec("gifsicle " + temp + " --resize-width 75 -o " + output, function(err, stdout, stderr) {
             var img = fs.readFileSync(output);
             res.writeHead(200, {'Content-Type': 'image/gif' });
