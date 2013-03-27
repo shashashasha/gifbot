@@ -62,12 +62,13 @@ app.get('/upload', function(req, res) {
 
 app.get('/uploaded', function(req, res) {
   var bucket = req.query["bucket"]
+    , etag = req.query["etag"]
     , key = decodeURIComponent(req.query["key"])
     , base = 'http://{bucket}.s3.amazonaws.com/{key}'
     , url = base.replace('{bucket}', bucket).replace('{key}', key);
 
   // save the uploaded gif information
-  db.saveDoc(key, {
+  db.saveDoc(etag, {
     url: url,
     date: JSON.stringify(new Date()),
     type: 'gif',
