@@ -43,9 +43,8 @@
 			url: "/selected",
 			dataType: "json",
 			data: {
-				url: '<%=image_url%>',
 				id: '<%=doc_id%>',
-				frames: gifchopper.getFrames()
+				frames: gifchopper.getFrames().toString()
 			}
 		})
 	})

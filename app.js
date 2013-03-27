@@ -81,12 +81,13 @@ app.get('/uploaded', function(req, res) {
   var bucket = req.query["bucket"]
     , etag = req.query["etag"]
     , key = decodeURIComponent(req.query["key"])
+    , filename = key.split('/').pop()
     , base = 'http://{bucket}.s3.amazonaws.com/{key}'
     , url = base.replace('{bucket}', bucket).replace('{key}', key);
 
   // save the uploaded gif information
   // doc id is timestamp in milliseconds plus etag
-  var docId = key.split('-').shift() + '-' + etag.substr(1, etag.length - 2);
+  var docId = filename.split('-').shift() + '-' + etag.substr(1, etag.length - 2);
   db.saveDoc(docId, {
     url: url,
     date: JSON.stringify(new Date()),
@@ -113,6 +114,7 @@ app.post('/selected', function(req, res) {
     , frames = req.body.frames;
   db.getDoc(docId, function(er, doc) {
     util.p(doc);
+    console.log('saving frames', req.body.frames);
 
     db.saveDoc(docId, {
       _rev: doc._rev,
