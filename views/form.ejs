@@ -5,7 +5,6 @@
     <input name="x-amz-acl" type="hidden" value="public-read" />
     <input name="key" type="hidden" value="uploads/<%=scan_id%>/${filename}" />
     <input name="success_action_redirect" type="hidden" value="<%=base_url%>/uploaded/" />
-    <input name="success_action_status" type="hidden" value="200" />
 
     <input name="policy" type="hidden" value="<%=aws_policy%>" />
     <input name="signature" type="hidden" value="<%=aws_signature%>" />
