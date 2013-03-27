@@ -10,6 +10,7 @@ var express = require('express')
   , http = require('http')
   , path = require('path')
   , util = require('util')
+  , exec = require('child_process').exec
   , couchdb = require('felix-couchdb')
   , client = couchdb.createClient(13893, 'localhost') // may need to change this for webfaction
   , db = client.db('gifpop');
@@ -46,11 +47,11 @@ app.get('/', function(req, res) {
   res.render('index', { what: 'best', title: 'me' });
 });
 
-app.get('/upload', function(req, res) {
+var uploadForm = function(res, form) {
   var cur = new Date()
     , folder = [cur.getFullYear(), cur.getMonth() + 1, cur.getDate()].join('-');
 
-  res.render('form', { 
+  res.render(form, {
     title: '',
     base_url: config.HOST,
     aws_signature: config.AWSSignature, 
@@ -59,21 +60,14 @@ app.get('/upload', function(req, res) {
     scan_id: folder,
     file_prefix: cur.getTime()
   });
+};
+
+app.get('/upload', function(req, res) {
+  uploadForm(res, 'form');
 });
 
 app.get('/dropform', function(req, res) {
-  var cur = new Date()
-    , folder = [cur.getFullYear(), cur.getMonth() + 1, cur.getDate()].join('-');
-
-  res.render('dropform', { 
-    title: '',
-    base_url: config.HOST,
-    aws_signature: config.AWSSignature, 
-    aws_accesskeyid: config.AWSAccessKeyId,
-    aws_policy: config.AWSPolicy,
-    scan_id: folder,
-    file_prefix: cur.getTime()
-  });
+  uploadForm(res, 'dropform');
 });
 
 
@@ -109,19 +103,21 @@ app.get('/uploaded', function(req, res) {
 
 });
 
+// save frame selection to couch, need to get the latest rev number to update it though
 app.post('/selected', function(req, res) {
+  // frames are grabbed via gifchop.js
   var docId = req.body.id
     , frames = req.body.frames;
-  db.getDoc(docId, function(er, doc) {
-    util.p(doc);
-    console.log('saving frames', req.body.frames);
 
+
+  db.getDoc(docId, function(er, doc) {
+    // update the doc with the current revision id
     db.saveDoc(docId, {
       _rev: doc._rev,
       url: doc.url,
       date: JSON.stringify(new Date()),
       type: 'gif',
-      status: 'processed',
+      status: 'selected',
       frames: frames,
       zip: doc.url.replace('.gif', '.zip')
     }, function(er, ok) {
@@ -130,41 +126,41 @@ app.post('/selected', function(req, res) {
   });
 });
 
-app.get('/split/:image', function(req, res) {
-  var filename = '/' + req.params.image + '.gif';
-  var options = {
-      host: 'i.imgur.com'
-    , port: 80
-    , path: filename
-  };
+app.get('/preview/:doc', function(req, res) {
+  console.log(req.params.doc);
+  var docId = req.params.doc.split('.gif')[0],
+    filename = req.params.doc,
+    tempFolder = './public/images/temporary/';
 
-  var request = http.get(options, function(response){
+  db.getDoc(docId, function(err, doc) {
+    if (err) throw err;
+
+    // grab the gif from s3, resize it and store it in a temporary spot
+    http.get(doc.url, function(response) {
       var imagedata = '';
+
       response.setEncoding('binary');
 
       response.on('data', function(chunk) {
-          imagedata += chunk;
+        imagedata += chunk;
+        console.log(imagedata.length);
       });
 
       response.on('end', function() {
-        var savedImage = './public/images/temporary' + filename;
-        fs.writeFile(savedImage, imagedata, 'binary', function(err) {
-          if (err) throw err;
-          console.log(filename + ' saved.');
 
-          gm('./public/images/temporary/blank.gif')
-            .append(savedImage, true)
-            .stream(function streamOut (err, stdout, stderr) {
-                if (err) return console.log(err);
-                console.log('streaming image');
-                stdout.pipe(res); //pipe to response
-                stdout.on('error', console.log);
-            });
-            // .write('./public/images/wolf_static_0.jpg', function(err, stdout, stderr) {
-            //   console.log(err);
-            // });
+        fs.writeFile(tempFolder + filename, imagedata, 'binary', function(err) {
+          if (err) throw err;
+
+          var output = tempFolder + filename + "-preview.gif";
+          exec("gifsicle " + temp + " --resize-width 75 -o " + output, function(err, stdout, stderr) {
+            var img = fs.readFileSync(output);
+            res.writeHead(200, {'Content-Type': 'image/gif' });
+            res.end(img, 'binary');
+          });
         });
       });
+
+    });
   });
 
 });

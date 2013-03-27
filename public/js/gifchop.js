@@ -42,7 +42,6 @@ var gifchopper = function() {
       $("#gif-controls").slideUp();
       $("body").addClass("done");
 
-      console.log('posting', frames.toString());
       if (parent) 
         parent.postMessage(frames.toString(), 'http://gifpop.io');
     });
@@ -51,6 +50,7 @@ var gifchopper = function() {
   self.getFrames = function() {
       var frames = [], 
           j = 0;
+
       for (var i = start; i < stop; i++) {
         frames[j] = i;
         j++;

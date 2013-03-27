@@ -36,8 +36,8 @@
 		window.attachEvent("onmessage", displayMessage);
 	}
 
-	// update db with frame numbers
-	$("#gif-submit").click(function() {
+	// grab the current frames, give them to couch
+	function saveFrames() {
 		$.ajax({
 			type: "POST",
 			url: "/selected",
@@ -47,5 +47,8 @@
 				frames: gifchopper.getFrames().toString()
 			}
 		})
-	})
+	}
+	
+	// update db with frame numbers
+	$("#gif-submit").click(saveFrames);
 </script>
