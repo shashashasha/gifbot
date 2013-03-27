@@ -60,29 +60,6 @@ app.get('/upload', function(req, res) {
   });
 });
 
-app.get('/uploaded', function(req, res) {
-  var bucket = req.query["bucket"]
-    , etag = req.query["etag"]
-    , key = decodeURIComponent(req.query["key"])
-    , base = 'http://{bucket}.s3.amazonaws.com/{key}'
-    , url = base.replace('{bucket}', bucket).replace('{key}', key);
-
-  // save the uploaded gif information
-  db.saveDoc(etag, {
-    url: url,
-    date: JSON.stringify(new Date()),
-    type: 'gif',
-    status: 'processed'
-  }, function(er, ok) {
-    console.log(ok);
-  });
-
-  res.render('uploaded', { 
-    title: '',
-    image_url: url
-  });
-});
-
 app.get('/dropform', function(req, res) {
   var cur = new Date()
     , folder = [cur.getFullYear(), cur.getMonth() + 1, cur.getDate()].join('-');
@@ -97,6 +74,49 @@ app.get('/dropform', function(req, res) {
   });
 });
 
+
+app.get('/uploaded', function(req, res) {
+  var bucket = req.query["bucket"]
+    , etag = req.query["etag"]
+    , key = decodeURIComponent(req.query["key"])
+    , base = 'http://{bucket}.s3.amazonaws.com/{key}'
+    , url = base.replace('{bucket}', bucket).replace('{key}', key);
+
+  // save the uploaded gif information
+  // remove quotes from etag
+  var docId = etag.substr(1, etag.length - 2);
+  db.saveDoc(docId, {
+    url: url,
+    date: JSON.stringify(new Date()),
+    type: 'gif',
+    status: 'uploaded'
+  }, function(er, ok) {
+    // render the uploaded page if we've saved the gif info to the db
+    res.render('uploaded', { 
+      title: 'GifPOP',
+      image_url: url,
+      doc_id: docId,
+      rev: ok.rev
+    });
+  });
+
+});
+
+app.post('/selected', function(req, res) {
+  var docId = req.body.id
+    , frames = req.body.frames;
+
+  db.saveDoc(docId, {
+    _rev: req.body.rev,
+    url: req.body.url,
+    date: JSON.stringify(new Date()),
+    type: 'gif',
+    status: 'processed',
+    zip: req.body.url.replace('.gif', '.zip')
+  }, function(er, ok) {
+
+  });
+});
 
 app.get('/split/:image', function(req, res) {
   var filename = '/' + req.params.image + '.gif';

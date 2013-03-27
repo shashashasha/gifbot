@@ -9,12 +9,12 @@
 <img id="gif" src='<%=image_url%>'>
 <div id="gif-controls">
 	<div id="timeline">
-		<div id="instructions">click on the timeline to choose your frames</div>
+		<div id="instructions">click on the timeline to choose your frames <%=doc_id%></div>
 		<div id="selection"></div>
 	</div>
 	<div id="gif-ui">
 		<!-- <button id="gif-toggle">Autoplay: Off</button> -->
-		<button id="gif-submit">Done!</button>
+		<button id="gif-submit">Done! <%=rev%></button>
 	</div>
 </div>
 
@@ -35,4 +35,18 @@
 	else {
 		window.attachEvent("onmessage", displayMessage);
 	}
+
+	$("#gif-submit").click(function() {
+		$.ajax({
+			type: "POST",
+			url: "/selected",
+			dataType: "json",
+			data: {
+				url: '<%=image_url%>',
+				rev: '<%=rev%>',
+				id: '<%=doc_id%>',
+				frames: '[0,2,3,4]'
+			}
+		})
+	})
 </script>
