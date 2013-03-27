@@ -11,7 +11,7 @@ var express = require('express')
   , path = require('path')
   , util = require('util')
   , couchdb = require('felix-couchdb')
-  , client = couchdb.createClient(5984, 'localhost') // may need to change this for webfaction
+  , client = couchdb.createClient(13893, 'localhost') // may need to change this for webfaction
   , db = client.db('gifpop');
 
 var app = express()
