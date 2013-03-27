@@ -56,7 +56,8 @@ app.get('/upload', function(req, res) {
     aws_signature: config.AWSSignature, 
     aws_accesskeyid: config.AWSAccessKeyId,
     aws_policy: config.AWSPolicy,
-    scan_id: folder
+    scan_id: folder,
+    file_prefix: cur.getTime()
   });
 });
 
@@ -70,7 +71,8 @@ app.get('/dropform', function(req, res) {
     aws_signature: config.AWSSignature, 
     aws_accesskeyid: config.AWSAccessKeyId,
     aws_policy: config.AWSPolicy,
-    scan_id: folder
+    scan_id: folder,
+    file_prefix: cur.getTime()
   });
 });
 
@@ -83,20 +85,24 @@ app.get('/uploaded', function(req, res) {
     , url = base.replace('{bucket}', bucket).replace('{key}', key);
 
   // save the uploaded gif information
-  // remove quotes from etag
-  var docId = etag.substr(1, etag.length - 2);
+  // doc id is timestamp in milliseconds plus etag
+  var docId = key.split('-').shift() + '-' + etag.substr(1, etag.length - 2);
   db.saveDoc(docId, {
     url: url,
     date: JSON.stringify(new Date()),
     type: 'gif',
     status: 'uploaded'
   }, function(er, ok) {
+    if (er) {
+      util.puts(er); 
+    }
+    
+    util.p(ok);
     // render the uploaded page if we've saved the gif info to the db
     res.render('uploaded', { 
       title: 'GifPOP',
       image_url: url,
-      doc_id: docId,
-      rev: ok.rev
+      doc_id: docId
     });
   });
 
@@ -105,15 +111,17 @@ app.get('/uploaded', function(req, res) {
 app.post('/selected', function(req, res) {
   var docId = req.body.id
     , frames = req.body.frames;
-  db.getDoc(docId, function(er, ok) {
+  db.getDoc(docId, function(er, doc) {
+    util.p(doc);
+
     db.saveDoc(docId, {
-      _rev: ok.rev,
-      url: ok.url,
+      _rev: doc._rev,
+      url: doc.url,
       date: JSON.stringify(new Date()),
       type: 'gif',
       status: 'processed',
       frames: frames,
-      zip: ok.url.replace('.gif', '.zip')
+      zip: doc.url.replace('.gif', '.zip')
     }, function(er, ok) {
 
     });

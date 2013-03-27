@@ -3,7 +3,7 @@
 <form action="http://gifpop-uploads.s3.amazonaws.com/" method="post" enctype="multipart/form-data">
     <input name="AWSAccessKeyId" type="hidden" value="<%=aws_accesskeyid%>" />
     <input name="x-amz-acl" type="hidden" value="public-read" />
-    <input name="key" type="hidden" value="uploads/<%=scan_id%>/${filename}" />
+    <input name="key" type="hidden" value="uploads/<%=scan_id%>/<%=file_prefix%>-${filename}" />
     <input name="success_action_redirect" type="hidden" value="<%=base_url%>/uploaded/" />
 
     <input name="policy" type="hidden" value="<%=aws_policy%>" />

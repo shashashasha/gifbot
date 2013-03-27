@@ -14,7 +14,7 @@
 	</div>
 	<div id="gif-ui">
 		<!-- <button id="gif-toggle">Autoplay: Off</button> -->
-		<button id="gif-submit">Done! <%=rev%></button>
+		<button id="gif-submit">Done!</button>
 	</div>
 </div>
 
@@ -36,6 +36,7 @@
 		window.attachEvent("onmessage", displayMessage);
 	}
 
+	// update db with frame numbers
 	$("#gif-submit").click(function() {
 		$.ajax({
 			type: "POST",
@@ -43,9 +44,8 @@
 			dataType: "json",
 			data: {
 				url: '<%=image_url%>',
-				rev: '<%=rev%>',
 				id: '<%=doc_id%>',
-				frames: '[0,2,3,4]'
+				frames: gifchopper.getFrames()
 			}
 		})
 	})
