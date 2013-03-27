@@ -105,16 +105,15 @@ app.get('/uploaded', function(req, res) {
 app.post('/selected', function(req, res) {
   var docId = req.body.id
     , frames = req.body.frames;
+  db.getDoc(docId, function(er, doc) {
+    doc._rev = doc.rev;
+    doc.status = 'processed';
+    doc.frames = frames;
+    doc.zip = doc.url.replace('.gif', '.zip');
 
-  db.saveDoc(docId, {
-    _rev: req.body.rev,
-    url: req.body.url,
-    date: JSON.stringify(new Date()),
-    type: 'gif',
-    status: 'processed',
-    zip: req.body.url.replace('.gif', '.zip')
-  }, function(er, ok) {
-
+    db.saveDoc(docId, doc, function(er, ok) {
+      
+    });
   });
 });
 
