@@ -126,16 +126,15 @@ app.post('/selected', function(req, res) {
   });
 });
 
-app.get('/preview/:doc', function(req, res) {
-  console.log(req.params.doc);
-  var docId = req.params.doc.split('.gif')[0],
-    filename = req.params.doc,
-    tempFolder = './public/images/temporary/';
-
-  db.getDoc(docId, function(err, doc) {
+/*
+  given a doc id, grab the document, 
+  load the url of the image/gif,
+  and send it to the processor
+*/
+var processImage = function(id, processor) {
+  db.getDoc(id, function(err, doc) {
     if (err) throw err;
 
-    // grab the gif from s3, resize it and store it in a temporary spot
     http.get(doc.url, function(response) {
       var imagedata = '';
 
@@ -147,25 +146,72 @@ app.get('/preview/:doc', function(req, res) {
       });
 
       response.on('end', function() {
-        var temp = tempFolder + filename;
-        console.log('writing to temp file ', temp);
-        fs.writeFile(temp, imagedata, 'binary', function(err) {
-          if (err) throw err;
-
-          var output = tempFolder + docId + "-preview.gif";
-          console.log('resizing to ', output);
-          exec("gifsicle " + temp + " --resize-width 75 -o " + output, function(err, stdout, stderr) {
-            var img = fs.readFileSync(output);
-            res.writeHead(200, {'Content-Type': 'image/gif' });
-            res.end(img, 'binary');
-          });
-        });
+        if (processor)
+          processor(doc, imagedata);
+        else 
+          console.log('no image processor defined');
       });
+    })
+  })
+};
 
+app.get('/preview/:doc', function(req, res) {
+  console.log(req.params.doc);
+  var docId = req.params.doc.split('.gif')[0],
+    filename = req.params.doc,
+    tempFolder = './public/images/temporary/';
+
+  processImage(docId, function(doc, imagedata) {
+    var temp = tempFolder + filename;
+    console.log('writing to temp file ', temp);
+
+    // write the gif to a temp file, then resize it to a smaller gif
+    fs.writeFile(temp, imagedata, 'binary', function(err) {
+      if (err) throw err;
+
+      var output = tempFolder + docId + "-preview.gif";
+      console.log('resizing to ', output);
+
+      exec("gifsicle " + temp + " --resize-width 75 -o " + output, function(err, stdout, stderr) {
+        if (err) throw err;
+
+        var img = fs.readFileSync(output);
+        res.writeHead(200, {'Content-Type': 'image/gif' });
+        res.end(img, 'binary');
+      });
     });
   });
-
 });
+
+app.get('/chop/:doc/:start/:end', function(req, res) {
+  console.log(req.params.doc);
+  var start = req.params.start,
+    end = req.params.end,
+    id = req.params.doc,
+    tempFolder = './public/images/temporary/';
+
+  processImage(id, function(doc, imagedata) {
+    var temp = tempFolder + id + '.gif';
+    console.log('writing to temp file ', temp);
+
+    // write the gif to a temp file, then resize it to a smaller gif
+    fs.writeFile(temp, imagedata, 'binary', function(err) {
+      if (err) throw err;
+
+      var output = tempFolder + [id, "frames", start, end].join('-') + ".gif";
+      var frames = "'#" + start + "-" + end + "'";
+      console.log('writing frames ', frames);
+      console.log('cmd: ', "gifsicle -U " + temp + " " + frames + " -o " + output);
+      exec("gifsicle -U " + temp + " " + frames + " -o " + output, function(err, stdout, stderr) {
+        if (err) throw err;
+
+        var img = fs.readFileSync(output);
+        res.writeHead(200, {'Content-Type': 'image/gif' });
+        res.end(img, 'binary');
+      });
+    });
+  });
+})
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
