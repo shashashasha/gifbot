@@ -10,6 +10,7 @@ var express = require('express')
   , http = require('http')
   , path = require('path')
   , util = require('util')
+  , crypto = require('crypto')
   , exec = require('child_process').exec
   , couchdb = require('felix-couchdb')
   , client = couchdb.createClient(13893, 'localhost') // may need to change this for webfaction
@@ -51,6 +52,24 @@ var uploadForm = function(res, form) {
   var cur = new Date()
     , folder = [cur.getFullYear(), cur.getMonth() + 1, cur.getDate()].join('-');
 
+  /* sign the form */
+  // var policy = '{"expiration": "2015-01-01T00:00:00Z", "conditions": [ {"bucket": "gifpop-uploads"}, {"x-amz-acl": "public-read"}, ["starts-with", "$key", "uploads/"], ["starts-with", "$Content-Type", "image"], {"success_action_redirect": "http://gifbot.gifpop.io/uploaded/"}, ["content-length-range", 0, 20971520] ] }';
+  // var policy = JSON.stringify({
+  //   "expiration": "2015-01-01T00:00:00Z",
+  //   "conditions": [
+  //     { "bucket": "gifpop-uploads" }, 
+  //     { "x-amz-acl": "public-read" }, 
+  //     ["starts-with", "$key", "uploads/"], 
+  //     { "success_action_redirect": config.HOST + "/uploaded" }, 
+  //     ["starts-with", "$Content-Type", "image"],
+  //     ["content-length-range", 0, 2147483648]
+  //   ]
+  // });
+
+  // encode it to put it in the form
+  // var AWSPolicyBase64 = new Buffer(policy).toString('base64');
+  // var AWSSignature = crypto.createHmac('sha1', config.AWSSecretKey).update(new Buffer(policy, 'utf-8')).digest('base64');
+
   res.render(form, {
     title: '',
     base_url: config.HOST,
@@ -70,6 +89,13 @@ app.get('/dropform', function(req, res) {
   uploadForm(res, 'dropform');
 });
 
+app.get('/directform', function(req, res) {
+  uploadForm(res, 'directform');
+});
+
+app.get('/jfu-form', function(req, res) {
+  uploadForm(res, 'jfu-simple');
+});
 
 app.get('/uploaded', function(req, res) {
   var bucket = req.query["bucket"]
@@ -109,7 +135,6 @@ app.post('/selected', function(req, res) {
   var docId = req.body.id
     , frames = req.body.frames;
 
-
   db.getDoc(docId, function(er, doc) {
     // update the doc with the current revision id
     db.saveDoc(docId, {
@@ -126,12 +151,45 @@ app.post('/selected', function(req, res) {
   });
 });
 
+app.post('/ordered', function(req, res) {
+  console.log(req.body);
+  db.saveDoc('order-' + new Date().getTime(), req.body, function(er, ok) {
+    console.log(er, ok);
+  });
+});
+
 /*
   given a doc id, grab the document, 
   load the url of the image/gif,
   and send it to the processor
 */
-var processImage = function(id, processor) {
+var imageHandler = {};
+
+// write temp gif and run command
+imageHandler.gifsicle = function(id, cmd) {
+  var output = id + '-' + mode + '.gif',
+    tempFolder = './public/images/temporary/',
+    temp = tempFolder + id + '.gif';
+
+  // write the gif to a temp file, then resize it to a smaller gif
+  fs.writeFile(temp, imagedata, 'binary', function(err) {
+    if (err) throw err;
+
+    exec("gifsicle " + temp + " " + cmd + " -o " + output, function(err) {
+      if (err) throw err;
+
+      imageHandler.returnImage(res, output);
+    });
+  });
+};
+
+imageHandler.returnImage = function(res, path) {
+  var img = fs.readFileSync(path);
+  res.writeHead(200, {'Content-Type': 'image/gif' });
+  res.end(img, 'binary');
+};
+
+imageHandler.processImage = function(id, processor) {
   db.getDoc(id, function(err, doc) {
     if (err) throw err;
 
@@ -175,9 +233,7 @@ app.get('/preview/:doc', function(req, res) {
       exec("gifsicle " + temp + " --resize-width 75 -o " + output, function(err, stdout, stderr) {
         if (err) throw err;
 
-        var img = fs.readFileSync(output);
-        res.writeHead(200, {'Content-Type': 'image/gif' });
-        res.end(img, 'binary');
+        imageHandler.returnImage(res, output);
       });
     });
   });
@@ -201,7 +257,7 @@ app.get('/chop/:doc/:start/:end', function(req, res) {
       var output = tempFolder + [id, "frames", start, end].join('-') + ".gif";
       var frames = "'#" + start + "-" + end + "'";
       console.log('writing frames ', frames);
-      console.log('cmd: ', "gifsicle -U " + temp + " " + frames + " -o " + output);
+
       exec("gifsicle -U " + temp + " " + frames + " -o " + output, function(err, stdout, stderr) {
         if (err) throw err;
 
@@ -211,7 +267,7 @@ app.get('/chop/:doc/:start/:end', function(req, res) {
       });
     });
   });
-})
+});
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
