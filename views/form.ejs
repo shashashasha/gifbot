@@ -20,39 +20,35 @@
 <script src="lib/fileupload/js/jquery.fileupload.js"></script>
 <script type="text/javascript">
 $(function () {
-    // var log = function(e, data) {
-    //     console.log(e, data);
-    //     globalEvent = e;
-    // };
+    $('#fileupload').fileupload({
+        autoUpload: true,
+        singleFileUploads: true,
+        limitConcurrentUploads: 1,
 
-    // $('#fileupload').fileupload({
-    //     autoUpload: true,
-    //     singleFileUploads: true,
-    //     limitConcurrentUploads: 1,
-    //     dataType: 'json',
-    //     url: 'http://gifpop-uploads.s3.amazonaws.com/',
-    //     redirect: 'http://127.0.0.1:3000/uploaded',
-    //     redirectParamName: 'success_action_redirect',
-    //     progress: function(e, data) {
-    //         console.log('progress', parseInt(data.loaded / data.total * 100, 10));
-    //     },
-    //     always: function(e, data) {
-    //         console.log('always', arguments);
-    //     },
-    //     send: function(e, data) {
-    //         console.log('sending');
-    //     },
-    //     fail: function(e, data) {
-    //         console.log('failed:', data.errorThrown, e);
-    //         globalEvent = e;
-    //         globalData = data;
-    //     },
-    //     done: function (e, data) {
-    //         console.log('done', data);
-    //         $.each(data.result.files, function (index, file) {
-    //             $('<p/>').text(file.name).appendTo(document.body);
-    //         });
-    //     }
-    // });
+        // not sure if this needs to be xml for amazon's response
+        dataType: 'json',
+
+        progress: function(e, data) {
+            console.log('progress', parseInt(data.loaded / data.total * 100, 10));
+        },
+        always: function(e, data) {
+            console.log('always', arguments);
+        },
+        send: function(e, data) {
+            console.log('sending');
+        },
+        fail: function(e, data) {
+            // fails with errorThrown = ""
+            console.log('failed:', data.errorThrown, e);
+            globalEvent = e;
+            globalData = data;
+        },
+        done: function (e, data) {
+            console.log('done', data);
+            $.each(data.result.files, function (index, file) {
+                $('<p/>').text(file.name).appendTo(document.body);
+            });
+        }
+    });
 });
 </script>
