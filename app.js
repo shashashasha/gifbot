@@ -234,7 +234,7 @@ app.get('/preview/:doc', function(req, res) {
       var output = tempFolder + docId + "-preview.gif";
       console.log('resizing to ', output);
 
-      exec("gifsicle " + temp + " --resize-width 75 -o " + output, function(err, stdout, stderr) {
+      exec("gifsicle " + temp + " --resize-width 120 -o " + output, function(err, stdout, stderr) {
         if (err) throw err;
 
         imageHandler.returnImage(res, output);
