@@ -1,52 +1,46 @@
-$(function() {
-  $('#file_upload').fileupload({
-    forceIframeTransport: true,    // VERY IMPORTANT.  you will get 405 Method Not Allowed if you don't add this.
-    autoUpload: true,
-    add: function (event, data) {
-      console.log('sending', data, event);
-      /*
-        We already have the s3 info in the template
-      */
-      // $.ajax({
-      //   url: "/uploads",
-      //   type: 'POST',
-      //   dataType: 'json',
-      //   data: {doc: {title: data.files[0].name}},
-      //   async: false,
-      //   success: function(retdata) {
-      //     // after we created our document in rails, it is going to send back JSON of they key,
-      //     // policy, and signature.  We will put these into our form before it gets submitted to amazon.
-      //     $('#file_upload').find('input[name=key]').val(retdata.key);
-      //     $('#file_upload').find('input[name=policy]').val(retdata.policy);
-      //     $('#file_upload').find('input[name=signature]').val(retdata.signature);
-      //   }
-        
-      // });
 
-      data.submit();
-    },
-    send: function(e, data) {
-      console.log('sending', e, data);
-      // show a loading spinner because now the form will be submitted to amazon, 
-      // and the file will be directly uploaded there, via an iframe in the background. 
-      $('#loading').show();
-    },
-    progress: function (e, data) {
-      console.log('progress', e);  
-    },
-    progressall: function (e, data) {
-      console.log('progressall', e);  
-    },
-    fail: function(e, data) {
-      console.log('fail', e);
-      console.log(data);
-    },
-    done: function (event, data) {
-      // here you can perform an ajax call to get your documents to display on the screen.
-      $('#your_documents').load("/documents?for_item=1234");
-      
-      // hide the loading spinner that we turned on earlier.
-      $('#loading').hide();
-    },
-  });
+$(function () {
+    $('#fileupload').fileupload({
+        // autoUpload: true,
+        singleFileUploads: true,
+        // forceIframeTransport: true,
+        // redirect: 'http://127.0.0.1:3000/uploaded',
+        redirectParamName: 'success_action_redirect',
+
+        limitConcurrentUploads: 1,
+
+        // not sure if this needs to be xml for amazon's response
+        dataType: 'json',
+        add: function(e, data) {
+            // don't autosubmit
+            console.log(data);
+            data.context = $('<button/>').text('Upload')
+                .appendTo(document.body)
+                .click(function () {
+                    data.context = $('<p/>').text('Uploading...').replaceAll($(this));
+                    data.submit();
+                });
+        },
+        progress: function(e, data) {
+            console.log('progress', parseInt(data.loaded / data.total * 100, 10));
+        },
+        always: function(e, data) {
+            console.log('always', arguments);
+        },
+        send: function(e, data) {
+            console.log('sending');
+        },
+        fail: function(e, data) {
+            // fails with errorThrown = ""
+            console.log('failed:', data.errorThrown, e);
+            globalEvent = e;
+            globalData = data;
+        },
+        done: function (e, data) {
+            console.log('done', data);
+            $.each(data.result.files, function (index, file) {
+                $('<p/>').text(file.name).appendTo(document.body);
+            });
+        }
+    });
 });
