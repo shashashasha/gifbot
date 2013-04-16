@@ -135,7 +135,9 @@ app.post('/selected', function(req, res) {
   var docId = req.body.id
     , frames = req.body.frames;
 
-  db.getDoc(docId, function(er, doc) {
+  db.getDoc(docId, function(err, doc) {
+    if (err) throw err;
+
     // update the doc with the current revision id
     db.saveDoc(docId, {
       _rev: doc._rev,

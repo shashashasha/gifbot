@@ -8,39 +8,17 @@
 
     <input name="policy" type="hidden" value="<%=aws_policy%>" />
     <input name="signature" type="hidden" value="<%=aws_signature%>" />
-	<input type="hidden" name="Content-Type" value="image/gif" />
+    <input type="hidden" name="Content-Type" value="image/gif" />
     
-    <input name="file" type="file" multiple>
-    <input class="mac-button" type="submit" value="Send">
+    <input name="file" type="file">
+    <input type="submit" value="Send">
 </form>
 
+<!-- uncomment lines below for jquery-file-upload bizniss -->
+<!-- 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script src="lib/fileupload/js/vendor/jquery.ui.widget.js"></script>
 <script src="lib/fileupload/js/jquery.iframe-transport.js"></script>
 <script src="lib/fileupload/js/jquery.fileupload.js"></script>
-<script type="text/javascript">
-$(function () {
-    var log = function(e, data) {
-        console.log(e, data);
-        globalEvent = e;
-    };
-
-    $('#fileupload').fileupload({
-        dataType: 'xml',
-        add: function(e, data) {
-            console.log('add', arguments);
-            data.submit();
-        },
-        progress: function(e, data) {
-            console.log('progress', parseInt(data.loaded / data.total * 100, 10));
-        },
-        error: log,
-        done: function (e, data) {
-            console.log('done', data);
-            $.each(data.result.files, function (index, file) {
-                $('<p/>').text(file.name).appendTo(document.body);
-            });
-        }
-    });
-});
-</script>
+<script type="text/javascript" src="js/s3upload.js"></script>
+-->
