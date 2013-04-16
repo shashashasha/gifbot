@@ -248,12 +248,9 @@ app.get('/preview/:doc', function(req, res) {
         exec("gifsicle -U " + output + " " + frames + " -o " + finalOutput, function(err, stdout, stderr) {
           if (err) throw err;
 
-          var img = fs.readFileSync(finalOutput);
-          res.writeHead(200, {'Content-Type': 'image/gif' });
-          res.end(img, 'binary');
+          imageHandler.returnImage(res, finalOutput);
         });
 
-        imageHandler.returnImage(res, output);
       });
     });
   });
@@ -281,9 +278,7 @@ app.get('/chop/:doc/:start/:end', function(req, res) {
       exec("gifsicle -U " + temp + " " + frames + " -o " + output, function(err, stdout, stderr) {
         if (err) throw err;
 
-        var img = fs.readFileSync(output);
-        res.writeHead(200, {'Content-Type': 'image/gif' });
-        res.end(img, 'binary');
+        imageHandler.returnImage(res, output);
       });
     });
   });
