@@ -22,6 +22,9 @@ mkvirtualenv gifpop
 # start working on gif pop
 workon gifpop
 
+# install imagemagick (for gif processing)
+brew install imagemagick
+
 # install node
 # http://nodejs.org
 brew install node
@@ -57,3 +60,10 @@ forever start app.js
 
 # signed form use policy doc script, it's in dropbox
 python policy_document.py
+
+# access couchdb on web faction locally:
+# http://docs.webfaction.com/user-guide/databases.html#accessing-a-database-remotely
+
+# installing couch on web faction: http://community.webfaction.com/questions/557/installing-couchdb
+
+# couch is installed on port 13893

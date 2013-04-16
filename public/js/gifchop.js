@@ -37,20 +37,26 @@ var gifchopper = function() {
     });
 
     $("#gif-submit").click(function() {
+      var frames = self.getFrames();
+
+      $("#gif-controls").slideUp();
+      $("body").addClass("done");
+
+      if (parent) 
+        parent.postMessage(frames.toString(), 'http://gifpop.io');
+    });
+  };
+
+  self.getFrames = function() {
       var frames = [], 
           j = 0;
+
       for (var i = start; i < stop; i++) {
         frames[j] = i;
         j++;
       }
 
-      $("#gif-controls").slideUp();
-      $("body").addClass("done");
-
-      console.log('posting', frames.toString());
-      if (parent) 
-        parent.postMessage(frames.toString(), 'http://gifpop.io');
-    });
+      return frames;
   };
 
   self.timeline = function() {

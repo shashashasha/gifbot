@@ -10,6 +10,7 @@
 	<div id="gif-controls">
 		<div id="timeline"></div>
 		<div id="instructions">click on the timeline to choose your frames</div>
+		<div id="doc_id"><%=doc_id%></div>
 		<div id="selection"></div>
 		<div id="gif-ui">
 			<!-- <button id="gif-toggle">Autoplay: Off</button> -->
@@ -35,4 +36,20 @@
 	else {
 		window.attachEvent("onmessage", displayMessage);
 	}
+
+	// grab the current frames, give them to couch
+	function saveFrames() {
+		$.ajax({
+			type: "POST",
+			url: "/selected",
+			dataType: "json",
+			data: {
+				id: '<%=doc_id%>',
+				frames: gifchopper.getFrames().toString()
+			}
+		})
+	}
+	
+	// update db with frame numbers
+	$("#gif-submit").click(saveFrames);
 </script>
