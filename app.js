@@ -242,7 +242,7 @@ app.get('/preview/:doc', function(req, res) {
             end = +selection[selection.length-1],
             frames = "'#" + start + "-" + end + "'";
 
-        var finalOutput = tempFolder + [id, "frames", start, end].join('-') + ".gif";
+        var finalOutput = tempFolder + [docId, "frames", start, end].join('-') + ".gif";
         console.log('chopping frames', finalOutput);
 
         exec("gifsicle -U " + output + " " + frames + " -o " + finalOutput, function(err, stdout, stderr) {
