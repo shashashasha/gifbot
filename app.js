@@ -13,7 +13,7 @@ var express = require('express')
   , crypto = require('crypto')
   , exec = require('child_process').exec
   , couchdb = require('felix-couchdb')
-  , client = couchdb.createClient(13893, 'localhost') // may need to change this for webfaction
+  , client = couchdb.createClient(null, 'http://db.gifpop.io') // may need to change this for webfaction
   , db = client.db('gifpop');
 
 var app = express()
@@ -93,10 +93,6 @@ app.get('/directform', function(req, res) {
   uploadForm(res, 'directform');
 });
 
-app.get('/jfu-form', function(req, res) {
-  uploadForm(res, 'jfu-simple');
-});
-
 app.get('/uploaded', function(req, res) {
   var bucket = req.query["bucket"]
     , etag = req.query["etag"]
@@ -119,6 +115,7 @@ app.get('/uploaded', function(req, res) {
     }
     
     util.p(ok);
+
     // render the uploaded page if we've saved the gif info to the db
     res.render('uploaded', { 
       title: 'GifPOP',
@@ -135,8 +132,10 @@ app.post('/selected', function(req, res) {
   var docId = req.body.id
     , frames = req.body.frames;
 
+  console.log('selecting', docId);
+  console.log('frames:', frames);
   db.getDoc(docId, function(err, doc) {
-    if (err) throw err;
+    if (err) console.log(err);
 
     // update the doc with the current revision id
     db.saveDoc(docId, {
@@ -221,7 +220,7 @@ app.get('/preview/:doc', function(req, res) {
     filename = req.params.doc,
     tempFolder = './public/images/temporary/';
 
-  processImage(docId, function(doc, imagedata) {
+  imageHandler.processImage(docId, function(doc, imagedata) {
     var temp = tempFolder + filename;
     console.log('writing to temp file ', temp);
 
@@ -248,7 +247,7 @@ app.get('/chop/:doc/:start/:end', function(req, res) {
     id = req.params.doc,
     tempFolder = './public/images/temporary/';
 
-  processImage(id, function(doc, imagedata) {
+  imageHandler.processImage(id, function(doc, imagedata) {
     var temp = tempFolder + id + '.gif';
     console.log('writing to temp file ', temp);
 

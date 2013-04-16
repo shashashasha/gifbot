@@ -15,9 +15,10 @@ var gifchopper = function() {
     allowautoplay = true;
 
   // parse the gif on the page
-  self.load = function(url, gif) {
+  self.load = function(url, gif, id) {
     self.url = url;
     self.controller = gifcontrol(gif, 300);
+    self.id = id;
 
     self.timeline();
     self.ui();
@@ -36,14 +37,13 @@ var gifchopper = function() {
       self.startPingPoinging();
     });
 
+    // on "done" store id in form
     $("#gif-submit").click(function() {
-      var frames = self.getFrames();
-
       $("#gif-controls").slideUp();
       $("body").addClass("done");
 
       if (parent) 
-        parent.postMessage(frames.toString(), 'http://gifpop.io');
+        parent.postMessage(self.id, 'http://gifpop.io');
     });
   };
 
