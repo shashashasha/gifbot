@@ -13,7 +13,8 @@ var express = require('express')
   , crypto = require('crypto')
   , exec = require('child_process').exec
   , couchdb = require('felix-couchdb')
-  , client = couchdb.createClient(null, 'http://db.gifpop.io') // may need to change this for webfaction
+  , client = couchdb.createClient(13893, 'localhost') // may need to change this for webfaction
+  // , client = couchdb.createClient(null, 'db.gifpop.io') // may need to change this for webfaction
   , db = client.db('gifpop');
 
 var app = express()
@@ -191,8 +192,10 @@ imageHandler.returnImage = function(res, path) {
 };
 
 imageHandler.processImage = function(id, processor) {
+  console.log('processing image', id);
   db.getDoc(id, function(err, doc) {
-    if (err) throw err;
+    console.log(err)
+    if (err) return;
 
     http.get(doc.url, function(response) {
       var imagedata = '';
