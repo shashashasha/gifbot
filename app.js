@@ -237,6 +237,22 @@ app.get('/preview/:doc', function(req, res) {
       exec("gifsicle " + temp + " --resize-width 120 -o " + output, function(err, stdout, stderr) {
         if (err) throw err;
 
+        var selection = doc.frames.split(','),
+            start = +selection[0],
+            end = +selection[selection.length-1],
+            frames = "'#" + start + "-" + end + "'";
+
+        var finalOutput = tempFolder + [id, "frames", start, end].join('-') + ".gif";
+        console.log('chopping frames', finalOutput);
+
+        exec("gifsicle -U " + output + " " + frames + " -o " + finalOutput, function(err, stdout, stderr) {
+          if (err) throw err;
+
+          var img = fs.readFileSync(finalOutput);
+          res.writeHead(200, {'Content-Type': 'image/gif' });
+          res.end(img, 'binary');
+        });
+
         imageHandler.returnImage(res, output);
       });
     });
