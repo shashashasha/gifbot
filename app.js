@@ -85,6 +85,12 @@ var uploadForm = function(res, form) {
 app.get('/upload', function(req, res) {
   uploadForm(res, 'form');
 });
+app.get('/upload-gifchop', function(req, res) {
+  uploadForm(res, 'form-gifchop');
+});
+app.get('/upload-flipflop', function(req, res) {
+  uploadForm(res, 'form-flipflop');
+});
 
 app.get('/dropform', function(req, res) {
   uploadForm(res, 'dropform');

@@ -1,0 +1,34 @@
+<% layout('base') -%>
+
+<% script('//api.filepicker.io/v1/filepicker.js') -%>
+
+<iframe id="picker"></iframe>
+
+<style>
+	#picker {
+		width: 875px;
+		height: 490px;
+		border: none;
+	}
+</style>
+
+<script type="text/javascript">
+
+	filepicker.setKey("AYkBZ0oUOTTqvkwhxMx3Ez");
+
+	filepicker.pickAndStore({
+			multiple: 'true',
+			mimetype: 'image/*',
+			container: 'picker',
+			services: ['COMPUTER','FACEBOOK','FLICKR']
+		},{
+			path: '/uploads/<%=scan_id%>/'
+		},function(InkBlobs){
+	   		console.log(JSON.stringify(InkBlobs));
+	   		var img = InkBlobs[0];
+	   		var id = img.url.split("/");
+	   		window.location = "<%=base_url%>/uploaded/?id="+id[5]+"&key="+img.key;
+		},function(FPError){ console.log(FPError); }
+	);
+
+</script>
