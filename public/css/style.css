@@ -7,6 +7,9 @@ body{
 	height: 100%;
 	box-sizing: border-box;
 }
+#pickerComputer {
+	background: red;
+}
 .wrapper {
 }
 .done .wrapper {
@@ -22,41 +25,67 @@ body{
 		-webkit-transform: perspective(500) rotateX(-20deg);
 	}
 	50% {
-		-webkit-transform: perspective(500) rotateX(20deg);	
+		-webkit-transform: perspective(500) rotateX(20deg);
 	}
 	to {
-		-webkit-transform: perspective(500) rotateX(-20deg);	
+		-webkit-transform: perspective(500) rotateX(-20deg);
 	}
 }
 .bg {
 	background-color: #eee;
+	padding: 25px 25px 10px 25px;
+}
+#triangle {
+	width: 0;
+    height: 0;
+    border-bottom: 14px solid transparent;
+	border-top: 14px solid transparent;
+	border-right: 15px solid #808080;
+	position: absolute;
+	top: 15px;
+}
+#back {
+	background-color: #808080;
+	color: white;
+	text-decoration: none;
+	padding: 3px 10px 4px 3px;
+	font-family: Futura;
+	font-weight: normal;
+	position: absolute;
+	left: 40px;
+	top: 15px;
 }
 #timeline {
-	margin: 20px auto 10px; 
+	margin: 20px auto 10px;
 	width: 100%;
-	height: 20px; 
+	height: 20px;
 	background-color: #808080;
 	border-radius: 10px;
 	cursor: pointer;
+	box-shadow: inset 1px 1px 7px #555;
+}
+#gif-controls {
+	position: relative;
 }
 #instructions {
-	color: #000;
-	font-family: Helvetica;
+	color: black;
+	font-family: Futura;
 	text-align: center;
-	line-height: 50px;
 	font-size: 18px;
+	width: 100%;
 }
 #selection {
-	width:0px; 
-	height: 40px;
-	border-radius: 20px;
-	margin: 0; 
-	background:#ff9900; 
+	width:0px;
+	height: 30px;
+	border-radius: 5px;
+	margin: 0;
+	background:#ff9900;
 	cursor: move;
 	background-image: url(../images/timeline.png);
 	background-repeat: no-repeat;
 	background-position: 50%;
-	margin-top: -40px;
+	margin-top: -36px;
+	box-shadow: 1px 1px 5px -1px #555;
 }
 #gif-ui {
 	margin: 10px auto 0;
@@ -73,7 +102,7 @@ body{
 	color: white;
 	float: right;
 	cursor: pointer;
-	margin-right: 10px;
+	margin: 20px 10px 0;
 	padding: 5px 10px;
 	-webkit-font-smoothing: antialiased;
 	font-weight: 700;
@@ -87,7 +116,7 @@ body{
 
 .jsgif {
 	overflow: hidden;
-	margin: 15px auto;
+	margin: 20px auto;
 }
 .jsgif_simple_tools {
 	display: none;

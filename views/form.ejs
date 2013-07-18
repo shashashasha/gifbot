@@ -1,6 +1,8 @@
 <% layout('base') -%>
 
-<form id="fileupload" action="http://gifpop-uploads.s3.amazonaws.com/" method="post" enctype="multipart/form-data">
+<% script('//api.filepicker.io/v1/filepicker.js') -%>
+
+<!-- <form id="fileupload" action="http://gifpop-uploads.s3.amazonaws.com/" method="post" enctype="multipart/form-data">
     <input name="AWSAccessKeyId" type="hidden" value="<%=aws_accesskeyid%>" />
     <input name="x-amz-acl" type="hidden" value="public-read" />
     <input name="key" type="hidden" value="uploads/<%=scan_id%>/<%=file_prefix%>-${filename}" />
@@ -9,13 +11,52 @@
     <input name="policy" type="hidden" value="<%=aws_policy%>" />
     <input name="signature" type="hidden" value="<%=aws_signature%>" />
     <input type="hidden" name="Content-Type" value="image/gif" />
-    
+
     <input name="file" type="file">
     <input type="submit" value="Send">
-</form>
+</form> -->
+
+<!-- <input type="filepicker" data-fp-apikey="AYkBZ0oUOTTqvkwhxMx3Ez" data-fp-mimetypes="image/*" data-fp-container="modal" data-fp-multiple="true" data-fp-services="COMPUTER,FACEBOOK,FLICKR,INSTAGRAM,URL" onchange="out='';for(var i=0;i<event.fpfiles.length;i++){out+=event.fpfiles[i].url;out+=' '};alert(out)"> -->
+<!-- <input type="filepicker"> -->
+<iframe id="picker"></iframe>
+
+<style>
+	#picker {
+		width: 875px;
+		height: 490px;
+		border: none;
+	}
+	#pickerComputer {
+		padding-top: 0 !important;
+	}
+	#localDragDrop {
+		margin-top: 20px !important;
+	}
+</style>
+
+<script type="text/javascript">
+	filepicker.setKey("AYkBZ0oUOTTqvkwhxMx3Ez");
+	// filepicker.pick(
+	// 	onSuccess(InkBlob){ console.log(InkBlob); },
+	// 	onError(FPError){ console.log(FPError); }
+	// 	);
+	filepicker.pickAndStore({
+			extension: '.gif',
+			container: 'picker',
+			services: ['COMPUTER']
+		},{
+			path: '/uploads/<%=scan_id%>/'
+		},function(InkBlobs){
+	   		console.log(JSON.stringify(InkBlobs));
+	   		var img = InkBlobs[0];
+	   		var id = img.url.split("/");
+	   		window.location = "<%=base_url%>/uploaded/?id="+id[5]+"&key="+img.key;
+		},function(FPError){ console.log(FPError); }
+	);
+</script>
 
 <!-- uncomment lines below for jquery-file-upload bizniss -->
-<!-- 
+<!--
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script src="lib/fileupload/js/vendor/jquery.ui.widget.js"></script>
 <script src="lib/fileupload/js/jquery.iframe-transport.js"></script>

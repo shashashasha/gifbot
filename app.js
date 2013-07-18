@@ -95,16 +95,12 @@ app.get('/directform', function(req, res) {
 });
 
 app.get('/uploaded', function(req, res) {
-  var bucket = req.query["bucket"]
-    , etag = req.query["etag"]
+  var docId = req.query["id"]
     , key = decodeURIComponent(req.query["key"])
-    , filename = key.split('/').pop()
-    , base = 'http://{bucket}.s3.amazonaws.com/{key}'
-    , url = base.replace('{bucket}', bucket).replace('{key}', key);
+    , base = 'http://gifpop-uploads.s3.amazonaws.com/{key}'
+    , url = base.replace('{key}', key);
 
   // save the uploaded gif information
-  // doc id is timestamp in milliseconds plus etag
-  var docId = filename.split('-').shift() + '-' + etag.substr(1, etag.length - 2);
   db.saveDoc(docId, {
     url: url,
     date: JSON.stringify(new Date()),
