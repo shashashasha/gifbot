@@ -13,7 +13,8 @@ var express = require('express')
   , crypto = require('crypto')
   , exec = require('child_process').exec
   , couchdb = require('felix-couchdb')
-  , client = couchdb.createClient(13893, 'localhost') // may need to change this for webfaction
+  // , client = couchdb.createClient(13893, 'localhost') // may need to change this for webfaction
+  , client = couchdb.createClient(null, 'http://db.gifpop.io')
   , db = client.db('gifpop');
 
 var app = express()
@@ -57,10 +58,10 @@ var uploadForm = function(res, form) {
   // var policy = JSON.stringify({
   //   "expiration": "2015-01-01T00:00:00Z",
   //   "conditions": [
-  //     { "bucket": "gifpop-uploads" }, 
-  //     { "x-amz-acl": "public-read" }, 
-  //     ["starts-with", "$key", "uploads/"], 
-  //     { "success_action_redirect": config.HOST + "/uploaded" }, 
+  //     { "bucket": "gifpop-uploads" },
+  //     { "x-amz-acl": "public-read" },
+  //     ["starts-with", "$key", "uploads/"],
+  //     { "success_action_redirect": config.HOST + "/uploaded" },
   //     ["starts-with", "$Content-Type", "image"],
   //     ["content-length-range", 0, 2147483648]
   //   ]
@@ -73,7 +74,7 @@ var uploadForm = function(res, form) {
   res.render(form, {
     title: '',
     base_url: config.HOST,
-    aws_signature: config.AWSSignature, 
+    aws_signature: config.AWSSignature,
     aws_accesskeyid: config.AWSAccessKeyId,
     aws_policy: config.AWSPolicy,
     scan_id: folder,
@@ -97,17 +98,18 @@ app.get('/jfu-form', function(req, res) {
   uploadForm(res, 'jfu-simple');
 });
 
+// http://127.0.0.1:3000/uploaded/
+// ?bucket=gifpop-uploads
+// &key=uploads%2F2013-7-18%2F1374182820897-tumblr_m6yax7Qso01qly14xo1_500.gif
+// &etag=%22bc997aef2133892b4da580381a3d3749%22
+
 app.get('/uploaded', function(req, res) {
-  var bucket = req.query["bucket"]
-    , etag = req.query["etag"]
+  var docId = req.query["id"]
     , key = decodeURIComponent(req.query["key"])
-    , filename = key.split('/').pop()
-    , base = 'http://{bucket}.s3.amazonaws.com/{key}'
-    , url = base.replace('{bucket}', bucket).replace('{key}', key);
+    , base = 'http://gifpop-uploads.s3.amazonaws.com/{key}'
+    , url = base.replace('{key}', key);
 
   // save the uploaded gif information
-  // doc id is timestamp in milliseconds plus etag
-  var docId = filename.split('-').shift() + '-' + etag.substr(1, etag.length - 2);
   db.saveDoc(docId, {
     url: url,
     date: JSON.stringify(new Date()),
@@ -115,12 +117,12 @@ app.get('/uploaded', function(req, res) {
     status: 'uploaded'
   }, function(er, ok) {
     if (er) {
-      util.puts(er); 
+      util.puts(er);
     }
-    
+
     util.p(ok);
     // render the uploaded page if we've saved the gif info to the db
-    res.render('uploaded', { 
+    res.render('uploaded', {
       title: 'GifPOP',
       image_url: url,
       doc_id: docId
@@ -161,7 +163,7 @@ app.post('/ordered', function(req, res) {
 });
 
 /*
-  given a doc id, grab the document, 
+  given a doc id, grab the document,
   load the url of the image/gif,
   and send it to the processor
 */
@@ -208,7 +210,7 @@ imageHandler.processImage = function(id, processor) {
       response.on('end', function() {
         if (processor)
           processor(doc, imagedata);
-        else 
+        else
           console.log('no image processor defined');
       });
     })

@@ -6,11 +6,13 @@
 <% script('/js/gifchop.js') -%>
 
 <div class="bg">
+	<div id="triangle"></div>
+	<a href="http://127.0.0.1:3000/upload" id="back">choose another gif</a>
 	<img id="gif" src='<%=image_url%>'>
 	<div id="gif-controls">
 		<div id="timeline"></div>
 		<div id="instructions">click on the timeline to choose your frames</div>
-		<div id="doc_id"><%=doc_id%></div>
+		<div id="doc_id" style="position:absolute; top:80px;"><%=doc_id%></div>
 		<div id="selection"></div>
 		<div id="gif-ui">
 			<!-- <button id="gif-toggle">Autoplay: Off</button> -->
