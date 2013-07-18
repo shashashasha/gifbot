@@ -46,7 +46,7 @@ app.configure('development', function(){
 
 // index page
 app.get('/', function(req, res) {
-  res.render('index', { what: 'best', title: 'me' });
+  res.render('index', { what: 'bestest :)', title: 'me' });
 });
 
 var uploadForm = function(res, form) {
@@ -58,10 +58,10 @@ var uploadForm = function(res, form) {
   // var policy = JSON.stringify({
   //   "expiration": "2015-01-01T00:00:00Z",
   //   "conditions": [
-  //     { "bucket": "gifpop-uploads" }, 
-  //     { "x-amz-acl": "public-read" }, 
-  //     ["starts-with", "$key", "uploads/"], 
-  //     { "success_action_redirect": config.HOST + "/uploaded" }, 
+  //     { "bucket": "gifpop-uploads" },
+  //     { "x-amz-acl": "public-read" },
+  //     ["starts-with", "$key", "uploads/"],
+  //     { "success_action_redirect": config.HOST + "/uploaded" },
   //     ["starts-with", "$Content-Type", "image"],
   //     ["content-length-range", 0, 2147483648]
   //   ]
@@ -74,7 +74,7 @@ var uploadForm = function(res, form) {
   res.render(form, {
     title: '',
     base_url: config.HOST,
-    aws_signature: config.AWSSignature, 
+    aws_signature: config.AWSSignature,
     aws_accesskeyid: config.AWSAccessKeyId,
     aws_policy: config.AWSPolicy,
     scan_id: folder,
@@ -112,13 +112,13 @@ app.get('/uploaded', function(req, res) {
     status: 'uploaded'
   }, function(er, ok) {
     if (er) {
-      util.puts(er); 
+      util.puts(er);
     }
-    
+
     util.p(ok);
 
     // render the uploaded page if we've saved the gif info to the db
-    res.render('uploaded', { 
+    res.render('uploaded', {
       title: 'GifPOP',
       image_url: url,
       doc_id: docId
@@ -161,7 +161,7 @@ app.post('/ordered', function(req, res) {
 });
 
 /*
-  given a doc id, grab the document, 
+  given a doc id, grab the document,
   load the url of the image/gif,
   and send it to the processor
 */
@@ -210,11 +210,11 @@ imageHandler.processImage = function(id, processor) {
       response.on('end', function() {
         if (processor)
           processor(doc, imagedata);
-        else 
+        else
           console.log('no image processor defined');
       });
-    })
-  })
+    });
+  });
 };
 
 app.get('/preview/:doc', function(req, res) {
