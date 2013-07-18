@@ -25,7 +25,7 @@
 	var image_url = '<%=image_url%>';
 	var image = document.getElementById('gif');
 
-	gifchopper.load(image_url, image);
+	gifchopper.load(image_url, image, '<%=doc_id%>');
 
 	function displayMessage (evt) {
 		// document.getElementById("gif").className = evt.data;
@@ -49,7 +49,7 @@
 				id: '<%=doc_id%>',
 				frames: gifchopper.getFrames().toString()
 			}
-		})
+		});
 	}
 	
 	// update db with frame numbers

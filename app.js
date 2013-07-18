@@ -13,8 +13,8 @@ var express = require('express')
   , crypto = require('crypto')
   , exec = require('child_process').exec
   , couchdb = require('felix-couchdb')
-  // , client = couchdb.createClient(13893, 'localhost') // may need to change this for webfaction
-  , client = couchdb.createClient(null, 'http://db.gifpop.io')
+  , client = couchdb.createClient(13893, 'localhost') // may need to change this for webfaction
+  // , client = couchdb.createClient(null, 'db.gifpop.io') // may need to change this for webfaction
   , db = client.db('gifpop');
 
 var app = express()
@@ -94,15 +94,6 @@ app.get('/directform', function(req, res) {
   uploadForm(res, 'directform');
 });
 
-app.get('/jfu-form', function(req, res) {
-  uploadForm(res, 'jfu-simple');
-});
-
-// http://127.0.0.1:3000/uploaded/
-// ?bucket=gifpop-uploads
-// &key=uploads%2F2013-7-18%2F1374182820897-tumblr_m6yax7Qso01qly14xo1_500.gif
-// &etag=%22bc997aef2133892b4da580381a3d3749%22
-
 app.get('/uploaded', function(req, res) {
   var docId = req.query["id"]
     , key = decodeURIComponent(req.query["key"])
@@ -121,6 +112,7 @@ app.get('/uploaded', function(req, res) {
     }
 
     util.p(ok);
+
     // render the uploaded page if we've saved the gif info to the db
     res.render('uploaded', {
       title: 'GifPOP',
@@ -137,8 +129,10 @@ app.post('/selected', function(req, res) {
   var docId = req.body.id
     , frames = req.body.frames;
 
+  console.log('selecting', docId);
+  console.log('frames:', frames);
   db.getDoc(docId, function(err, doc) {
-    if (err) throw err;
+    if (err) console.log(err);
 
     // update the doc with the current revision id
     db.saveDoc(docId, {
@@ -194,8 +188,10 @@ imageHandler.returnImage = function(res, path) {
 };
 
 imageHandler.processImage = function(id, processor) {
+  console.log('processing image', id);
   db.getDoc(id, function(err, doc) {
-    if (err) throw err;
+    console.log(err)
+    if (err) return;
 
     http.get(doc.url, function(response) {
       var imagedata = '';
@@ -223,7 +219,7 @@ app.get('/preview/:doc', function(req, res) {
     filename = req.params.doc,
     tempFolder = './public/images/temporary/';
 
-  processImage(docId, function(doc, imagedata) {
+  imageHandler.processImage(docId, function(doc, imagedata) {
     var temp = tempFolder + filename;
     console.log('writing to temp file ', temp);
 
@@ -234,10 +230,23 @@ app.get('/preview/:doc', function(req, res) {
       var output = tempFolder + docId + "-preview.gif";
       console.log('resizing to ', output);
 
-      exec("gifsicle " + temp + " --resize-width 75 -o " + output, function(err, stdout, stderr) {
+      exec("gifsicle " + temp + " --resize-width 120 -o " + output, function(err, stdout, stderr) {
         if (err) throw err;
 
-        imageHandler.returnImage(res, output);
+        var selection = doc.frames.split(','),
+            start = +selection[0],
+            end = +selection[selection.length-1],
+            frames = "'#" + start + "-" + end + "'";
+
+        var finalOutput = tempFolder + [docId, "frames", start, end].join('-') + ".gif";
+        console.log('chopping frames', finalOutput);
+
+        exec("gifsicle -U " + output + " " + frames + " -o " + finalOutput, function(err, stdout, stderr) {
+          if (err) throw err;
+
+          imageHandler.returnImage(res, finalOutput);
+        });
+
       });
     });
   });
@@ -250,7 +259,7 @@ app.get('/chop/:doc/:start/:end', function(req, res) {
     id = req.params.doc,
     tempFolder = './public/images/temporary/';
 
-  processImage(id, function(doc, imagedata) {
+  imageHandler.processImage(id, function(doc, imagedata) {
     var temp = tempFolder + id + '.gif';
     console.log('writing to temp file ', temp);
 
@@ -265,9 +274,7 @@ app.get('/chop/:doc/:start/:end', function(req, res) {
       exec("gifsicle -U " + temp + " " + frames + " -o " + output, function(err, stdout, stderr) {
         if (err) throw err;
 
-        var img = fs.readFileSync(output);
-        res.writeHead(200, {'Content-Type': 'image/gif' });
-        res.end(img, 'binary');
+        imageHandler.returnImage(res, output);
       });
     });
   });
