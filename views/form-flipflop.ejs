@@ -24,10 +24,10 @@
 		},{
 			path: '/uploads/<%=scan_id%>/'
 		},function(InkBlobs){
-	   		console.log(JSON.stringify(InkBlobs));
-	   		var img = InkBlobs[0];
-	   		var id = img.url.split("/");
-	   		window.location = "<%=base_url%>/uploaded/?id="+id[5]+"&key="+img.key;
+	   		// console.log(JSON.stringify(InkBlobs));
+	   		var id0 = InkBlobs[0].url.split("/")[5],
+	   			id1 = InkBlobs[1].url.split("/")[5];
+	   		window.location = "<%=base_url%>/flipflop/?id0="+id0+"&key0="+InkBlobs[0].key+"&id1="+id1+"&key1="+InkBlobs[1].key;
 		},function(FPError){ console.log(FPError); }
 	);
 

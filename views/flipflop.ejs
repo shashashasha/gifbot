@@ -1,0 +1,79 @@
+<% layout('base') -%>
+
+<% script('/lib/jquery.min.js') -%>
+
+<div class="bg">
+	<div id="triangle"></div>
+	<a href="http://127.0.0.1:3000/upload-flipflop" id="back">choose other images</a>
+	<div id="wrapper" class="box">
+		<div id="b1" class="box"></div>
+		<div id="b2" class="box"></div>
+	</div>
+</div>
+
+<style>
+	.box {
+		width: 300px;
+		height: 300px;
+		position: absolute;
+		overflow: hidden;
+		top: 10px;
+		left: 10px;
+	}
+	#wrapper {
+		left: 400px;
+		-webkit-transform: perspective(500) rotateX(-20deg);
+		-webkit-animation-duration: 3s;
+		-webkit-animation-name: skew;
+		-webkit-animation-iteration-count: infinite;
+	}
+	@-webkit-keyframes skew {
+		from {
+			-webkit-transform: perspective(500) rotateX(-20deg);
+		}
+		50% {
+			-webkit-transform: perspective(500) rotateX(20deg);
+		}
+		to {
+			-webkit-transform: perspective(500) rotateX(-20deg);
+		}
+	}
+	#b1 {
+		background-image: url(<%=image_url0%>);
+		background-size: 100%;
+	}
+	#b2 {
+		/*background-color: #ff9900;*/
+		background-image: url(<%=image_url1%>);
+		background-size: 100%;
+		-webkit-animation-duration: 3s;
+		-webkit-animation-name: height;
+		-webkit-animation-iteration-count: infinite;
+	}
+	@-webkit-keyframes height {
+		from {
+			height: 300px;
+		}
+		50% {
+			height: 0px;
+		}
+		to {
+			height: 300px;
+		}
+	}
+</style>
+
+<script type="text/javascript">
+	console.log('<%=image_url0%>','<%=doc_id0%>')
+
+	function displayMessage (evt) {
+		$(".jsgif").attr("class","jsgif "+evt.data);
+	}
+
+	if (window.addEventListener) {
+		window.addEventListener("message", displayMessage, false);
+	}
+	else {
+		window.attachEvent("onmessage", displayMessage);
+	}
+</script>

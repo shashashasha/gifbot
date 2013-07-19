@@ -42,13 +42,13 @@ var gifchopper = function() {
       $("#gif-controls").slideUp();
       $("body").addClass("done");
 
-      if (parent) 
+      if (parent)
         parent.postMessage(self.id, 'http://gifpop.io');
     });
   };
 
   self.getFrames = function() {
-      var frames = [], 
+      var frames = [],
           j = 0;
 
       for (var i = start; i < stop; i++) {
@@ -76,7 +76,7 @@ var gifchopper = function() {
       else {
         $(".jsgif").css({
           opacity: .5
-        }); 
+        });
       }
     })
     .mousedown(function(e) {
@@ -109,7 +109,7 @@ var gifchopper = function() {
     var offset = e.target.id == 'selection' ? parseFloat(e.target.style.marginLeft) + e.offsetX : e.offsetX;
     var length = self.controller.length() - 1;
     var percent = offset / e.currentTarget.clientWidth;
-    return Math.round(percent * length);  
+    return Math.round(percent * length);
   };
 
   var getPixel = function(f) {
@@ -169,7 +169,7 @@ var gifchopper = function() {
 
     self.controller.seekFrame(start);
     intervalID = setInterval(function() {
-      var current = self.controller.currentFrame(), 
+      var current = self.controller.currentFrame(),
           length = self.controller.length();
 
       if (current >= stop || current >= length - 1) {
@@ -177,22 +177,22 @@ var gifchopper = function() {
       } else {
 
         if (start != 0 && stop != -1) {
-          self.controller.stepFrame(interval);  
-        } 
+          self.controller.stepFrame(interval);
+        }
         else {
           self.controller.nextFrame();
         }
-          
+
       }
     }, delay);
 
     /*
-  
+
     // code for pingponging
     var forwards = true;
     self.controller.seekFrame(start);
     intervalID = setInterval(function() {
-      var current = self.controller.currentFrame(), 
+      var current = self.controller.currentFrame(),
           length = self.controller.length();
 
       if (forwards == true && current == stop) {
@@ -202,7 +202,7 @@ var gifchopper = function() {
         forwards = true;
       }
 
-      self.controller.stepFrame(forwards ? interval : -interval);  
+      self.controller.stepFrame(forwards ? interval : -interval);
     }, delay);
 
     */
