@@ -1,8 +1,16 @@
 <% layout('base') -%>
 
 <% script('//api.filepicker.io/v1/filepicker.js') -%>
+<% script('/lib/jquery.min.js') -%>
 
 <iframe id="picker"></iframe>
+<!-- <div id="fileFromURL">
+    <h2>Or paste a URL to a gif here</h2>
+    <input id="urlInput"></input>
+    <div id="urlSubmit"></div>
+    <p>(links to your Vines or Instagram videos also work!)</p>
+</div> -->
+<!-- <div id="url"></div> -->
 
 <style>
 	#picker {
@@ -10,6 +18,65 @@
 		height: 490px;
 		border: none;
 	}
+	#url {
+		position: absolute;
+		top: 200px;
+		left: 500px;
+		z-index: 100;
+		width: 300px;
+		height: 300px;
+		background-color: #ff9900;
+	}
+	#url:hover {
+		background-color: black;
+	}
+	#fileFromURL {
+	    background: #808080;
+	    width: 400px;
+	    height: 195px;
+	    position: absolute;
+	    top: 215px;
+	    left: 420px;
+	    font-family: Futura;
+	    text-align: center;
+	    color: white;
+	}
+
+	#fileFromURL h2 {
+	    text-transform: uppercase;
+	    font-size: 22px;
+	    font-style: italic;
+	    margin: 30px 0 5px;
+	}
+	#fileFromURL #urlInput,
+	#fileFromURL #urlSubmit {
+	    float: left;
+	}
+	#fileFromURL #urlInput {
+	    height: 49px;
+	    border-radius: 0;
+	    border: none;
+	    -webkit-transform: skew(-7deg);
+	    margin: 4px 1px 10px 25px;
+	    width: 225px;
+	}
+	#fileFromURL #urlSubmit {
+	    background-image: url(images/submit.png);
+	    width: 124px;
+	    height: 56px;
+	    cursor: pointer;
+	}
+	#fileFromURL #urlSubmit:hover {
+	    background-image: url(images/submit-over.png);
+	}
+	#fileFromURL #urlSubmit:active {
+	    background-image: url(images/submit-down.png);
+	}
+	#fileFromURL p {
+	    font-size: 14px;
+	    clear: both;
+	}
+
 </style>
 
 <script type="text/javascript">
@@ -19,14 +86,14 @@
 	filepicker.pickAndStore({
 			extension: '.gif',
 			container: 'picker',
-			services: ['COMPUTER']
+			services: ['COMPUTER','URL']
 		},{
 			path: '/uploads/<%=scan_id%>/'
 		},function(InkBlobs){
 	   		console.log(JSON.stringify(InkBlobs));
 	   		var img = InkBlobs[0];
 	   		var id = img.url.split("/");
-	   		window.location = "<%=base_url%>/uploaded/?id="+id[5]+"&key="+img.key;
+	   		window.location = "<%=base_url%>/gifchop/?id="+id[5]+"&key="+img.key;
 		},function(FPError){ console.log(FPError); }
 	);
 
