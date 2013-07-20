@@ -85,6 +85,12 @@ var uploadForm = function(res, form) {
 app.get('/upload', function(req, res) {
   uploadForm(res, 'form');
 });
+app.get('/upload-gifchop', function(req, res) {
+  uploadForm(res, 'form-gifchop');
+});
+app.get('/upload-flipflop', function(req, res) {
+  uploadForm(res, 'form-flipflop');
+});
 
 app.get('/dropform', function(req, res) {
   uploadForm(res, 'dropform');
@@ -94,7 +100,7 @@ app.get('/directform', function(req, res) {
   uploadForm(res, 'directform');
 });
 
-app.get('/uploaded', function(req, res) {
+app.get('/gifchop', function(req, res) {
   var docId = req.query["id"]
     , key = decodeURIComponent(req.query["key"])
     , base = 'http://gifpop-uploads.s3.amazonaws.com/{key}'
@@ -114,13 +120,45 @@ app.get('/uploaded', function(req, res) {
     util.p(ok);
 
     // render the uploaded page if we've saved the gif info to the db
-    res.render('uploaded', {
+    res.render('gifchop', {
       title: 'GifPOP',
       image_url: url,
       doc_id: docId
     });
   });
+});
 
+app.get('/flipflop', function(req, res) {
+  console.log(req, res)
+  var docId0 = req.query["id0"]
+    , key0 = decodeURIComponent(req.query["key0"])
+    , docId1 = req.query["id1"]
+    , key1 = decodeURIComponent(req.query["key1"])
+    , base = 'http://gifpop-uploads.s3.amazonaws.com/{key}'
+    , url0 = base.replace('{key}', key0)
+    , url1 = base.replace('{key}', key1);
+
+  // save the uploaded gif information
+  // db.saveDoc(docId, {
+  //   url: url,
+  //   date: JSON.stringify(new Date()),
+  //   type: 'gif',
+  //   status: 'uploaded'
+  // }, function(er, ok) {
+  //   if (er) {
+  //     util.puts(er);
+  //   }
+
+    // util.p(ok);
+
+    // render the uploaded page if we've saved the gif info to the db
+  res.render('flipflop', {
+    title: 'GifPOP',
+    image_url0: url0,
+    doc_id0: docId0,
+    image_url1: url1,
+    doc_id1: docId1
+  });
 });
 
 // save frame selection to couch, need to get the latest rev number to update it though
