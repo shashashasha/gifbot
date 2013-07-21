@@ -12,7 +12,7 @@ var gifchopper = function() {
     intervalID = null,
     idleID = null,
     last = null,
-    pingponging = false,
+    idling = false,
     dragging = false,
     allowautoplay = true;
 
@@ -21,29 +21,35 @@ var gifchopper = function() {
     self.url = url;
     self.controller = gifcontrol(gif, 450);
     self.id = id;
+    $("#status").fadeIn();
 
     // only allow scrubbing after it's processed
     self.controller.events.processed = function() {
       self.timeline();
 
+      $("#status").fadeOut();
       stop = self.controller.length();
-      self.startPingPoinging();
+      self.startIdling();
+
+      if (self.controller.length() <= 10) {
+        centerSelection(0);
+      }
     };
 
     self.ui();
   };
 
   self.ui = function() {
-    // toggle pingponging
+    // toggle idling
     $("#gif-toggle").click(function() {
-      if (pingponging) {
-        self.stopPingPoinging();
+      if (idling) {
+        self.stopIdling();
         allowautoplay = false;
         return;
       }
 
       allowautoplay = true;
-      self.startPingPoinging();
+      self.startIdling();
     });
 
     // on "done" store id in form
@@ -86,7 +92,7 @@ var gifchopper = function() {
       // }
       var percent = e.offsetX / e.srcElement.clientWidth;
       self.controller.seekPercent(percent);
-      self.stopPingPoinging();
+      self.stopIdling();
 
       if (dragging) {
         var current = getFrame(e);
@@ -94,7 +100,7 @@ var gifchopper = function() {
       }
       else {
         // $(".jsgif").css({ opacity: .5 });
-        idleID = setTimeout(self.startPingPoinging, idleTime);
+        idleID = setTimeout(self.startIdling, idleTime);
       }
     })
     .mousedown(function(e) {
@@ -107,7 +113,7 @@ var gifchopper = function() {
     .mouseout(function() {
       if (allowautoplay && stop > 0) {
         clearTimeout(idleID);
-        idleID = setTimeout(self.startPingPoinging, idleTime);
+        idleID = setTimeout(self.startIdling, idleTime);
       }
     });
 
@@ -115,7 +121,7 @@ var gifchopper = function() {
       dragging = false;
 
       if (allowautoplay)
-        self.startPingPoinging();
+        self.startIdling();
 
       $(".jsgif").css({ opacity: 1 });
     })
@@ -148,10 +154,15 @@ var gifchopper = function() {
         start += dif;
         stop += dif;
       } else if (stop >= length) {
-        var dif = stop - length;
+        var dif = stop - (length - 1);
         start -= dif;
         stop -= dif;
+
       }
+
+      // cap them still just in case we have less than 10 frames
+      stop = Math.min(length - 1, stop);
+      start = Math.max(0, start);
 
       drawSelection();
       last = current;
@@ -164,8 +175,9 @@ var gifchopper = function() {
 
       // draw a rectangle for now
       $("#selection").css({
-        'marginLeft': sx + 'px',
-        'marginRight': (tw - ex) + 'px',
+        'display': 'block',
+        'marginLeft': (sx - 2) + 'px',
+        'marginRight': ((tw - ex) - 2) + 'px',
         'width': (ex - sx) + 'px'
       });
   };
@@ -173,7 +185,7 @@ var gifchopper = function() {
   /*
     loop between the *start* and *stop* frame numbers, with default *delay*
   */
-  self.startPingPoinging = function() {
+  self.startIdling = function() {
     if (intervalID) {
       clearInterval(intervalID);
       intervalID = null;
@@ -225,17 +237,16 @@ var gifchopper = function() {
 
       self.controller.stepFrame(forwards ? interval : -interval);
     }, delay);
-
     */
 
-    pingponging = true;
+    idling = true;
   };
 
-  self.stopPingPoinging = function() {
+  self.stopIdling = function() {
     clearInterval(intervalID);
 
     intervalID = null;
-    pingponging = false;
+    idling = false;
   };
 
   return self;

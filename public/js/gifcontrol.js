@@ -67,20 +67,29 @@ var gifcontrol = function(gif, maxheight) {
     //toolbar.style.display = pos === length ? '' : 'block'; // FIXME Move this to doPlay() or something.
     toolbar.style.visibility = pos === length ? '' : 'visible'; // FIXME Move this to doPlay() or something.
 
-    // if (draw) {
-    //   var height = Math.min(canvas.height >> 3, canvas.height);
-    //   var top = (canvas.height - height) >> 1;
-    //   var bottom = (canvas.height + height) >> 1;
-    //   var mid = (pos / length) * canvas.width;
+    if (draw) {
+      var height = Math.min(canvas.height >> 3, canvas.height);
+      var top = (canvas.height - height) >> 1;
+      var bottom = (canvas.height + height) >> 1;
+      var mid = (pos / length) * canvas.width;
 
-    //   // XXX Figure out alpha fillRect.
-    //   ctx.fillStyle = 'rgba(200,200,200,0.5)';
-    //   ctx.fillRect(mid, top, canvas.width - mid, height);
+      // XXX Figure out alpha fillRect.
+      ctx.fillStyle = 'rgba(210,210,210,0.5)';
+      ctx.fillRect(mid, 0, canvas.width - mid, canvas.height);
 
-    //   ctx.fillStyle = 'rgba(30,30,30,0.5)';
-    //   ctx.fillRect(0, top, (pos / length) * canvas.width, height);
-    // }
-    console.log('progress', pos, length);
+      ctx.fillStyle = 'rgba(15,15,15,0.5)';
+      ctx.fillRect(0, 0, (pos / length) * canvas.width, canvas.height);
+
+
+      var text = prefix + ' ' + Math.floor(pos / length * 100) + '%';
+
+      ctx.font = 'italic 24pt Futura';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = 'rgb(255, 255, 255)';
+      ctx.fillText(text.toUpperCase(), canvas.width / 2, canvas.height / 2 + 10);
+    }
+
     doText(prefix + ' ' + Math.floor(pos / length * 100) + '%');
   };
 
@@ -501,7 +510,8 @@ var gifcontrol = function(gif, maxheight) {
   };
 
   var doDecodeProgress = function(draw) {
-    doShowProgress('Decoding (frame ' + (frames.length + 1) + ')...', stream.pos, stream.data.length, draw);
+    //  (frame ' + (frames.length + 1) + ')
+    doShowProgress('Decoding ', stream.pos, stream.data.length, draw);
   };
 
   var doNothing = function(){};
