@@ -56,13 +56,10 @@ body{
 	top: 15px;
 }
 #timeline {
-	margin: 20px auto 10px;
 	width: 100%;
-	height: 20px;
+	height: 50px;
 	background-color: #808080;
-	border-radius: 10px;
 	cursor: pointer;
-	box-shadow: inset 1px 1px 7px #555;
 }
 #gif-controls {
 	position: relative;
@@ -76,16 +73,25 @@ body{
 }
 #selection {
 	width:0px;
-	height: 30px;
-	border-radius: 5px;
+	height: 50px;
 	margin: 0;
 	background:#ff9900;
 	cursor: move;
 	background-image: url(../images/timeline.png);
 	background-repeat: no-repeat;
 	background-position: 50%;
-	margin-top: -36px;
-	box-shadow: 1px 1px 5px -1px #555;
+	margin-top: -75px;
+	border-left: 3px solid white;
+	border-right: 3px solid white;
+	pointer-events: none;
+}
+#playhead {
+	width: 2px;
+	height: 50px;
+	margin: 0;
+	margin-top: -50px;
+	background: white;
+	pointer-events: none;
 }
 #gif-ui {
 	margin: 10px auto 0;
@@ -116,7 +122,7 @@ body{
 
 .jsgif {
 	overflow: hidden;
-	margin: 20px auto;
+	margin: 20px auto 0;
 }
 .jsgif_simple_tools {
 	display: none;

@@ -4,6 +4,7 @@
 var gifcontrol = function(gif, maxheight) {
   var self = {};
 
+  self.events = {};
 
   var stream;
   var hdr;
@@ -79,7 +80,7 @@ var gifcontrol = function(gif, maxheight) {
     //   ctx.fillStyle = 'rgba(30,30,30,0.5)';
     //   ctx.fillRect(0, top, (pos / length) * canvas.width, height);
     // }
-
+    console.log('progress', pos, length);
     doText(prefix + ' ' + Math.floor(pos / length * 100) + '%');
   };
 
@@ -116,9 +117,20 @@ var gifcontrol = function(gif, maxheight) {
 
     canvas.width = hdr.width * scale;
     canvas.height = hdr.height * scale;
-    div.style.width = (hdr.width * scale) + 'px';
-    //div.style.height = hdr.height + 'px';
-    toolbar.style.minWidth = (hdr.width * scale) + 'px';
+
+    // commenting this line out, scaling full width
+    // div.style.width = (hdr.width * scale) + 'px';
+
+    // adding this line, cropping max height
+    div.style.height = '450px';
+
+    // adding this line, vertically centering the full bleed gif
+    var horzStretch = $(div).width() / hdr.width;
+    var vertStretch = horzStretch * hdr.height;
+    canvas.style.marginTop = -(vertStretch - 450)/2 + 'px';
+
+    // div.style.height = hdr.height + 'px';
+    // toolbar.style.minWidth = (hdr.width * scale) + 'px';
 
     tmpCanvas.width = hdr.width;
     tmpCanvas.height = hdr.height;
@@ -133,7 +145,6 @@ var gifcontrol = function(gif, maxheight) {
   var doGCE = function(gce) {
     pushFrame();
     clear();
-    console.log('cleared');
     transparency = gce.transparencyGiven ? gce.transparencyIndex : null;
     delay = gce.delayTime;
     disposalMethod = gce.disposalMethod;
@@ -196,7 +207,7 @@ var gifcontrol = function(gif, maxheight) {
       var showingInfo = false;
       var pinned = false;
 
-      // 
+      //
       self.currentFrame = function() {
         return i;
       };
@@ -220,12 +231,16 @@ var gifcontrol = function(gif, maxheight) {
 
       var updateFrame = function(num) {
         i = Math.max(0, Math.min(frames.length-1, num));
-        if (curFrame && delayInfo) { 
+        if (curFrame && delayInfo) {
           curFrame.value = i + 1;
           delayInfo.value = frames[i].delay;
         }
 
         putFrame();
+
+        // callbacks
+        if (self.events.frameChanged)
+          self.events.frameChanged(i/(frames.length-1));
       };
 
       var step = (function() {
@@ -250,7 +265,7 @@ var gifcontrol = function(gif, maxheight) {
           // draw it to the temp canvas so we can scale it properly
           if (!frame) frame = tmpCanvas.getContext('2d');
           frame.putImageData(frames[i].data, 0, 0);
-          
+
           ctx.drawImage(tmpCanvas, 0, 0, tmpCanvas.width, tmpCanvas.height, 0, 0, canvas.width, canvas.height);
 
           // ctx.putImageData(frames[i].data, 0, 0);
@@ -461,7 +476,8 @@ var gifcontrol = function(gif, maxheight) {
 
         delayInfo.addEventListener('change', doCurDelayChanged, false);
 
-        canvas.addEventListener('click', self.playPause, false);
+        // stop autoplaying and pausing
+        // canvas.addEventListener('click', self.playPause, false);
 
         // For now, to handle GIFs in <a> tags and so on. This needs to be handled better, though.
         div.addEventListener('click', function(e) { e.preventDefault(); }, false);
@@ -511,12 +527,16 @@ var gifcontrol = function(gif, maxheight) {
       NETSCAPE: withProgress(doNothing)
     },
     img: withProgress(doImg, true),
+    // when finished!
     eof: function(block) {
-      //toolbar.style.display = '';
       pushFrame();
       doDecodeProgress(false);
       doText('Playing...');
       doPlay();
+      self.seekPercent(0);
+
+      if (self.events.processed)
+        self.events.processed();
     }
   };
 
@@ -555,7 +575,7 @@ var gifcontrol = function(gif, maxheight) {
   canvas.height = gif.height;
   toolbar.style.minWidth = gif.width + 'px';
 
-  div.className = 'jsgif';
+  div.className = 'jsgif scrubbable';
   toolbar.className = 'jsgif_toolbar';
   div.appendChild(canvas);
   div.appendChild(toolbar);
@@ -568,7 +588,7 @@ var gifcontrol = function(gif, maxheight) {
   doGet();
 
   /*
-  
+
     Handler functions for GIFController
 
   */
