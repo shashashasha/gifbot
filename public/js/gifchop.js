@@ -31,12 +31,20 @@ var gifchopper = function() {
       stop = self.controller.length();
       self.startIdling();
 
+      $("#instructions").fadeIn();
+
       if (self.controller.length() <= 10) {
         centerSelection(0);
       }
     };
 
     self.ui();
+  };
+
+  self.selected = function() {
+    $("#instructions").fadeOut(200, function() {
+      $("#finalize").fadeIn();
+    });
   };
 
   self.ui = function() {
@@ -165,6 +173,8 @@ var gifchopper = function() {
       start = Math.max(0, start);
 
       drawSelection();
+      self.selected();
+
       last = current;
   };
 

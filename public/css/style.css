@@ -60,6 +60,8 @@ body{
 	height: 50px;
 	margin-top: 2px;
 	background-color: #808080;
+}
+.scrubbable {
 	cursor: pointer;
 }
 #gif-controls {
@@ -106,25 +108,32 @@ body{
 	color: white;
 	font-family: "Helvetica Neue", Helvetica;
 }
+.large-helper-text {
+	font-family: "Futura";
+	text-transform: uppercase;;
+	font-size: 24px;
+	color: #808080;
+	text-align: center;
+
+	-webkit-font-smoothing: antialiased;
+
+	transform:skew(-7deg);
+	-ms-transform:skew(-7deg); /* IE 9 */
+	-moz-transform:skew(-7deg); /* Firefox */
+	-webkit-transform:skew(-7deg); /* Safari and Chrome */
+	-o-transform:skew(-7deg); /* Opera */
+}
 #gif-submit {
 	-webkit-appearance: none;
 	border: none;
 	background-color: #f8981c;
 	text-transform: uppercase;
 	font-family: "Futura";
-	font-size: 30px;
+	font-size: 24px;
 	color: white;
-	float: right;
 	cursor: pointer;
-	margin: 20px 10px 0;
 	padding: 5px 10px;
-	-webkit-font-smoothing: antialiased;
-	font-weight: 700;
-	transform:skew(-7deg);
-	-ms-transform:skew(-7deg); /* IE 9 */
-	-moz-transform:skew(-7deg); /* Firefox */
-	-webkit-transform:skew(-7deg); /* Safari and Chrome */
-	-o-transform:skew(-7deg); /* Opera */
+	font-weight: 500;
 }
 
 

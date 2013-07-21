@@ -82,22 +82,11 @@ var uploadForm = function(res, form) {
   });
 };
 
-app.get('/upload', function(req, res) {
-  uploadForm(res, 'form');
-});
 app.get('/upload-gifchop', function(req, res) {
   uploadForm(res, 'form-gifchop');
 });
 app.get('/upload-flipflop', function(req, res) {
   uploadForm(res, 'form-flipflop');
-});
-
-app.get('/dropform', function(req, res) {
-  uploadForm(res, 'dropform');
-});
-
-app.get('/directform', function(req, res) {
-  uploadForm(res, 'directform');
 });
 
 app.get('/gifchop', function(req, res) {
@@ -129,7 +118,6 @@ app.get('/gifchop', function(req, res) {
 });
 
 app.get('/flipflop', function(req, res) {
-  console.log(req, res)
   var docId0 = req.query["id0"]
     , key0 = decodeURIComponent(req.query["key0"])
     , docId1 = req.query["id1"]
