@@ -46,7 +46,7 @@ app.configure('development', function(){
 
 // index page
 app.get('/', function(req, res) {
-  res.render('index', { what: 'best', title: 'me' });
+  res.render('index', { what: 'bestest :)', title: 'me' });
 });
 
 var uploadForm = function(res, form) {
@@ -247,8 +247,8 @@ imageHandler.processImage = function(id, processor) {
         else
           console.log('no image processor defined');
       });
-    })
-  })
+    });
+  });
 };
 
 app.get('/preview/:doc', function(req, res) {

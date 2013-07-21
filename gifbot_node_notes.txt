@@ -38,7 +38,7 @@ curl http://npmjs.org/install.sh | sh
 # this will install everything listed as a dependency in package.json
 npm install
 
-# you can also install nodemon globally 
+# you can also install nodemon globally
 # (it runs node servers and refreshes on updates)
 npm install nodemon -g
 
@@ -49,7 +49,7 @@ nodemon app.js
 # ON WEBFACTION
 #################
 
-# run on server 
+# run on server
 # http://blog.nodejitsu.com/keep-a-nodejs-server-up-with-forever
 forever stopall
 forever start app.js
@@ -67,3 +67,5 @@ python policy_document.py
 # installing couch on web faction: http://community.webfaction.com/questions/557/installing-couchdb
 
 # couch is installed on port 13893
+
+# ssh -L 13893:127.0.0.1:13893 meshu@
