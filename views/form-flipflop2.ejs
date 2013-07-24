@@ -2,6 +2,7 @@
 
 <% script('//api.filepicker.io/v1/filepicker.js') -%>
 
+<img src="http://gifpop-uploads.s3.amazonaws.com/<%=key%>">
 <iframe id="picker"></iframe>
 
 <style>
@@ -17,7 +18,6 @@
 	filepicker.setKey("AYkBZ0oUOTTqvkwhxMx3Ez");
 
 	filepicker.pickAndStore({
-			multiple: 'true',
 			mimetype: 'image/*',
 			container: 'picker',
 			services: ['COMPUTER','URL','INSTAGRAM','FACEBOOK','FLICKR']
@@ -25,9 +25,8 @@
 			path: '/uploads/<%=scan_id%>/'
 		},function(InkBlobs){
 	   		// console.log(JSON.stringify(InkBlobs));
-	   		var id0 = InkBlobs[0].url.split("/")[5],
-	   			id1 = InkBlobs[1].url.split("/")[5];
-	   		window.location = "<%=base_url%>/flipflop/?id0="+id0+"&key0="+InkBlobs[0].key+"&id1="+id1+"&key1="+InkBlobs[1].key;
+	   		var id = InkBlobs[0].url.split("/")[5];
+	   		window.location = "<%=base_url%>/flipflop/?id0=<%=doc_id%>&key0=<%=key%>&id1="+id+"&key1="+InkBlobs[0].key;
 		},function(FPError){ console.log(FPError); }
 	);
 

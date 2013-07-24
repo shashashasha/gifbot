@@ -1,0 +1,32 @@
+<% layout('base') -%>
+
+<% script('//api.filepicker.io/v1/filepicker.js') -%>
+
+<iframe id="picker"></iframe>
+
+<style>
+	#picker {
+		width: 875px;
+		height: 500px;
+		border: none;
+	}
+</style>
+
+<script type="text/javascript">
+
+	filepicker.setKey("AYkBZ0oUOTTqvkwhxMx3Ez");
+
+	filepicker.pickAndStore({
+			mimetype: 'image/*',
+			container: 'picker',
+			services: ['COMPUTER','URL','INSTAGRAM','FACEBOOK','FLICKR']
+		},{
+			path: '/uploads/<%=scan_id%>/'
+		},function(InkBlobs){
+	   		// console.log(JSON.stringify(InkBlobs));
+	   		var id0 = InkBlobs[0].url.split("/")[5];
+	   		window.location = "<%=base_url%>/upload-flipflop2/?id0="+id0+"&key0="+InkBlobs[0].key;
+		},function(FPError){ console.log(FPError); }
+	);
+
+</script>

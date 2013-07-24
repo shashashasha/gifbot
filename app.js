@@ -49,7 +49,7 @@ app.get('/', function(req, res) {
   res.render('index', { what: 'bestest :)', title: 'me' });
 });
 
-var uploadForm = function(res, form) {
+var uploadForm = function(res, form, img_url, doc_id) {
   var cur = new Date()
     , folder = [cur.getFullYear(), cur.getMonth() + 1, cur.getDate()].join('-');
 
@@ -82,11 +82,37 @@ var uploadForm = function(res, form) {
   });
 };
 
+var uploadSecondForm = function(res, form, key, doc_id) {
+  var cur = new Date()
+    , folder = [cur.getFullYear(), cur.getMonth() + 1, cur.getDate()].join('-');
+
+  res.render(form, {
+    title: '',
+    key: key,
+    doc_id: doc_id,
+    base_url: config.HOST,
+    aws_signature: config.AWSSignature,
+    aws_accesskeyid: config.AWSAccessKeyId,
+    aws_policy: config.AWSPolicy,
+    scan_id: folder,
+    file_prefix: cur.getTime()
+  });
+};
+
 app.get('/upload-gifchop', function(req, res) {
   uploadForm(res, 'form-gifchop');
 });
 app.get('/upload-flipflop', function(req, res) {
-  uploadForm(res, 'form-flipflop');
+  uploadForm(res, 'form-flipflop1');
+});
+
+app.get('/upload-flipflop2', function(req, res) {
+  var docId0 = req.query["id0"]
+    , key0 = decodeURIComponent(req.query["key0"])
+    , base = 'http://gifpop-uploads.s3.amazonaws.com/{key}'
+    , url0 = base.replace('{key}', key0);
+
+  uploadSecondForm(res, 'form-flipflop2', key0, docId0);
 });
 
 app.get('/gifchop', function(req, res) {
