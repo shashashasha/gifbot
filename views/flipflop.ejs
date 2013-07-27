@@ -7,7 +7,7 @@
 	<a href="http://127.0.0.1:3000/upload-flipflop" id="back">choose other images</a>
 	<div id="wrapper" class="box">
 		<div id="b1" class="box"></div>
-		<div id="b2-wrapper">
+		<div id="b2-wrapper" class="box">
 			<div id="b2" class="box"></div>
 		</div>
 	</div>
@@ -85,4 +85,17 @@
 	else {
 		window.attachEvent("onmessage", displayMessage);
 	}
+
+	var pgWidth = 380;
+	$(".bg").mouseenter(function(){
+			// $(".box").css("-webkit-animation-play-state", "paused");
+			$(".box").css("-webkit-animation","none")
+		}).mousemove(function(e){
+			var percentage = 1 - e.offsetY/pgWidth;
+			console.log(percentage)
+			$("#wrapper").css("-webkit-transform","perspective(500) rotateX("+(10-(percentage*20))+"deg)");
+			$("#b2-wrapper").css("-webkit-mask-position",-300*percentage+"px "+-300*percentage+"px");
+		}).mouseleave(function(){
+			// $(".box").css("-webkit-animation-play-state", "running");
+		});
 </script>
