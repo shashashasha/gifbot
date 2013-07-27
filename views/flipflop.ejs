@@ -7,58 +7,68 @@
 	<a href="http://127.0.0.1:3000/upload-flipflop" id="back">choose other images</a>
 	<div id="wrapper" class="box">
 		<div id="b1" class="box"></div>
-		<div id="b2" class="box"></div>
+		<div id="b2-wrapper">
+			<div id="b2" class="box"></div>
+		</div>
 	</div>
 </div>
 
 <style>
-	.box {
+	.bg {
+		width: 875px;
+	}
+	.box, #b2-wrapper {
 		width: 300px;
 		height: 300px;
 		position: absolute;
 		overflow: hidden;
-		top: 10px;
-		left: 10px;
 	}
 	#wrapper {
-		left: 400px;
-		-webkit-transform: perspective(500) rotateX(-20deg);
-		-webkit-animation-duration: 3s;
-		-webkit-animation-name: skew;
-		-webkit-animation-iteration-count: infinite;
+		position: relative;
+		margin: 0 auto;
+		margin-bottom: 50px;
+		-webkit-animation: skew 5s infinite;
 	}
 	@-webkit-keyframes skew {
-		from {
-			-webkit-transform: perspective(500) rotateX(-20deg);
+		0% {
+			-webkit-transform: perspective(500) rotateX(-10deg);
 		}
 		50% {
-			-webkit-transform: perspective(500) rotateX(20deg);
+			-webkit-transform: perspective(500) rotateX(10deg);
 		}
-		to {
-			-webkit-transform: perspective(500) rotateX(-20deg);
+		100% {
+			-webkit-transform: perspective(500) rotateX(-10deg);
 		}
+	}
+	#b1, #b2 {
+		background-size: cover;
+		background-position: center;
 	}
 	#b1 {
 		background-image: url(<%=image_url0%>);
-		background-size: 100%;
 	}
 	#b2 {
-		/*background-color: #ff9900;*/
 		background-image: url(<%=image_url1%>);
-		background-size: 100%;
-		-webkit-animation-duration: 3s;
-		-webkit-animation-name: height;
-		-webkit-animation-iteration-count: infinite;
 	}
-	@-webkit-keyframes height {
-		from {
-			height: 300px;
+	#b2-wrapper {
+		-webkit-animation: wipe 5s infinite;
+		-webkit-mask-size: 640px 640px;
+		-webkit-mask-image: -webkit-gradient(linear, left 0%, left bottom,
+				color-stop(0.00,  rgba(0,0,0,1)),
+				color-stop(0.45,  rgba(0,0,0,1)),
+				color-stop(0.50,  rgba(0,0,0,0)),
+				color-stop(0.55,  rgba(0,0,0,0)),
+				color-stop(1.00,  rgba(0,0,0,0)));
+	}
+	@-webkit-keyframes wipe {
+		0% {
+			-webkit-mask-position: 0px 0px;
 		}
 		50% {
-			height: 0px;
+			-webkit-mask-position: -300px -300px;
 		}
-		to {
-			height: 300px;
+		100% {
+			-webkit-mask-position: 0px 0px;
 		}
 	}
 </style>

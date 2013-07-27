@@ -2,10 +2,33 @@
 
 <% script('//api.filepicker.io/v1/filepicker.js') -%>
 
-<img src="http://gifpop-uploads.s3.amazonaws.com/<%=key%>">
+<div id="img-wrapper">
+	<img id="img1" src="http://gifpop-uploads.s3.amazonaws.com/<%=key%>">
+	<h2>Nice Find!</h2>
+	<h2 class="second">Pick your second image:</h2>
+</div>
 <iframe id="picker"></iframe>
 
 <style>
+	#img-wrapper {
+		width: 875px;
+		min-height: 100px;
+	}
+	#img1 {
+		max-width: 400px;
+		max-height: 200px;
+		display: block;
+		float: right;
+	}
+	h2 {
+		float: left;
+		font-family: Futura;
+		text-transform: uppercase;
+		position: absolute;
+	}
+	h2.second {
+		top: 90px;
+	}
 	#picker {
 		width: 875px;
 		height: 500px;
