@@ -3,6 +3,8 @@
 <% script('//api.filepicker.io/v1/filepicker.js') -%>
 
 <h2>Pick the first of your two images:</h2>
+<div class="img-box">?</div>
+<div class="img-box">?</div>
 <iframe id="picker"></iframe>
 
 <style>
@@ -16,6 +18,27 @@
 		width: 875px;
 		height: 500px;
 		border: none;
+	}
+	.img-box {
+		width: 437px;
+		height: 215px;
+		float: left;
+		background-image: url(http://meshu.io/static/gifpop/img/starburst-wide.png);
+		background-color: #808080;
+		background-position: center;
+		border: solid #eee;
+		box-sizing: border-box;
+		border-width: 10px 5px;
+		margin-bottom: 10px;
+		font-size: 170px;
+		text-align: center;
+		line-height: 204px;
+	}
+	.img-box:nth-child(even) {
+		border-left-width: 10px;
+	}
+	.img-box:nth-child(odd) {
+		border-right-width: 10px;
 	}
 </style>
 
