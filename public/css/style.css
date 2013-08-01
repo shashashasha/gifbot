@@ -118,20 +118,23 @@ body{
 	display: none;
 }
 .jsgif.s_2x3 {
-	width: 262px !important;
-	height: 150px;
+	width: 350px !important;
+	height: 233px;
+	margin-top: 133px;
 }
 .jsgif.s_4x6 {
-	width: 450px !important;
-	height: 300px;
+	width: 600px !important;
+	height: 400px;
+	margin-top: 50px;
 }
 .jsgif.s_5x5 {
-	width: 375px !important;
-	height: 375px;
+	width: 500px !important;
+	height: 500px;
 }
 .jsgif.s_3x3 {
-	width: 225px !important;
-	height: 225px;
+	width: 350px !important;
+	height: 350px;
+	margin-top: 125px;
 }
 .jsgif canvas {
 	width: 100%;
