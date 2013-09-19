@@ -3,8 +3,6 @@
 <% script('/lib/jquery.min.js') -%>
 
 <div class="bg">
-	<div id="triangle"></div>
-	<a href="http://127.0.0.1:3000/upload-flipflop" id="back">choose other images</a>
 	<div id="wrapper" class="box">
 		<div id="b1" class="box"></div>
 		<div id="b2-wrapper" class="box">
@@ -18,26 +16,27 @@
 		width: 875px;
 	}
 	.box, #b2-wrapper {
-		width: 300px;
-		height: 300px;
+		width: 100%;
+		height: 100%;
 		position: absolute;
 		overflow: hidden;
 	}
 	#wrapper {
+		width: 500px;
+		height: 500px;
 		position: relative;
-		margin: 0 auto;
-		margin-bottom: 50px;
+		margin: 10px auto;
 		-webkit-animation: skew 5s infinite;
 	}
 	@-webkit-keyframes skew {
 		0% {
-			-webkit-transform: perspective(500) rotateX(-10deg);
+			-webkit-transform: perspective(500) rotateX(-5deg);
 		}
 		50% {
-			-webkit-transform: perspective(500) rotateX(10deg);
+			-webkit-transform: perspective(500) rotateX(5deg);
 		}
 		100% {
-			-webkit-transform: perspective(500) rotateX(-10deg);
+			-webkit-transform: perspective(500) rotateX(-5deg);
 		}
 	}
 	#b1, #b2 {
@@ -52,7 +51,7 @@
 	}
 	#b2-wrapper {
 		-webkit-animation: wipe 5s infinite;
-		-webkit-mask-size: 640px 640px;
+		-webkit-mask-size: 1040px 1040px;
 		-webkit-mask-image: -webkit-gradient(linear, left 0%, left bottom,
 				color-stop(0.00,  rgba(0,0,0,1)),
 				color-stop(0.45,  rgba(0,0,0,1)),
@@ -65,7 +64,7 @@
 			-webkit-mask-position: 0px 0px;
 		}
 		50% {
-			-webkit-mask-position: -300px -300px;
+			-webkit-mask-position: -500px -500px;
 		}
 		100% {
 			-webkit-mask-position: 0px 0px;
@@ -76,7 +75,7 @@
 <script type="text/javascript">
 
 	function displayMessage (evt) {
-		$(".jsgif").attr("class","jsgif "+evt.data);
+		$("#wrapper").attr("class","jsgif "+evt.data);
 	}
 
 	if (window.addEventListener) {
@@ -86,16 +85,29 @@
 		window.attachEvent("onmessage", displayMessage);
 	}
 
-	var pgWidth = 380;
+	function saveFrames() {
+		$.ajax({
+			type: "POST",
+			url: "/selected",
+			dataType: "json",
+			data: {
+				id: '<%=doc_id0%>'
+				// frames: gifchopper.getFrames().toString()
+			}
+		});
+	}
+
+	var imgHeight = $("#wrapper").height();
 	$(".bg").mouseenter(function(){
 			// $(".box").css("-webkit-animation-play-state", "paused");
 			$(".box").css("-webkit-animation","none")
 		}).mousemove(function(e){
-			var percentage = 1 - e.offsetY/pgWidth;
-			console.log(percentage)
-			$("#wrapper").css("-webkit-transform","perspective(500) rotateX("+(10-(percentage*20))+"deg)");
-			$("#b2-wrapper").css("-webkit-mask-position",-300*percentage+"px "+-300*percentage+"px");
+			var percentage = Math.max(1 - e.offsetY/imgHeight,0);
+			$("#wrapper").css("-webkit-transform","perspective(500) rotateX("+(5-(percentage*20))+"deg)");
+			$("#b2-wrapper").css("-webkit-mask-position",-imgHeight*percentage+"px "+-imgHeight*percentage+"px");
 		}).mouseleave(function(){
 			// $(".box").css("-webkit-animation-play-state", "running");
 		});
+
+	saveFrames();
 </script>
