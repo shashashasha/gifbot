@@ -85,17 +85,6 @@
 		window.attachEvent("onmessage", displayMessage);
 	}
 
-	function saveFrames() {
-		$.ajax({
-			type: "POST",
-			url: "/selected",
-			dataType: "json",
-			data: {
-				id: '<%=doc_id%>'
-			}
-		});
-	}
-
 	var imgHeight = $("#wrapper").height();
 	$(".bg").mouseenter(function(){
 			// $(".box").css("-webkit-animation-play-state", "paused");
@@ -108,5 +97,8 @@
 			// $(".box").css("-webkit-animation-play-state", "running");
 		});
 
-	saveFrames();
+	// save the doc-id to the line-item properties field of the shopify page
+	// do this on load because we don't need to do any "selected" buttons on the flip flop page
+	if (parent)
+		parent.postMessage('<%=doc_id%>', 'http://gifpop.io');
 </script>

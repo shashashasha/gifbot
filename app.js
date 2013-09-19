@@ -102,10 +102,15 @@ var uploadSecondForm = function(res, form, key, doc_id) {
 app.get('/upload-gifchop', function(req, res) {
   uploadForm(res, 'form-gifchop');
 });
+
+/*
+  This is a bit of a weird way of doing things,
+  but right now we have two flip flop form templates
+  one for the first image, one for the second
+*/
 app.get('/upload-flipflop', function(req, res) {
   uploadForm(res, 'form-flipflop1');
 });
-
 app.get('/upload-flipflop2', function(req, res) {
   var docId0 = req.query["id0"]
     , key0 = decodeURIComponent(req.query["key0"])
@@ -143,14 +148,18 @@ app.get('/gifchop', function(req, res) {
   });
 });
 
+/*
+  this is the actual page where we show the flipflop
+  (basically we're just showing a preview, no editing has to be done)
+*/
 app.get('/flipflop', function(req, res) {
   var docId0 = req.query["id0"]
     , key0 = decodeURIComponent(req.query["key0"])
     , docId1 = req.query["id1"]
     , key1 = decodeURIComponent(req.query["key1"])
     , base = 'http://gifpop-uploads.s3.amazonaws.com/{key}'
-    , url0 = base.replace('{key}', key0)
-    , url1 = base.replace('{key}', key1);
+    , url0 = base.replace('{key}', encodeURIComponent(key0))
+    , url1 = base.replace('{key}', encodeURIComponent(key1));
 
   // save the uploaded gif information
   db.saveDoc(docId0, {
@@ -176,28 +185,9 @@ app.get('/flipflop', function(req, res) {
   });
 });
 
-// save frame selection to couch, need to get the latest rev number to update it though
-app.post('/flipflop/selected', function(req, res) {
-  // frames are grabbed via gifchop.js
-  var docId = req.body.id;
-
-  console.log('selecting', docId);
-  console.log('frames:', frames);
-  db.getDoc(docId, function(err, doc) {
-    if (err) console.log(err);
-
-    // update the doc with the current revision id
-    db.saveDoc(docId, {
-      _rev: doc._rev,
-      date: JSON.stringify(new Date()),
-      status: 'selected'
-    }, function(er, ok) {
-
-    });
-  });
-});
-
-// save frame selection to couch, need to get the latest rev number to update it though
+/*
+  save frame selection to couch, need to get the latest rev number to update it though
+*/
 app.post('/selected', function(req, res) {
   // frames are grabbed via gifchop.js
   var docId = req.body.id
@@ -225,6 +215,8 @@ app.post('/selected', function(req, res) {
 
 app.post('/ordered', function(req, res) {
   console.log(req.body);
+  // also keep track of orders in couch
+  // not sure if this is smart or dumb
   db.saveDoc('order-' + new Date().getTime(), req.body, function(er, ok) {
     console.log(er, ok);
   });
@@ -261,13 +253,13 @@ imageHandler.returnImage = function(res, path) {
   res.end(img, 'binary');
 };
 
-imageHandler.processImage = function(id, processor) {
+imageHandler.processImage = function(id, url, processor) {
   console.log('processing image', id);
   db.getDoc(id, function(err, doc) {
     console.log(err)
     if (err) return;
 
-    http.get(doc.url, function(response) {
+    http.get(doc[url], function(response) {
       var imagedata = '';
 
       response.setEncoding('binary');
@@ -287,20 +279,40 @@ imageHandler.processImage = function(id, processor) {
   });
 };
 
-app.get('/preview/flipflop/:doc', function(req, res) {
+app.get('/flipflop/:doc/:image/preview.jpg', function(req, res) {
   console.log(req.params.doc);
-  var docId = req.params.doc.split('.gif')[0],
-    filename = req.params.doc,
+  var docId = req.params.doc,
+    image = 'url' + req.params.image, // images are saved as "url0" or "url1"
     tempFolder = './public/images/temporary/';
+
+    imageHandler.processImage(docId, image, function(doc, imagedata) {
+      var temp = tempFolder + docId + '-' + image + '.jpg',
+        finalOutput = tempFolder + docId + '-' + image + '-thumbnail.jpg';
+
+      console.log('writing to temp file ', temp);
+
+      // write the image to a temp file, then resize it to a smaller image
+      fs.writeFile(temp, imagedata, 'binary', function(err) {
+        if (err) throw err;
+
+        gm(temp)
+          .resize(120)
+          .write(finalOutput, function (err) {
+            if (!err) console.log('done');
+
+            imageHandler.returnImage(res, finalOutput);
+          });
+      });
+    });
 });
 
-app.get('/preview/:doc', function(req, res) {
+app.get('/gifchop/:doc/preview.gif', function(req, res) {
   console.log(req.params.doc);
-  var docId = req.params.doc.split('.gif')[0],
-    filename = req.params.doc,
+  var docId = req.params.doc,
+    filename = req.params.doc + '-preview.gif',
     tempFolder = './public/images/temporary/';
 
-  imageHandler.processImage(docId, function(doc, imagedata) {
+  imageHandler.processImage(docId, 'url', function(doc, imagedata) {
     var temp = tempFolder + filename;
     console.log('writing to temp file ', temp);
 
@@ -340,7 +352,7 @@ app.get('/chop/:doc/:start/:end', function(req, res) {
     id = req.params.doc,
     tempFolder = './public/images/temporary/';
 
-  imageHandler.processImage(id, function(doc, imagedata) {
+  imageHandler.processImage(id, 'url', function(doc, imagedata) {
     var temp = tempFolder + id + '.gif';
     console.log('writing to temp file ', temp);
 
