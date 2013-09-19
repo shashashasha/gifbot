@@ -15,7 +15,8 @@ var express = require('express')
   , couchdb = require('felix-couchdb')
   , client = couchdb.createClient(13893, 'localhost') // may need to change this for webfaction
   // , client = couchdb.createClient(null, 'db.gifpop.io') // may need to change this for webfaction
-  , db = client.db('gifpop');
+  , db = client.db('gifpop')
+  , tempfiles = require("tempfiles"); // https://github.com/andris9/tempfiles
 
 var app = express()
   , config = JSON.parse(fs.readFileSync('./settings.json'));
@@ -52,24 +53,6 @@ app.get('/', function(req, res) {
 var uploadForm = function(res, form, img_url, doc_id) {
   var cur = new Date()
     , folder = [cur.getFullYear(), cur.getMonth() + 1, cur.getDate()].join('-');
-
-  /* sign the form */
-  // var policy = '{"expiration": "2015-01-01T00:00:00Z", "conditions": [ {"bucket": "gifpop-uploads"}, {"x-amz-acl": "public-read"}, ["starts-with", "$key", "uploads/"], ["starts-with", "$Content-Type", "image"], {"success_action_redirect": "http://gifbot.gifpop.io/uploaded/"}, ["content-length-range", 0, 20971520] ] }';
-  // var policy = JSON.stringify({
-  //   "expiration": "2015-01-01T00:00:00Z",
-  //   "conditions": [
-  //     { "bucket": "gifpop-uploads" },
-  //     { "x-amz-acl": "public-read" },
-  //     ["starts-with", "$key", "uploads/"],
-  //     { "success_action_redirect": config.HOST + "/uploaded" },
-  //     ["starts-with", "$Content-Type", "image"],
-  //     ["content-length-range", 0, 2147483648]
-  //   ]
-  // });
-
-  // encode it to put it in the form
-  // var AWSPolicyBase64 = new Buffer(policy).toString('base64');
-  // var AWSSignature = crypto.createHmac('sha1', config.AWSSecretKey).update(new Buffer(policy, 'utf-8')).digest('base64');
 
   res.render(form, {
     title: '',
@@ -375,4 +358,9 @@ app.get('/chop/:doc/:start/:end', function(req, res) {
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
+});
+
+tempfiles.cleanPeriodically("./public/images/temporary", 60, function(err, timer){
+    if(!err)
+        console.log("Cleaning periodically directory /public/images/temporary");
 });
