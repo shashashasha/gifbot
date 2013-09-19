@@ -69,3 +69,6 @@ python policy_document.py
 # couch is installed on port 13893
 
 # ssh -L 13893:127.0.0.1:13893 meshu@
+
+# installing graphicsmagick basically just did this, but subbed gm
+# http://docs.webfaction.com/software/rails.html#installing-imagemagick-and-rmagick
