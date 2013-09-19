@@ -153,25 +153,47 @@ app.get('/flipflop', function(req, res) {
     , url1 = base.replace('{key}', key1);
 
   // save the uploaded gif information
-  // db.saveDoc(docId, {
-  //   url: url,
-  //   date: JSON.stringify(new Date()),
-  //   type: 'gif',
-  //   status: 'uploaded'
-  // }, function(er, ok) {
-  //   if (er) {
-  //     util.puts(er);
-  //   }
+  db.saveDoc(docId0, {
+    url0: url0,
+    url1: url1,
+    date: JSON.stringify(new Date()),
+    type: 'flip',
+    status: 'uploaded'
+  }, function(er, ok) {
+    if (er) {
+      util.puts(er);
+    }
 
-    // util.p(ok);
+    util.p(ok);
 
     // render the uploaded page if we've saved the gif info to the db
-  res.render('flipflop', {
-    title: 'GifPOP',
-    image_url0: url0,
-    doc_id0: docId0,
-    image_url1: url1,
-    doc_id1: docId1
+    res.render('flipflop', {
+      title: 'GifPOP',
+      doc_id: docId0,
+      image_url0: url0,
+      image_url1: url1
+    });
+  });
+});
+
+// save frame selection to couch, need to get the latest rev number to update it though
+app.post('/flipflop/selected', function(req, res) {
+  // frames are grabbed via gifchop.js
+  var docId = req.body.id;
+
+  console.log('selecting', docId);
+  console.log('frames:', frames);
+  db.getDoc(docId, function(err, doc) {
+    if (err) console.log(err);
+
+    // update the doc with the current revision id
+    db.saveDoc(docId, {
+      _rev: doc._rev,
+      date: JSON.stringify(new Date()),
+      status: 'selected'
+    }, function(er, ok) {
+
+    });
   });
 });
 
@@ -264,6 +286,13 @@ imageHandler.processImage = function(id, processor) {
     });
   });
 };
+
+app.get('/preview/flipflop/:doc', function(req, res) {
+  console.log(req.params.doc);
+  var docId = req.params.doc.split('.gif')[0],
+    filename = req.params.doc,
+    tempFolder = './public/images/temporary/';
+});
 
 app.get('/preview/:doc', function(req, res) {
   console.log(req.params.doc);
