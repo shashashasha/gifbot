@@ -50,11 +50,11 @@ app.get('/', function(req, res) {
   res.render('index', { what: 'bestest :)', title: 'me' });
 });
 
-var uploadForm = function(res, form, img_url, doc_id) {
+var uploadForm = function(res, form, img_uri, doc_id) {
   var cur = new Date()
     , folder = [cur.getFullYear(), cur.getMonth() + 1, cur.getDate()].join('-');
 
-  res.render(form, {
+  var formOptions = {
     title: '',
     base_url: config.HOST,
     aws_signature: config.AWSSignature,
@@ -62,24 +62,16 @@ var uploadForm = function(res, form, img_url, doc_id) {
     aws_policy: config.AWSPolicy,
     scan_id: folder,
     file_prefix: cur.getTime()
-  });
-};
+  };
 
-var uploadSecondForm = function(res, form, key, doc_id) {
-  var cur = new Date()
-    , folder = [cur.getFullYear(), cur.getMonth() + 1, cur.getDate()].join('-');
+  if (img_uri) {
+    formOptions.key = img_uri;
+  }
+  if (doc_id) {
+    formOptions.doc_id = doc_id;
+  }
 
-  res.render(form, {
-    title: '',
-    key: key,
-    doc_id: doc_id,
-    base_url: config.HOST,
-    aws_signature: config.AWSSignature,
-    aws_accesskeyid: config.AWSAccessKeyId,
-    aws_policy: config.AWSPolicy,
-    scan_id: folder,
-    file_prefix: cur.getTime()
-  });
+  res.render(form, formOptions);
 };
 
 app.get('/upload-gifchop', function(req, res) {
@@ -100,7 +92,7 @@ app.get('/upload-flipflop2', function(req, res) {
     , base = 'http://gifpop-uploads.s3.amazonaws.com/{key}'
     , url0 = base.replace('{key}', key0);
 
-  uploadSecondForm(res, 'form-flipflop2', key0, docId0);
+  uploadForm(res, 'form-flipflop2', key0, docId0);
 });
 
 app.get('/gifchop', function(req, res) {
@@ -143,6 +135,8 @@ app.get('/flipflop', function(req, res) {
     , base = 'http://gifpop-uploads.s3.amazonaws.com/{key}'
     , url0 = base.replace('{key}', encodeURIComponent(key0))
     , url1 = base.replace('{key}', encodeURIComponent(key1));
+
+  saveAndRender(docid, details, template, templatevars);
 
   // save the uploaded gif information
   db.saveDoc(docId0, {
@@ -278,6 +272,7 @@ app.get('/flipflop/:doc/:image/preview.jpg', function(req, res) {
       fs.writeFile(temp, imagedata, 'binary', function(err) {
         if (err) throw err;
 
+        // graphicsmagick-node library
         gm(temp)
           .resize(120)
           .write(finalOutput, function (err) {
@@ -328,7 +323,7 @@ app.get('/gifchop/:doc/preview.gif', function(req, res) {
   });
 });
 
-app.get('/chop/:doc/:start/:end', function(req, res) {
+app.get('/gifchop/:doc/:start/:end', function(req, res) {
   console.log(req.params.doc);
   var start = req.params.start,
     end = req.params.end,
@@ -360,7 +355,10 @@ http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
 });
 
-tempfiles.cleanPeriodically("./public/images/temporary", 60, function(err, timer){
+/*
+  flush the temporary images folder every 10 minutes
+*/
+tempfiles.cleanPeriodically("./public/images/temporary", 600, function(err, timer){
     if(!err)
         console.log("Cleaning periodically directory /public/images/temporary");
 });
