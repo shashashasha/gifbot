@@ -256,6 +256,10 @@ imageHandler.processImage = function(id, url, processor) {
   });
 };
 
+app.post('/upload-url/', function(req, res) {
+
+});
+
 app.get('/flipflop/:doc/:image/preview.jpg', function(req, res) {
   console.log(req.params.doc);
   var docId = req.params.doc,
