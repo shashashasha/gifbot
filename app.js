@@ -7,8 +7,10 @@ var express = require('express')
   , engine = require('ejs-locals')
   , gm = require('gm')
   , fs = require('fs')
-  , http = require('http')
   , path = require('path')
+  , http = require('http')
+  , request = require('request')
+  , cheerio = require('cheerio')
   , util = require('util')
   , crypto = require('crypto')
   , exec = require('child_process').exec
@@ -20,6 +22,8 @@ var express = require('express')
 
 var app = express()
   , config = JSON.parse(fs.readFileSync('./settings.json'));
+
+config.tempFolder = './public/images/temporary/';
 
 // use ejs-locals for all ejs templates:
 app.engine('ejs', engine);
@@ -73,6 +77,86 @@ var uploadForm = function(res, form, img_uri, doc_id) {
 
   res.render(form, formOptions);
 };
+
+app.get('/process-url/', function(req, res) {
+  // var url = req.body.url; // used for POSTing
+  var url = req.query['url'];
+
+  if (url.match(/(.gif|.GIF)$/)) {
+    console.log('matched .gif filename');
+    imageHandler.saveImage(url, function(tempURL) {
+      imageHandler.returnImage(res, tempURL);
+    });
+  } else {
+    console.log('didnt match filename, checking special domains');
+
+    var domain = url.split('http://').join('').split('https://').join('').split('/')[0];
+    switch (domain) {
+      case 'i.imgur.com':
+      case 'imgur.com':
+        console.log('matched imgur');
+        // add .gif for imgur urls
+        imageHandler.saveImage(url + '.gif', function(tempURL) {
+          imageHandler.returnImage(res, tempURL);
+        });
+        break;
+      case 'vine.co':
+        console.log('vine');
+        request(url, function(err, response, body) {
+          var $ = cheerio.load(body),
+              source = $('source');
+
+          // video tag
+          var videoURL = source[0].attribs.src;
+
+          if (videoURL.charAt(0) == '/') {
+            videoURL = 'http:' + videoURL;
+          }
+
+          imageHandler.processVideo(videoURL, function(tempURL) {
+            imageHandler.returnImage(res, tempURL);
+          });
+        });
+        break;
+      case 'instagram.com':
+        console.log('instagram');
+        request(url, function(err, response, body) {
+          // grab meta tags
+          var $ = cheerio.load(body),
+              meta = $('meta'),
+              keys = Object.keys(meta);
+
+          // find the opengraph video tag
+          var videoURL;
+          keys.forEach(function(key){
+            if (  meta[key].attribs
+               && meta[key].attribs.property
+               && meta[key].attribs.property === 'og:video') {
+              videoURL = meta[key].attribs.content;
+            }
+          });
+
+          imageHandler.processVideo(videoURL, function(tempURL) {
+            imageHandler.returnImage(res, tempURL);
+          });
+        });
+        break;
+      case 'giphy.com':
+        console.log('giphy');
+
+        var giphyResource = url.split('gifs/').pop(),
+            giphyBase = 'http://media.giphy.com/media/{id}/giphy.gif',
+            giphyURL = giphyBase.replace('{id}', giphyResource);
+
+        imageHandler.saveImage(giphyURL, function(tempURL, imageData) {
+          imageHandler.returnImage(res, tempURL);
+        });
+        break;
+      default:
+        break;
+    }
+  }
+});
 
 app.get('/upload-gifchop', function(req, res) {
   uploadForm(res, 'form-gifchop');
@@ -209,8 +293,7 @@ var imageHandler = {};
 // write temp gif and run command
 imageHandler.gifsicle = function(id, cmd) {
   var output = id + '-' + mode + '.gif',
-    tempFolder = './public/images/temporary/',
-    temp = tempFolder + id + '.gif';
+    temp = config.tempFolder + id + '.gif';
 
   // write the gif to a temp file, then resize it to a smaller gif
   fs.writeFile(temp, imagedata, 'binary', function(err) {
@@ -228,6 +311,28 @@ imageHandler.returnImage = function(res, path) {
   var img = fs.readFileSync(path);
   res.writeHead(200, {'Content-Type': 'image/gif' });
   res.end(img, 'binary');
+};
+
+imageHandler.processVideo = function(url, callback) {
+  imageHandler.saveImage(url, function(tempURL) {
+    var output = config.tempFolder + new Date().getTime() + '_frames';
+
+    // exec("ffmpeg -i %s -r 6 -vf scale=240:-1 %s" % (mp4_path, jpg_out)
+    // exec("ffmpeg -i " + tempURL + " -t 10 " + output + "%02d.gif");
+
+    exec("ffmpeg -i " + tempURL + " -r 10 -vf scale=640:-1 " + output + "%03d.gif", function(err, stdout, stderr) {
+      if (err) throw err;
+
+      var finaloutput = config.tempFolder + new Date().getTime() + '_anim.gif';
+      exec("gifsicle --delay=10 --loop " + output + "*.gif" + " > " + finaloutput, function(err, stdout, stderr) {
+        if (err) throw err;
+        if (callback) {
+          callback(finaloutput);
+        }
+      });
+    });
+
+  });
 };
 
 imageHandler.processImage = function(id, url, processor) {
@@ -256,15 +361,26 @@ imageHandler.processImage = function(id, url, processor) {
   });
 };
 
-app.post('/upload-url/', function(req, res) {
+imageHandler.saveImage = function(url, callback) {
+  var suffix = url.split('.').pop(),
+      tempFilename = config.tempFolder + new Date().getTime() + '.' + suffix,
+      file = fs.createWriteStream(tempFilename);
 
-});
+  request(url).pipe(file);
+
+  file.on('finish', function(){
+    if (callback) {
+      // null image data
+      callback(tempFilename, null);
+    }
+  });
+};
 
 app.get('/flipflop/:doc/:image/preview.jpg', function(req, res) {
   console.log(req.params.doc);
   var docId = req.params.doc,
     image = 'url' + req.params.image, // images are saved as "url0" or "url1"
-    tempFolder = './public/images/temporary/';
+    tempFolder = config.tempFolder;
 
     imageHandler.processImage(docId, image, function(doc, imagedata) {
       var temp = tempFolder + docId + '-' + image + '.jpg',
@@ -292,7 +408,7 @@ app.get('/gifchop/:doc/preview.gif', function(req, res) {
   console.log(req.params.doc);
   var docId = req.params.doc,
     filename = req.params.doc + '-preview.gif',
-    tempFolder = './public/images/temporary/';
+    tempFolder = config.tempFolder;
 
   imageHandler.processImage(docId, 'url', function(doc, imagedata) {
     var temp = tempFolder + filename;
@@ -332,7 +448,7 @@ app.get('/gifchop/:doc/:start/:end', function(req, res) {
   var start = req.params.start,
     end = req.params.end,
     id = req.params.doc,
-    tempFolder = './public/images/temporary/';
+    tempFolder = config.tempFolder;
 
   imageHandler.processImage(id, 'url', function(doc, imagedata) {
     var temp = tempFolder + id + '.gif';
@@ -362,7 +478,7 @@ http.createServer(app).listen(app.get('port'), function(){
 /*
   flush the temporary images folder every 10 minutes
 */
-tempfiles.cleanPeriodically("./public/images/temporary", 600, function(err, timer){
+tempfiles.cleanPeriodically(config.tempFolder, 600, function(err, timer){
     if(!err)
         console.log("Cleaning periodically directory /public/images/temporary");
 });
