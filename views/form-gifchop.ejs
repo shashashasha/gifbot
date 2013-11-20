@@ -88,7 +88,7 @@
 			container: 'picker',
 			services: ['COMPUTER','URL']
 		},{
-			path: '/uploads/<%=scan_id%>/'
+			path: '/<%=scan_id%>'
 		},function(InkBlobs){
 	   		console.log(JSON.stringify(InkBlobs));
 	   		var img = InkBlobs[0];

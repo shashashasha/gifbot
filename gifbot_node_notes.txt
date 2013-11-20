@@ -72,3 +72,5 @@ python policy_document.py
 
 # installing graphicsmagick basically just did this, but subbed gm
 # http://docs.webfaction.com/software/rails.html#installing-imagemagick-and-rmagick
+
+# s3 credentials under 

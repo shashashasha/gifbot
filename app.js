@@ -14,14 +14,21 @@ var express = require('express')
   , util = require('util')
   , crypto = require('crypto')
   , exec = require('child_process').exec
-  , couchdb = require('felix-couchdb')
-  , client = couchdb.createClient(13893, 'localhost') // may need to change this for webfaction
-  // , client = couchdb.createClient(null, 'db.gifpop.io') // may need to change this for webfaction
-  , db = client.db('gifpop')
+
+  // using nano https://github.com/dscape/nano
+  , nano = require('nano')('http://db.gifpop.io/')
+  , db = nano.db.use('gifpop')
+  , knox = require('knox') // s3 upload
+
   , tempfiles = require("tempfiles"); // https://github.com/andris9/tempfiles
 
 var app = express()
-  , config = JSON.parse(fs.readFileSync('./settings.json'));
+  , config = JSON.parse(fs.readFileSync('./settings.json'))
+  , s3 = knox.createClient({
+      key: config.AWSAccessKeyId,
+      secret: config.AWSSecret,
+      bucket: config.S3Bucket
+  });
 
 config.tempFolder = './public/images/temporary/';
 
@@ -55,17 +62,14 @@ app.get('/', function(req, res) {
 });
 
 var uploadForm = function(res, form, img_uri, doc_id) {
-  var cur = new Date()
-    , folder = [cur.getFullYear(), cur.getMonth() + 1, cur.getDate()].join('-');
-
   var formOptions = {
     title: '',
     base_url: config.HOST,
     aws_signature: config.AWSSignature,
     aws_accesskeyid: config.AWSAccessKeyId,
     aws_policy: config.AWSPolicy,
-    scan_id: folder,
-    file_prefix: cur.getTime()
+    scan_id: helper.getCurrentUploadFolder(),
+    file_prefix: new Date().getTime()
   };
 
   if (img_uri) {
@@ -78,48 +82,76 @@ var uploadForm = function(res, form, img_uri, doc_id) {
   res.render(form, formOptions);
 };
 
+var uploader = {};
+uploader.getCurrentUploadFolder = function() {
+  var d = new Date(),
+      date = ("0" + d.getDate()).slice(-2),
+      month = ("0" + (d.getMonth() + 1)).slice(-2);
+
+    return 'uploads/' + [d.getFullYear(), month, date].join('-') + '/';
+};
+
+uploader.saveAndGifChop = function(filepath, type, res) {
+  var filename = type + '_' + filepath.split('/').pop(),
+    destination = uploader.getCurrentUploadFolder() + filename;
+  s3.putFile(filepath, destination, function(err, response){
+    response.resume();
+
+    res.redirect('/gifchop?id=' + filename.split('.')[0] + '&key=' + destination);
+  });
+};
+
 app.get('/process-url/', function(req, res) {
   // var url = req.body.url; // used for POSTing
-  var url = req.query['url'];
+  var url = req.query['url'],
+      uploadFolder = uploader.getCurrentUploadFolder(),
+      domain = url.split('http://').join('').split('https://').join('').split('/')[0];
+
+  // prefix with http just in case it doesn't have it
+  if (url.search('http') < 0) {
+    url = 'http://' + url;
+  }
 
   if (url.match(/(.gif|.GIF)$/)) {
-    console.log('matched .gif filename');
     imageHandler.saveImage(url, function(tempURL) {
-      imageHandler.returnImage(res, tempURL);
+      uploader.saveAndGifChop(tempURL, 'urlgif', res);
     });
   } else {
-    console.log('didnt match filename, checking special domains');
-
-    var domain = url.split('http://').join('').split('https://').join('').split('/')[0];
     switch (domain) {
       case 'i.imgur.com':
       case 'imgur.com':
-        console.log('matched imgur');
-        // add .gif for imgur urls
         imageHandler.saveImage(url + '.gif', function(tempURL) {
-          imageHandler.returnImage(res, tempURL);
+          uploader.saveAndGifChop(tempURL, 'imgur', res);
+        });
+        break;
+      case 'giphy.com':
+        console.log('giphy');
+
+        var giphyResource = url.split('gifs/').pop(),
+            giphyBase = 'http://media.giphy.com/media/{id}/giphy.gif',
+            giphyURL = giphyBase.replace('{id}', giphyResource);
+
+        imageHandler.saveImage(giphyURL, function(tempURL, imageData) {
+          uploader.saveAndGifChop(tempURL, 'giphy', res);
         });
         break;
       case 'vine.co':
-        console.log('vine');
         request(url, function(err, response, body) {
           var $ = cheerio.load(body),
               source = $('source');
 
           // video tag
           var videoURL = source[0].attribs.src;
-
           if (videoURL.charAt(0) == '/') {
             videoURL = 'http:' + videoURL;
           }
 
           imageHandler.processVideo(videoURL, function(tempURL) {
-            imageHandler.returnImage(res, tempURL);
+            uploader.saveAndGifChop(tempURL, 'vine', res);
           });
         });
         break;
       case 'instagram.com':
-        console.log('instagram');
         request(url, function(err, response, body) {
           // grab meta tags
           var $ = cheerio.load(body),
@@ -137,22 +169,12 @@ app.get('/process-url/', function(req, res) {
           });
 
           imageHandler.processVideo(videoURL, function(tempURL) {
-            imageHandler.returnImage(res, tempURL);
+            uploader.saveAndGifChop(tempURL, 'instagram', res);
           });
         });
         break;
-      case 'giphy.com':
-        console.log('giphy');
-
-        var giphyResource = url.split('gifs/').pop(),
-            giphyBase = 'http://media.giphy.com/media/{id}/giphy.gif',
-            giphyURL = giphyBase.replace('{id}', giphyResource);
-
-        imageHandler.saveImage(giphyURL, function(tempURL, imageData) {
-          imageHandler.returnImage(res, tempURL);
-        });
-        break;
       default:
+        console.log('image type not found, sorry!');
         break;
     }
   }
@@ -186,18 +208,19 @@ app.get('/gifchop', function(req, res) {
     , url = base.replace('{key}', key);
 
   // save the uploaded gif information
-  db.saveDoc(docId, {
+  var doc = {
     url: url,
     date: JSON.stringify(new Date()),
     type: 'gif',
     status: 'uploaded'
-  }, function(er, ok) {
-    if (er) {
-      util.puts(er);
+  };
+
+  db.insert(doc, docId, function(err, body) {
+    if (err) {
+      util.puts(err);
     }
 
-    util.p(ok);
-
+    util.p(body);
     // render the uploaded page if we've saved the gif info to the db
     res.render('gifchop', {
       title: 'GifPOP',
@@ -223,22 +246,23 @@ app.get('/flipflop', function(req, res) {
   saveAndRender(docid, details, template, templatevars);
 
   // save the uploaded gif information
-  db.saveDoc(docId0, {
+  var doc = {
     url0: url0,
     url1: url1,
     date: JSON.stringify(new Date()),
     type: 'flip',
     status: 'uploaded'
-  }, function(er, ok) {
-    if (er) {
-      util.puts(er);
+  };
+
+  db.insert(doc, docId, function(err, body) {
+    if (err) {
+      util.puts(err);
     }
 
-    util.p(ok);
-
+    util.p(body);
     // render the uploaded page if we've saved the gif info to the db
     res.render('flipflop', {
-      title: 'GifPOP',
+      title: 'GifPop',
       doc_id: docId0,
       image_url0: url0,
       image_url1: url1
@@ -256,20 +280,26 @@ app.post('/selected', function(req, res) {
 
   console.log('selecting', docId);
   console.log('frames:', frames);
-  db.getDoc(docId, function(err, doc) {
+
+  db.get(docId, null, function(err, body) {
     if (err) console.log(err);
 
-    // update the doc with the current revision id
-    db.saveDoc(docId, {
-      _rev: doc._rev,
-      url: doc.url,
+    var doc = {
+      _rev: body._rev,
+      url: body.url,
       date: JSON.stringify(new Date()),
       type: 'gif',
       status: 'selected',
       frames: frames,
-      zip: doc.url.replace('.gif', '.zip')
-    }, function(er, ok) {
+      zip: body.url.replace('.gif', '.zip')
+    };
 
+    db.insert(doc, docId, function (err, body) {
+      if(!err) {
+        console.log("it worked");
+      } else {
+        console.log("sadfaces");
+      }
     });
   });
 });
@@ -278,8 +308,8 @@ app.post('/ordered', function(req, res) {
   console.log(req.body);
   // also keep track of orders in couch
   // not sure if this is smart or dumb
-  db.saveDoc('order-' + new Date().getTime(), req.body, function(er, ok) {
-    console.log(er, ok);
+  db.insert(req.body, 'order-' + new Date().getTime(), function (err, body) {
+    console.log(err, ok);
   });
 });
 
@@ -337,8 +367,9 @@ imageHandler.processVideo = function(url, callback) {
 
 imageHandler.processImage = function(id, url, processor) {
   console.log('processing image', id);
-  db.getDoc(id, function(err, doc) {
-    console.log(err)
+
+  db.get(id, null, function(err, doc) {
+    console.log(err);
     if (err) return;
 
     http.get(doc[url], function(response) {
