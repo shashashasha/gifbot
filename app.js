@@ -12,7 +12,6 @@ var express = require('express')
   , request = require('request')
   , cheerio = require('cheerio')
   , util = require('util')
-  , crypto = require('crypto')
   , exec = require('child_process').exec
 
   // using nano https://github.com/dscape/nano
@@ -61,51 +60,13 @@ app.get('/', function(req, res) {
   res.render('index', { what: 'bestest :)', title: 'me' });
 });
 
-var uploadForm = function(res, form, img_uri, doc_id) {
-  var formOptions = {
-    title: '',
-    base_url: config.HOST,
-    aws_signature: config.AWSSignature,
-    aws_accesskeyid: config.AWSAccessKeyId,
-    aws_policy: config.AWSPolicy,
-    scan_id: helper.getCurrentUploadFolder(),
-    file_prefix: new Date().getTime()
-  };
-
-  if (img_uri) {
-    formOptions.key = img_uri;
-  }
-  if (doc_id) {
-    formOptions.doc_id = doc_id;
-  }
-
-  res.render(form, formOptions);
-};
-
-var uploader = {};
-uploader.getCurrentUploadFolder = function() {
-  var d = new Date(),
-      date = ("0" + d.getDate()).slice(-2),
-      month = ("0" + (d.getMonth() + 1)).slice(-2);
-
-    return 'uploads/' + [d.getFullYear(), month, date].join('-') + '/';
-};
-
-uploader.saveAndGifChop = function(filepath, type, res) {
-  var filename = type + '_' + filepath.split('/').pop(),
-    destination = uploader.getCurrentUploadFolder() + filename;
-  s3.putFile(filepath, destination, function(err, response){
-    response.resume();
-
-    res.redirect('/gifchop?id=' + filename.split('.')[0] + '&key=' + destination);
-  });
-};
-
 app.get('/process-url/', function(req, res) {
   // var url = req.body.url; // used for POSTing
   var url = req.query['url'],
       uploadFolder = uploader.getCurrentUploadFolder(),
       domain = url.split('http://').join('').split('https://').join('').split('/')[0];
+
+  console.log(url, uploadFolder, domain);
 
   // prefix with http just in case it doesn't have it
   if (url.search('http') < 0) {
@@ -136,6 +97,7 @@ app.get('/process-url/', function(req, res) {
         });
         break;
       case 'vine.co':
+        console.log('loading vine url');
         request(url, function(err, response, body) {
           var $ = cheerio.load(body),
               source = $('source');
@@ -180,6 +142,27 @@ app.get('/process-url/', function(req, res) {
   }
 });
 
+var uploadForm = function(res, form, img_uri, doc_id) {
+  var formOptions = {
+    title: '',
+    base_url: config.HOST,
+    aws_signature: config.AWSSignature,
+    aws_accesskeyid: config.AWSAccessKeyId,
+    aws_policy: config.AWSPolicy,
+    scan_id: uploader.getCurrentUploadFolder(),
+    file_prefix: new Date().getTime()
+  };
+
+  if (img_uri) {
+    formOptions.key = img_uri;
+  }
+  if (doc_id) {
+    formOptions.doc_id = doc_id;
+  }
+
+  res.render(form, formOptions);
+};
+
 app.get('/upload-gifchop', function(req, res) {
   uploadForm(res, 'form-gifchop');
 });
@@ -203,6 +186,7 @@ app.get('/upload-flipflop2', function(req, res) {
 
 app.get('/gifchop', function(req, res) {
   var docId = req.query["id"]
+    , source = docId = req.query["source"]
     , key = decodeURIComponent(req.query["key"])
     , base = 'http://gifpop-uploads.s3.amazonaws.com/{key}'
     , url = base.replace('{key}', key);
@@ -212,7 +196,8 @@ app.get('/gifchop', function(req, res) {
     url: url,
     date: JSON.stringify(new Date()),
     type: 'gif',
-    status: 'uploaded'
+    status: 'uploaded',
+    source: source ? source : 'user'
   };
 
   db.insert(doc, docId, function(err, body) {
@@ -220,7 +205,6 @@ app.get('/gifchop', function(req, res) {
       util.puts(err);
     }
 
-    util.p(body);
     // render the uploaded page if we've saved the gif info to the db
     res.render('gifchop', {
       title: 'GifPOP',
@@ -251,7 +235,8 @@ app.get('/flipflop', function(req, res) {
     url1: url1,
     date: JSON.stringify(new Date()),
     type: 'flip',
-    status: 'uploaded'
+    status: 'uploaded',
+    source: 'user'
   };
 
   db.insert(doc, docId, function(err, body) {
@@ -259,7 +244,6 @@ app.get('/flipflop', function(req, res) {
       util.puts(err);
     }
 
-    util.p(body);
     // render the uploaded page if we've saved the gif info to the db
     res.render('flipflop', {
       title: 'GifPop',
@@ -287,6 +271,7 @@ app.post('/selected', function(req, res) {
     var doc = {
       _rev: body._rev,
       url: body.url,
+      source: body.source,
       date: JSON.stringify(new Date()),
       type: 'gif',
       status: 'selected',
@@ -312,6 +297,33 @@ app.post('/ordered', function(req, res) {
     console.log(err, ok);
   });
 });
+
+/*
+  uploader pushes files to s3 and then sends them to gifchop
+*/
+var uploader = {};
+uploader.getCurrentUploadFolder = function() {
+  var d = new Date(),
+      date = ("0" + d.getDate()).slice(-2),
+      month = ("0" + (d.getMonth() + 1)).slice(-2);
+
+    return 'uploads/' + [d.getFullYear(), month, date].join('-') + '/';
+};
+
+uploader.saveAndGifChop = function(filepath, type, res) {
+  var filename = type + '_' + filepath.split('/').pop(),
+    destination = uploader.getCurrentUploadFolder() + filename;
+  s3.putFile(filepath, destination, function(err, response){
+    console.log(typeof response);
+    response.resume();
+
+    console.log('sleeping');
+    setTimeout(function() {
+      console.log('slept');
+      res.redirect('/gifchop?id=' + filename.split('.')[0] + '&key=' + destination + '&source=' + type);
+    }, 10000);
+  });
+};
 
 /*
   given a doc id, grab the document,

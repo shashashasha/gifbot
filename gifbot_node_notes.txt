@@ -67,6 +67,10 @@ python policy_document.py
 # installing couch on web faction: http://community.webfaction.com/questions/557/installing-couchdb
 
 # couch is installed on port 13893
+# start couchdb in background
+couchdb -b 
+# stop couchdb in background
+couchdb -d
 
 # ssh -L 13893:127.0.0.1:13893 meshu@
 
@@ -74,3 +78,7 @@ python policy_document.py
 # http://docs.webfaction.com/software/rails.html#installing-imagemagick-and-rmagick
 
 # s3 credentials under 
+
+# url for viewing "selected" state gifs
+http://db.gifpop.io/gifpop/_design/pipeline/_view/status
+
