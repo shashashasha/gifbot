@@ -314,14 +314,13 @@ uploader.saveAndGifChop = function(filepath, type, res) {
   var filename = type + '_' + filepath.split('/').pop(),
     destination = uploader.getCurrentUploadFolder() + filename;
   s3.putFile(filepath, destination, function(err, response){
-    console.log(typeof response);
-    response.resume();
+    if (err) {
+      console.log(err);
+      return;
+    }
 
-    console.log('sleeping');
-    setTimeout(function() {
-      console.log('slept');
-      res.redirect('/gifchop?id=' + filename.split('.')[0] + '&key=' + destination + '&source=' + type);
-    }, 10000);
+    response.resume();
+    res.redirect('/gifchop?id=' + filename.split('.')[0] + '&key=' + destination + '&source=' + type);
   });
 };
 

@@ -23,10 +23,13 @@
 </div>
 
 <script type="text/javascript">
+
 	var image_url = '<%=image_url%>';
 	var image = document.getElementById('gif');
-
-	gifchopper.load(image_url, image, '<%=doc_id%>');
+	image.onload = function() {
+		console.log("image loaded");
+		gifchopper.load(image_url, image, '<%=doc_id%>');
+	};
 
 	function displayMessage (evt) {
 		$(".jsgif").attr("class","jsgif "+evt.data);
