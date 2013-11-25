@@ -1,11 +1,206 @@
-<% layout('base') -%>
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if IE 9 ]>    <html class="ie9 no-js"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!-->
+<html class=""><!--<![endif]--><head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <link rel="shortcut icon" type="image/png" href="/images/icons/apple-touch-icon.png">
 
-<% block('header', "<p>I'm in the header.</p>") -%>
-<% block('footer', "<p>I'm in the footer.</p>") -%>
+<title>Gifpop! give the gift of gif</title>
 
-<h1>You are the <%=what%></h1>
+<meta name="description" content="Gifpop lets you make custom gif cards with the magic of lenticular printing.">
+<link rel="canonical" href="http://gifpop.io/">
+<meta property="og:image" content="/images/splash/kickstarter_project_image_gifpop.jpg">
+<meta property="og:image" content="/images/splash/gifpop_recurse_slow.gif" />
 
-<script type="text/javascript">
-	// js goes here
-	
+  <style type="text/css">
+        body, html {
+          font-family:helvetica, arial, sans-serif;
+          background: black;
+          margin: 0;
+          padding: 0;
+        }
+
+        #content {
+          margin: 0 auto;
+          text-align: center;
+          width: 500px;
+          height: 100%;
+          background-color: rgba(0,0,0,0);
+          color: white;
+        }
+
+        .splash-block {
+            font-weight: bold;
+            font-size: 16px;
+            margin: 0 0 10px 0;
+            line-height: 1.5;
+            display: block;
+        }
+
+        .tagline {
+          font-family: "Futura", helvetica, arial;
+          line-height: 3.5;
+          font-weight: normal;
+          font-size: 22px;
+          margin-top: 0;
+          margin-bottom: 30px;
+        }
+
+        #logo {
+          margin: 0;
+          padding: 0;
+          display: block;
+        }
+        #logo:hover {
+          background: none;
+        }
+
+        a {
+            color: white;
+            text-decoration: underline;
+            padding: 3px;
+        }
+        a:hover {
+            background: #f8981c;
+            color: white;
+            text-decoration: none;
+            background-image: url("/images/splash/rainbow.gif");
+        }
+
+        a.knockout {
+          background: white;
+          color: black;
+          font-size: 26px;
+          padding: 10px;
+          margin: 5px;
+          text-decoration: none;
+        }
+        a.knockout:hover {
+          background: #f8981c;
+          color: white;
+          padding: 15px;
+          margin: 0px;
+        }
+
+        .pinimages {
+            position: absolute;
+            left: -9001px; /* it's over nine thousand! */
+            top: 0;
+        }
+
+        #root {
+          position: absolute;
+          z-index: 1;
+          left: 0;
+          right: 0;
+          top: 0;
+          bottom: 0;
+          background-color: rgba(0,0,0,0.6);
+        }
+
+        #backdrop {
+            position: absolute;
+            z-index: 0;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            background-image: url("/images/splash/gifpop_rainbows.gif");
+            background-repeat: no-repeat;
+            background-position: 50% 50%;
+            background-size: cover;
+        }​
+
+</style>
+
+    <link href="http://cdn-images.mailchimp.com/embedcode/slim-081711.css" rel="stylesheet" type="text/css">
+    <style type="text/css">
+      #mc_embed_signup{
+        clear:left;
+      }
+      /* Add your own MailChimp form style overrides in your site stylesheet or in this style block.
+         We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+
+      #mc_embed_signup form {
+          width: 100%;
+          text-align: center;
+          padding: 10px 0 10px 0;
+      }
+      #mc_embed_signup input.email, #mc_embed_signup input.button {
+          display: inline-block;
+      }
+      #mc_embed_signup input {
+          border: 0;
+      }
+      #mc_embed_signup input.email {
+          width: 200px;
+          margin: 5px;
+          font-size: 14px;
+          font-family: helvetica, sans-serif;
+      }
+      #mc_embed_signup input.button {
+          background: white;
+          width: 80px;
+          margin: 5px;
+          font-family: helvetica, sans-serif;
+          font-weight: bold;
+          font-size: 14px;
+          color: grey;
+          border-radius: 0;
+      }
+      #mc_embed_signup input.button:hover {
+          background: #f8981c;
+          color: white;
+      }
+    </style>
+</head>
+<body>
+
+<div id="backdrop">
+</div>
+<div id="root">
+  <div id="content">
+    <a href="http://www.kickstarter.com/projects/sha/gifpop-custom-gif-cards-for-everyone" id="logo"><img src="/images/splash/gifpop-knockout.png"/></a>
+    <div class="splash-block tagline">
+    Custom gif cards made with lenticular magic.<br />
+    <a href="http://www.kickstarter.com/projects/sha/gifpop-custom-gif-cards-for-everyone" class="knockout">Back our Kickstarter today!</a>
+    </div>
+
+    <!-- Begin MailChimp Signup Form -->
+    <div id="mc_embed_signup" class="splash-block">
+    Keep in touch with us on <a href="http://twitter.com/gifpop">Twitter</a> or <a href="https://www.facebook.com/gifpop">Facebook</a>,<br/>or subscribe to our mailing list for gif-laden updates!
+    <form action="http://gifpop.us3.list-manage2.com/subscribe/post?u=5dfc43de7b814dbcba9d1f3f9&amp;id=99ab59266f" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+      <input type="email" value="" name="EMAIL" class="email" id="mce-EMAIL" placeholder="email address" required><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="button">
+    </form>
+    </div>
+    <!--End mc_embed_signup-->
+    <hr>
+    <div class="splash-block footer">
+      <br/>
+      Gifpop is a project by <a href="http://twitter.com/rachelbinx">Rachel Binx</a> and <a href="http://twitter.com/shashashasha">Sha Hwang</a>.<br/>
+      For partnership inquiries please contact us at <a href="mailto:omg@gifpop.io">omg@gifpop.io</a>.<br/>
+      And artists, we want to talk! Drop a line at <a href="mailto:artists@gifpop.io">artists@gifpop.io</a>.
+    </div>
+
+    <!-- hide these -->
+    <img src="/images/splash/kickstarter_project_image_gifpop.jpg" class="pinimages"/>
+    <img src="/images/splash/gifpop_rainbows.gif" class="pinimages"/>
+  </div>
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','http://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-44969390-1', 'gifpop.io');
+  ga('send', 'pageview');
+
 </script>
+</body>
+</html>
