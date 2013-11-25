@@ -4,6 +4,24 @@
 <% script('/lib/jquery.min.js') -%>
 
 <iframe id="picker"></iframe>
+
+<h1>More ways to pop</h1>
+
+<div id="flipflop" class="chop-option">
+	<h2>Flip between two images</h2>
+	<p>aww yiss</p>
+</div>
+<form class="chop-option">
+	<h2>Enter in a URL</h2>
+	<input type="text" id="urlInput" name="url" style="width:80%" placeholder="urlurlurl">
+	<div id="urlSubmit"></div>
+	<p>Supported URLs:
+		<a class="logo" href="http://imgur.com">Imgur</a>
+		<a class="logo" href="http://giphy.com">Giphy</a>
+		<a class="logo" href="https://vine.co"></a>
+		<a class="logo" href="http://instagram.com"></a>
+	</p>
+</form>
 <!-- <div id="fileFromURL">
     <h2>Or paste a URL to a gif here</h2>
     <input id="urlInput"></input>
@@ -13,12 +31,52 @@
 <!-- <div id="url"></div> -->
 
 <style>
+	h1, h2 {
+		font-family: Futura, Helvetia, sans-serif;
+		font-style: italic;
+		text-transform: uppercase;
+		text-align: center;
+	}
+	h2 {
+		color: #808080;
+	}
 	#picker {
 		width: 875px;
-		height: 500px;
+		height: 270px;
 		border: none;
 	}
-	#url {
+	#urlInput {
+		width: 250px !important;
+		border-radius: 0;
+		box-shadow: none;
+		-webkit-transform: skew(-7deg);
+		height: 40px;
+		float: left;
+		margin: 4px 0 0 25px;
+	}
+	#urlSubmit {
+	    background-image: url(images/submit.png);
+	    width: 124px;
+	    height: 56px;
+	    cursor: pointer;
+	    float: left;
+	}
+	#urlSubmit:hover {
+	    background-image: url(images/submit-over.png);
+	}
+	#urlSubmit:active {
+	    background-image: url(images/submit-down.png);
+	}
+	#flipflop {
+		cursor: pointer;
+	}
+	.chop-option {
+		width: 50%;
+		background-color: #eee;
+		font-family: Futura, Helvetia, sans-serif;
+		float: left;
+	}
+	/*#url {
 		position: absolute;
 		top: 200px;
 		left: 500px;
@@ -75,18 +133,32 @@
 	#fileFromURL p {
 	    font-size: 14px;
 	    clear: both;
-	}
+	}*/
+
 
 </style>
 
 <script type="text/javascript">
+
+	function saveFrames() {
+		parent.postMessage("gotoflipflop","*");
+	}
+
+	// update db with frame numbers
+	$("#flipflop").click(saveFrames);
+	$("#urlSubmit").click(submitUrl);
+
+	function submitUrl() {
+		var url = $("#urlInput").val();
+		window.location = '/process-url/?url=' + url; // https://vine.co/v/hi2ml1lq0Jp
+	}
 
 	filepicker.setKey("AYkBZ0oUOTTqvkwhxMx3Ez");
 
 	filepicker.pickAndStore({
 			extension: '.gif',
 			container: 'picker',
-			services: ['COMPUTER','URL']
+			services: ['COMPUTER']
 		},{
 			path: '/uploads/<%=scan_id%>/'
 		},function(InkBlobs){
