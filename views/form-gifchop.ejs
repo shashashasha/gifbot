@@ -13,13 +13,9 @@
 </div>
 <form class="chop-option">
 	<h2>Enter in a URL</h2>
-	<input type="text" id="urlInput" name="url" style="width:80%" placeholder="urlurlurl">
+	<input type="text" id="urlInput" name="url" style="width:80%" placeholder="">
 	<div id="urlSubmit"></div>
-	<p>Supported URLs:
-		<a class="logo" href="http://imgur.com">Imgur</a>
-		<a class="logo" href="http://giphy.com">Giphy</a>
-		<a class="logo" href="https://vine.co"></a>
-		<a class="logo" href="http://instagram.com"></a>
+	<p>Links to <a class="logo" href="https://vine.co">Vine</a> and <a class="logo" href="http://instagram.com">Instagram Video</a> work too!
 	</p>
 </form>
 <!-- <div id="fileFromURL">
@@ -36,6 +32,7 @@
 		font-style: italic;
 		text-transform: uppercase;
 		text-align: center;
+		font-weight: normal;
 	}
 	h2 {
 		color: #808080;
@@ -75,6 +72,24 @@
 		background-color: #eee;
 		font-family: Futura, Helvetia, sans-serif;
 		float: left;
+		box-sizing: border-box;
+	}
+	.chop-option:nth-child(even) {
+		border-left: 5px solid white;
+	}
+	.chop-option:nth-child(odd) {
+		border-right: 5px solid white;
+	}
+	.chop-option p {
+		color: #808080;
+		text-align: center;
+		font-size: 12px;
+		clear: both;
+		padding-top: 10px;
+		margin-bottom: 20px;
+	}
+	.chop-option a {
+		color: #808080;
 	}
 	/*#url {
 		position: absolute;
