@@ -1,25 +1,32 @@
+/*
 
-/**
- * Module dependencies.
+  OMG IT'S GIFBOT!
+
  */
 
+// using express with ejs for templating
 var express = require('express')
   , engine = require('ejs-locals')
-  , gm = require('gm')
-  , fs = require('fs')
-  , path = require('path')
+
+  // grabbing urls and elements
   , http = require('http')
   , request = require('request')
   , cheerio = require('cheerio')
+
+  // logging
   , util = require('util')
+
+  // processing imagery
+  , gm = require('gm')
+  , fs = require('fs')
+  , path = require('path')
   , exec = require('child_process').exec
 
-  , tempfiles = require("tempfiles"); // https://github.com/andris9/tempfiles
+  // cleaning up temp files
+  , tempfiles = require("tempfiles")
 
-var app = express()
+  // database and storage information
   , config = JSON.parse(fs.readFileSync('./settings.json'))
-
-  // using nano https://github.com/dscape/nano
   , nano = require('nano')(config.DATABASE)
   , db = nano.db.use('gifpop')
 
@@ -31,7 +38,7 @@ var app = express()
       bucket: config.S3Bucket
   });
 
-config.tempFolder = './public/images/temporary/';
+var app = express();
 
 // use ejs-locals for all ejs templates:
 app.engine('ejs', engine);
@@ -339,7 +346,7 @@ var imageHandler = {};
 // write temp gif and run command
 imageHandler.gifsicle = function(id, cmd) {
   var output = id + '-' + mode + '.gif',
-    temp = config.tempFolder + id + '.gif';
+    temp = config.TEMP + id + '.gif';
 
   // write the gif to a temp file, then resize it to a smaller gif
   fs.writeFile(temp, imagedata, 'binary', function(err) {
@@ -361,7 +368,7 @@ imageHandler.returnImage = function(res, path) {
 
 imageHandler.processVideo = function(url, callback) {
   imageHandler.saveImage(url, function(tempURL) {
-    var output = config.tempFolder + new Date().getTime() + '_frames';
+    var output = config.TEMP + new Date().getTime() + '_frames';
 
     // exec("ffmpeg -i %s -r 6 -vf scale=240:-1 %s" % (mp4_path, jpg_out)
     // exec("ffmpeg -i " + tempURL + " -t 10 " + output + "%02d.gif");
@@ -369,7 +376,7 @@ imageHandler.processVideo = function(url, callback) {
     exec("ffmpeg -i " + tempURL + " -r 10 -vf scale=640:-1 " + output + "%03d.gif", function(err, stdout, stderr) {
       if (err) throw err;
 
-      var finaloutput = config.tempFolder + new Date().getTime() + '_anim.gif';
+      var finaloutput = config.TEMP + new Date().getTime() + '_anim.gif';
       exec("gifsicle --delay=10 --loop " + output + "*.gif" + " > " + finaloutput, function(err, stdout, stderr) {
         if (err) throw err;
         if (callback) {
@@ -410,7 +417,7 @@ imageHandler.processImage = function(id, url, processor) {
 
 imageHandler.saveImage = function(url, callback) {
   var suffix = url.split('.').pop(),
-      tempFilename = config.tempFolder + new Date().getTime() + '.' + suffix,
+      tempFilename = config.TEMP + new Date().getTime() + '.' + suffix,
       file = fs.createWriteStream(tempFilename);
 
   request(url).pipe(file);
@@ -427,7 +434,7 @@ app.get('/flipflop/:doc/:image/preview.jpg', function(req, res) {
   console.log(req.params.doc);
   var docId = req.params.doc,
     image = 'url' + req.params.image, // images are saved as "url0" or "url1"
-    tempFolder = config.tempFolder;
+    tempFolder = config.TEMP;
 
     imageHandler.processImage(docId, image, function(doc, imagedata) {
       var temp = tempFolder + docId + '-' + image + '.jpg',
@@ -455,7 +462,7 @@ app.get('/gifchop/:doc/preview.gif', function(req, res) {
   console.log(req.params.doc);
   var docId = req.params.doc,
     filename = req.params.doc + '-preview.gif',
-    tempFolder = config.tempFolder;
+    tempFolder = config.TEMP;
 
   imageHandler.processImage(docId, 'url', function(doc, imagedata) {
     var temp = tempFolder + filename;
@@ -494,7 +501,7 @@ app.get('/gifchop/:doc/:start/:end', function(req, res) {
   var start = req.params.start,
     end = req.params.end,
     id = req.params.doc,
-    tempFolder = config.tempFolder;
+    tempFolder = config.TEMP;
 
   imageHandler.processImage(id, 'url', function(doc, imagedata) {
     var temp = tempFolder + id + '.gif';
@@ -524,7 +531,7 @@ http.createServer(app).listen(app.get('port'), function(){
 /*
   flush the temporary images folder every 10 minutes
 */
-tempfiles.cleanPeriodically(config.tempFolder, 600, function(err, timer){
+tempfiles.cleanPeriodically(config.TEMP, 600, function(err, timer){
     if(!err)
         console.log("Cleaning periodically directory /public/images/temporary");
 });

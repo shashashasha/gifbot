@@ -33,8 +33,10 @@ var gifchopper = function() {
 
       $("#instructions").fadeIn();
 
+      // skip to selected state if there are less than 10 frames
       if (self.controller.length() <= 10) {
         centerSelection(0);
+        $("#finalize-text").html("Bask in your gif, then hit")
       }
     };
 
