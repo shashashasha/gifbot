@@ -107,8 +107,10 @@ app.get('/process-url/', function(req, res) {
           if (videoURL.charAt(0) == '/') {
             videoURL = 'http:' + videoURL;
           }
+          console.log('found vine url', videoURL);
 
           imageHandler.processVideo(videoURL, function(tempURL) {
+            console.log('processed vine video', tempURL);
             uploader.saveAndGifChop(tempURL, 'vine', res);
           });
         });
