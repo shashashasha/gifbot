@@ -14,15 +14,17 @@ var express = require('express')
   , util = require('util')
   , exec = require('child_process').exec
 
-  // using nano https://github.com/dscape/nano
-  , nano = require('nano')('http://db.gifpop.io/')
-  , db = nano.db.use('gifpop')
-  , knox = require('knox') // s3 upload
-
   , tempfiles = require("tempfiles"); // https://github.com/andris9/tempfiles
 
 var app = express()
   , config = JSON.parse(fs.readFileSync('./settings.json'))
+
+  // using nano https://github.com/dscape/nano
+  , nano = require('nano')(config.DATABASE)
+  , db = nano.db.use('gifpop')
+
+  // s3 upload
+  , knox = require('knox')
   , s3 = knox.createClient({
       key: config.AWSAccessKeyId,
       secret: config.AWSSecret,
@@ -464,7 +466,6 @@ app.get('/gifchop/:doc/preview.gif', function(req, res) {
       if (err) throw err;
 
       var output = tempFolder + docId + "-preview.gif";
-      console.log('resizing to ', output);
 
       exec("gifsicle " + temp + " --resize-width 120 -o " + output, function(err, stdout, stderr) {
         if (err) throw err;
@@ -475,8 +476,8 @@ app.get('/gifchop/:doc/preview.gif', function(req, res) {
             frames = "'#" + start + "-" + end + "'";
 
         var finalOutput = tempFolder + [docId, "frames", start, end].join('-') + ".gif";
-        console.log('chopping frames', finalOutput);
 
+        // d10 is 100ms delay
         exec("gifsicle -U " + output + " -d10 " + frames + "  -o " + finalOutput, function(err, stdout, stderr) {
           if (err) throw err;
 
