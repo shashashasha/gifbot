@@ -6,7 +6,7 @@
 <% script('/js/gifchop.js') -%>
 
 <div class="bg">
-	<img id="gif" src='<%=image_url%>'>
+	<img id="gif" src='<%=image_url%>' style='display:none;'>
 	<div id="gif-controls">
 		<div id="timeline" class="scrubbable"></div>
 		<div id="doc_id" style="display: none;"><%=doc_id%></div>
@@ -14,7 +14,7 @@
 		<div id="playhead"></div>
 		<div id="gif-ui">
 			<!-- <button id="gif-toggle">Autoplay: Off</button> -->
-			<div id="instructions" class="large-helper-text" style="display: none;">Select a clip of the gif to chop</div>
+			<div id="instructions" class="large-helper-text" style="display: none;">Click to select a clip to chop</div>
 			<div id="finalize" class="large-helper-text" style="display: none;">
 				Click or drag to adjust, then hit <button id="gif-submit">DONE!</button>
 			</div>

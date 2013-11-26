@@ -8,15 +8,15 @@
 <h1>More ways to pop</h1>
 
 <div id="flipflop" class="chop-option">
-	<h2>Flip between two images</h2>
-	<p>aww yiss</p>
+	<h2>Flip Flop</h2>
+	<p class="caps">If you don't have a gif, just upload two images!</p>
+	<img src="images/diagrams/upload_flipflop.gif">
 </div>
 <form class="chop-option">
 	<h2>Enter in a URL</h2>
+	<p class="caps">Links to <a class="logo" href="https://vine.co">Vine</a> and <a class="logo" href="http://instagram.com">Instagram Video</a> work too!</p>
 	<input type="text" id="urlInput" name="url" style="width:80%" placeholder="">
 	<div id="urlSubmit"></div>
-	<p>Links to <a class="logo" href="https://vine.co">Vine</a> and <a class="logo" href="http://instagram.com">Instagram Video</a> work too!
-	</p>
 </form>
 <!-- <div id="fileFromURL">
     <h2>Or paste a URL to a gif here</h2>
@@ -36,6 +36,10 @@
 	}
 	h2 {
 		color: #808080;
+		margin-bottom: 0;
+	}
+	.caps {
+		text-transform: uppercase;
 	}
 	#picker {
 		width: 875px;
@@ -49,7 +53,7 @@
 		-webkit-transform: skew(-7deg);
 		height: 40px;
 		float: left;
-		margin: 4px 0 0 25px;
+		margin: 10px 0 25px 25px;
 	}
 	#urlSubmit {
 	    background-image: url(images/submit.png);
@@ -85,8 +89,8 @@
 		text-align: center;
 		font-size: 12px;
 		clear: both;
-		padding-top: 10px;
-		margin-bottom: 20px;
+		padding-top: 0;
+		margin-bottom: 10px;
 	}
 	.chop-option a {
 		color: #808080;

@@ -477,7 +477,7 @@ app.get('/gifchop/:doc/preview.gif', function(req, res) {
         var finalOutput = tempFolder + [docId, "frames", start, end].join('-') + ".gif";
         console.log('chopping frames', finalOutput);
 
-        exec("gifsicle -U " + output + " " + frames + " -o " + finalOutput, function(err, stdout, stderr) {
+        exec("gifsicle -U " + output + " -d10 " + frames + "  -o " + finalOutput, function(err, stdout, stderr) {
           if (err) throw err;
 
           imageHandler.returnImage(res, finalOutput);
