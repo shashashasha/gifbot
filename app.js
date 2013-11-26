@@ -188,7 +188,7 @@ app.get('/upload-flipflop2', function(req, res) {
 
 app.get('/gifchop', function(req, res) {
   var docId = req.query["id"]
-    , source = docId = req.query["source"]
+    , source = req.query["source"]
     , key = decodeURIComponent(req.query["key"])
     , base = 'http://gifpop-uploads.s3.amazonaws.com/{key}'
     , url = base.replace('{key}', key);
@@ -283,7 +283,7 @@ app.post('/selected', function(req, res) {
 
     db.insert(doc, docId, function (err, body) {
       if(!err) {
-        console.log("it worked");
+        console.log("it worked!!!!");
       } else {
         console.log("sadfaces");
       }
@@ -314,7 +314,8 @@ uploader.getCurrentUploadFolder = function() {
 
 uploader.saveAndGifChop = function(filepath, type, res) {
   var filename = type + '_' + filepath.split('/').pop(),
-    destination = uploader.getCurrentUploadFolder() + filename;
+    destination = uploader.getCurrentUploadFolder() + filename,
+    headers = { 'x-amz-acl': 'public-read' };
   s3.putFile(filepath, destination, function(err, response){
     if (err) {
       console.log(err);
