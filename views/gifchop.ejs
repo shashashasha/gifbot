@@ -6,7 +6,7 @@
 <% script('/js/gifchop.js') -%>
 
 <div class="bg">
-	<img id="gif" src='<%=image_url%>'>
+	<img id="gif" src="<%=image_url%>" style="margin-left: -10000px;">
 	<div id="gif-controls">
 		<div id="timeline" class="scrubbable"></div>
 		<div id="doc_id" style="display: none;"><%=doc_id%></div>
@@ -40,16 +40,6 @@
 	else {
 		window.attachEvent("onmessage", displayMessage);
 	}
-	$(".bg").mouseenter(function(){
-		// $(".box").css("-webkit-animation-play-state", "paused");
-		$(".box").css("-webkit-animation","none")
-	}).mousemove(function(e){
-		var percentage = Math.max(1 - e.offsetY/imgHeight,0);
-		$("#wrapper").css("-webkit-transform","perspective(500) rotateX("+(5-(percentage*20))+"deg)");
-		$("#b2-wrapper").css("-webkit-mask-position",-imgHeight*percentage+"px "+-imgHeight*percentage+"px");
-	}).mouseleave(function(){
-		// $(".box").css("-webkit-animation-play-state", "running");
-	});
 
 	// grab the current frames, give them to couch
 	function saveFrames() {
@@ -61,6 +51,21 @@
 				id: '<%=doc_id%>',
 				frames: gifchopper.getFrames().toString()
 			}
+		});
+
+		var imgHeight = $(".gif-wrapper").height();
+		$(".gif-wrapper").mouseenter(function(){
+			$(".jsgif").css("-webkit-animation","none")
+		}).mousemove(function(e){
+			var percentage = Math.max(1 - e.offsetY/imgHeight,0);
+
+			gifchopper.stopIdling();
+			gifchopper.seekPercentOfSelection(percentage);
+
+			var transform = "perspective(500) rotateX("+(5-(percentage*20))+"deg)";
+			$(".jsgif").css("-webkit-transform", transform);
+		}).mouseleave(function(){
+			// gifchopper.startIdling();
 		});
 	}
 
