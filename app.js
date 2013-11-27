@@ -448,27 +448,10 @@ imageHandler.processImage = function(id, url, processor) {
 imageHandler.saveImage = function(url, callback) {
   var suffix = url.split('?')[0].split('.').pop(),
       fileRoot = url.split('/').pop().split('.')[0],
-      tempFilename = config.TEMP + fileRoot + new Date().getTime() + '.' + suffix,
-      file = fs.createWriteStream(tempFilename);
+      tempFilename = config.TEMP + fileRoot + new Date().getTime() + '.' + suffix;
   console.log('downloading', url, 'to', tempFilename);
 
   // request(url).pipe(file);
-
-  file.on('end', function(){
-    console.log('ended downloading', url);
-    if (callback) {
-      // null image data
-      callback(tempFilename, null);
-    }
-  }).on('finish', function(){
-    console.log('finished downloading', url);
-    if (callback) {
-      // null image data
-      callback(tempFilename, null);
-    }
-  }).on('error', function(err) {
-    console.log(err);
-  });
 
   http.get(url, function(response) {
     console.log("Got response: " + response.statusCode);
@@ -482,8 +465,12 @@ imageHandler.saveImage = function(url, callback) {
     });
 
     response.on('end', function() {
-      console.log('ending filestream');
-      file.end(imagedata);
+      console.log('writing file');
+      fs.writeFile(tempFilename, imagedata, 'binary', function(err) {
+        if (err) throw err;
+
+        callback(tempFilename, null);
+      });
     });
 
     // res.pipe(file);
