@@ -62,9 +62,17 @@
 			gifchopper.stopIdling();
 			gifchopper.seekPercentOfSelection(percentage);
 
+
+			if (typeof document.getCSSCanvasContext != 'function') {
+				bgContext = d3.select("#ring-preview-canvas").node().getContext('2d');
+				$(".strip div").css("background-image", "-moz-element(#ring-preview-canvas)");
+			} else {
+				bgContext = document.getCSSCanvasContext('2d', 'ring-preview', projWidth, projHeight + topBorder + bottomBorder);
+			}
+
+
 			var transform = "perspective(500) rotateX("+(5-(percentage*20))+"deg)";
 			$(".jsgif").css("-webkit-transform", transform);
-			// $(".jsgif .gif-canvas").css("-webkit-transform", transform);
 		}).mouseleave(function(){
 			// gifchopper.startIdling();
 		});
