@@ -194,6 +194,11 @@ var gifchopper = function() {
       });
   };
 
+  self.seekPercentOfSelection = function(percent) {
+    var frame = (percent * (stop - start)) + start;
+    self.controller.seekFrame(Math.round(frame));
+  };
+
   /*
     loop between the *start* and *stop* frame numbers, with default *delay*
   */

@@ -102,7 +102,7 @@ var gifcontrol = function(gif, maxheight) {
     var drawError = function() {
       ctx.fillStyle = 'rgb(127,127,127)';
       ctx.fillRect(0, 0, hdr.width, hdr.height);
-      ctx.strokeStyle = 'red';
+      ctx.strokeStyle = 'rgb(247, 152, 31)';
       ctx.lineWidth = 3;
       ctx.moveTo(0, 0);
       ctx.lineTo(hdr.width, hdr.height);
@@ -112,7 +112,7 @@ var gifcontrol = function(gif, maxheight) {
     };
 
     loadError = originOfError;
-    hdr = {width: gif.width, height: 250}; // Fake header.
+    hdr = {width: gif.width, height: 300 }; // Fake header, fake height for now
     frames = [];
     drawError();
     setTimeout(doPlay, 0);
@@ -553,9 +553,10 @@ var gifcontrol = function(gif, maxheight) {
   var parent = gif.parentNode;
 
   var wrapper = document.createElement('div');
-  wrapper.className = 'wrapper';
+  wrapper.className = 'gif-wrapper';
   var div = document.createElement('div');
   var canvas = document.createElement('canvas');
+  canvas.className = 'gif-canvas';
   var ctx = canvas.getContext('2d');
   var toolbar = document.createElement('div');
 
