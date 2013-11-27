@@ -449,6 +449,7 @@ imageHandler.saveImage = function(url, callback) {
   var suffix = url.split('.').pop(),
       tempFilename = config.TEMP + new Date().getTime() + '.' + suffix,
       file = fs.createWriteStream(tempFilename);
+  console.log('downloading', url, 'to', tempFilename);
 
   request(url).pipe(file);
 
