@@ -423,7 +423,7 @@ imageHandler.processImage = function(id, url, processor) {
     console.log(err);
     if (err) return;
 
-    http.get(doc[url], function(response) {
+    http.get(encodeURI(doc[url]), function(response) {
       var imagedata = '';
 
       response.setEncoding('binary');
