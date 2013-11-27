@@ -8,9 +8,10 @@
 <h1>More ways to pop</h1>
 
 <div id="flipflop" class="chop-option">
-	<h2>Flip Flop</h2>
+	<h2>Flip Between Two Images</h2>
 	<p class="caps">If you don't have a gif, just upload two images!</p>
-	<img src="images/diagrams/upload_flipflop.gif">
+	<img src="images/diagrams/upload_flipflop.jpg" class="diagram">
+	<img src="images/diagrams/upload_flipflop_hover.gif" class="diagram">
 </div>
 <form class="chop-option">
 	<h2>Enter in a URL</h2>
@@ -53,7 +54,7 @@
 		-webkit-transform: skew(-7deg);
 		height: 40px;
 		float: left;
-		margin: 10px 0 25px 25px;
+		margin: 30px 0 75px 25px;
 	}
 	#urlSubmit {
 	    background-image: url(images/submit.png);
@@ -61,6 +62,7 @@
 	    height: 56px;
 	    cursor: pointer;
 	    float: left;
+	    margin-top: 25px;
 	}
 	#urlSubmit:hover {
 	    background-image: url(images/submit-over.png);
@@ -94,6 +96,18 @@
 	}
 	.chop-option a {
 		color: #808080;
+	}
+	.diagram {
+		position: absolute;
+	}
+	.diagram:nth-child(even) {
+		display: none;
+	}
+	.chop-option:hover .diagram:nth-child(odd) {
+		display: none;
+	}
+	.chop-option:hover .diagram:nth-child(even) {
+		display: block;
 	}
 	/*#url {
 		position: absolute;
