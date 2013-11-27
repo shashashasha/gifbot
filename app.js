@@ -353,11 +353,15 @@ uploader.saveAndGifChop = function(filepath, type, res) {
   var filename = type + '_' + filepath.split('/').pop(),
     destination = uploader.getCurrentUploadFolder() + filename,
     headers = { 'x-amz-acl': 'public-read' };
+
+  console.log('putting file to s3', destination);
   s3.putFile(filepath, destination, function(err, response){
     if (err) {
       console.log(err);
       return;
     }
+
+    console.log('successfully uploaded to s3');
 
     response.resume();
     res.redirect('/gifchop?id=' + filename.split('.')[0] + '&key=' + destination + '&source=' + type);
@@ -449,6 +453,7 @@ imageHandler.saveImage = function(url, callback) {
   request(url).pipe(file);
 
   file.on('finish', function(){
+    console.log('finished downloading', url);
     if (callback) {
       // null image data
       callback(tempFilename, null);

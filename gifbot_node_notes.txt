@@ -82,3 +82,13 @@ couchdb -d
 # url for viewing "selected" state gifs
 http://db.gifpop.io/gifpop/_design/pipeline/_view/status
 
+# kill screen session, -X sends command to screen
+screen -S sscreenname -X quit
+
+# list all screens
+screen -r
+
+# resume screen
+screen -r screenname
+
+# detach, ctrl+a and then 'd'. quit, ctrl+a and then ':quit'
