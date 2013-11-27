@@ -122,6 +122,7 @@ body{
 #gif-rotation-preview {
 	position: absolute;
 	top: 0;
+	border: 1px solid #ddd;
 }
 #gif-rotation-preview.s_Bus {
 	width: 350px !important;
