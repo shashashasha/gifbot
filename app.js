@@ -451,7 +451,14 @@ imageHandler.saveImage = function(url, callback) {
       file = fs.createWriteStream(tempFilename);
   console.log('downloading', url, 'to', tempFilename);
 
-  request(url).pipe(file);
+  http.get(url, function(res) {
+    console.log("Got response: " + res.statusCode);
+    res.pipe(writeStream);
+  }).on('error', function(e) {
+    console.log("Got error: " + e.message);
+  });
+
+  // request(url).pipe(file);
 
   file.on('finish', function(){
     console.log('finished downloading', url);
