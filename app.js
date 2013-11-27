@@ -452,6 +452,24 @@ imageHandler.saveImage = function(url, callback) {
       file = fs.createWriteStream(tempFilename);
   console.log('downloading', url, 'to', tempFilename);
 
+  // request(url).pipe(file);
+
+  file.on('end', function(){
+    console.log('ended downloading', url);
+    if (callback) {
+      // null image data
+      callback(tempFilename, null);
+    }
+  }).on('finish', function(){
+    console.log('finished downloading', url);
+    if (callback) {
+      // null image data
+      callback(tempFilename, null);
+    }
+  }).on('error', function(err) {
+    console.log(err);
+  });
+
   http.get(url, function(response) {
     console.log("Got response: " + response.statusCode);
     var imagedata = '';
@@ -471,18 +489,6 @@ imageHandler.saveImage = function(url, callback) {
     // res.pipe(file);
   }).on('error', function(e) {
     console.log("Got error: " + e.message);
-  });
-
-  // request(url).pipe(file);
-
-  file.on('finish', function(){
-    console.log('finished downloading', url);
-    if (callback) {
-      // null image data
-      callback(tempFilename, null);
-    }
-  }).on('error', function(err) {
-    console.log(err);
   });
 };
 
