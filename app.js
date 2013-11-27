@@ -453,7 +453,7 @@ imageHandler.saveImage = function(url, callback) {
 
   http.get(url, function(res) {
     console.log("Got response: " + res.statusCode);
-    res.pipe(writeStream);
+    res.pipe(file);
   }).on('error', function(e) {
     console.log("Got error: " + e.message);
   });
