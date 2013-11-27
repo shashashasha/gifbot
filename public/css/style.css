@@ -13,20 +13,17 @@ body{
 .done .wrapper {
 }
 .done .jsgif {
-	-webkit-transform: perspective(500) rotateX(-20deg);
-	-webkit-animation-duration: 3s;
-	-webkit-animation-name: skew;
-	-webkit-animation-iteration-count: infinite;
+	-webkit-animation: skew 4s infinite;
 }
 @-webkit-keyframes skew {
-	from {
-		-webkit-transform: perspective(500) rotateX(-20deg);
+	0% {
+		-webkit-transform: perspective(500) rotateX(-5deg);
 	}
 	50% {
-		-webkit-transform: perspective(500) rotateX(20deg);
+		-webkit-transform: perspective(500) rotateX(5deg);
 	}
-	to {
-		-webkit-transform: perspective(500) rotateX(-20deg);
+	100% {
+		-webkit-transform: perspective(500) rotateX(-5deg);
 	}
 }
 #timeline {

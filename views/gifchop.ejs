@@ -14,7 +14,7 @@
 		<div id="playhead"></div>
 		<div id="gif-ui">
 			<!-- <button id="gif-toggle">Autoplay: Off</button> -->
-			<div id="instructions" class="large-helper-text" style="display: none;">Click to select a clip to chop</div>
+			<div id="instructions" class="large-helper-text" style="display: none;">Click to select a clip</div>
 			<div id="finalize" class="large-helper-text" style="display: none;">
 				Click or drag to adjust, then hit <button id="gif-submit">DONE!</button>
 			</div>
@@ -41,6 +41,16 @@
 	else {
 		window.attachEvent("onmessage", displayMessage);
 	}
+	$(".bg").mouseenter(function(){
+		// $(".box").css("-webkit-animation-play-state", "paused");
+		$(".box").css("-webkit-animation","none")
+	}).mousemove(function(e){
+		var percentage = Math.max(1 - e.offsetY/imgHeight,0);
+		$("#wrapper").css("-webkit-transform","perspective(500) rotateX("+(5-(percentage*20))+"deg)");
+		$("#b2-wrapper").css("-webkit-mask-position",-imgHeight*percentage+"px "+-imgHeight*percentage+"px");
+	}).mouseleave(function(){
+		// $(".box").css("-webkit-animation-play-state", "running");
+	});
 
 	// grab the current frames, give them to couch
 	function saveFrames() {
