@@ -452,9 +452,23 @@ imageHandler.saveImage = function(url, callback) {
       file = fs.createWriteStream(tempFilename);
   console.log('downloading', url, 'to', tempFilename);
 
-  http.get(url, function(res) {
-    console.log("Got response: " + res.statusCode);
-    res.pipe(file);
+  http.get(url, function(response) {
+    console.log("Got response: " + response.statusCode);
+    var imagedata = '';
+
+    response.setEncoding('binary');
+
+    response.on('data', function(chunk) {
+      imagedata += chunk;
+      console.log(imagedata);
+    });
+
+    response.on('end', function() {
+      console.log('ending filestream');
+      file.end(imagedata);
+    });
+
+    // res.pipe(file);
   }).on('error', function(e) {
     console.log("Got error: " + e.message);
   });
