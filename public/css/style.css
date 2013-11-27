@@ -109,50 +109,63 @@ body{
 
 .jsgif {
 	overflow: hidden;
+	background: #ccc;
+	opacity: .99;
 	margin: 20px auto 0;
 }
 .jsgif_simple_tools {
 	display: none;
 }
-.jsgif.s_Bus {
+#gif-container {
+	text-align: center;
+}
+#gif-rotation-preview {
+	position: absolute;
+	top: 0;
+}
+#gif-rotation-preview.s_Bus {
 	width: 350px !important;
 	height: 233px;
 	margin-top: 133px;
+	margin-left: -175px;
 }
-.jsgif.s_Pos {
+#gif-rotation-preview.s_Pos {
 	width: 600px !important;
 	height: 400px;
 	margin-top: 50px;
+	margin-left: -300px;
 }
-.jsgif.s_Lar {
+#gif-rotation-preview.s_Lar {
 	width: 500px !important;
 	height: 500px;
+	margin-left: -250px;
 }
-.jsgif.s_Sma {
+#gif-rotation-preview.s_Sma {
 	width: 350px !important;
 	height: 350px;
 	margin-top: 125px;
+	margin-left: -175px;
 }
 .jsgif canvas {
 	width: 100%;
 }
 
 
-#wrapper.s_2x3 {
+#wrapper.s_Bus {
 	width: 350px !important;
 	height: 233px;
 	margin-top: 133px;
 }
-#wrapper.s_4x6 {
+#wrapper.s_Pos {
 	width: 600px !important;
 	height: 400px;
 	margin-top: 50px;
 }
-#wrapper.s_5x5 {
+#wrapper.s_Lar {
 	width: 500px !important;
 	height: 500px;
 }
-#wrapper.s_3x3 {
+#wrapper.s_Sma {
 	width: 350px !important;
 	height: 350px;
 	margin-top: 125px;
