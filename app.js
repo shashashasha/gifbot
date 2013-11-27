@@ -479,6 +479,38 @@ app.get('/flipflop/:doc/:image/preview.jpg', function(req, res) {
     });
 });
 
+app.get('/flipflop/:doc/preview.gif', function(req, res) {
+  var docId = req.params.doc,
+      tempFile = config.TEMP + 'flipflop-' + new Date().getTime() + docId + '-url',
+      tempFilename0 = config.TEMP + 'flipflop-' + new Date().getTime() + docId + '-url0.jpg',
+      tempFilename1 = config.TEMP + 'flipflop-' + new Date().getTime() + docId + '-url1.jpg',
+      outputFilename = config.TEMP + 'flipflop-' + new Date().getTime() + docId + '-preview.gif',
+      file0 = fs.createWriteStream(tempFilename0),
+      file1 = fs.createWriteStream(tempFilename1);
+
+  db.get(docId, function(err, doc) {
+    if (err) return;
+
+    request(doc.url0).pipe(file0);
+    file0.on('finish', function(err){
+      if (err) return;
+
+      console.log('downloaded first image');
+      request(doc.url1).pipe(file1);
+      file1.on('finish', function(err) {
+        if (err) return;
+
+        console.log('downloaded second image');
+        exec("convert   -delay 100   -loop 0   -geometry x76 " + tempFile + "*.jpg" + " " + outputFilename, function(err, stdout, stderr) {
+          if (err) throw err;
+
+          imageHandler.returnImage(res, outputFilename);
+        });
+      });
+    });
+  });
+});
+
 app.get('/gifchop/:doc/preview.gif', function(req, res) {
   console.log(req.params.doc);
   var docId = req.params.doc,
