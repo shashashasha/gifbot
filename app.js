@@ -423,6 +423,7 @@ imageHandler.processImage = function(id, url, processor) {
     console.log(err);
     if (err) return;
 
+    console.log("loading", doc[url]);
     http.get(encodeURI(doc[url]), function(response) {
       var imagedata = '';
 
@@ -466,8 +467,8 @@ app.get('/flipflop/:doc/:image/preview.jpg', function(req, res) {
     tempFolder = config.TEMP;
 
     imageHandler.processImage(docId, image, function(doc, imagedata) {
-      var temp = tempFolder + docId + '-' + image + '.jpg',
-        finalOutput = tempFolder + docId + '-' + image + '-thumbnail.jpg';
+      var temp = tempFolder + docId + '-flipflop.jpg',
+        finalOutput = tempFolder + docId + '-thumbnail.jpg';
 
       console.log('writing to temp file ', temp);
 
