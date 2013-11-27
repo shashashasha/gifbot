@@ -235,8 +235,8 @@ app.get('/flipflop', function(req, res) {
     , docId1 = req.query["id1"]
     , key1 = decodeURIComponent(req.query["key1"])
     , base = 'http://gifpop-uploads.s3.amazonaws.com/{key}'
-    , url0 = base.replace('{key}', encodeURIComponent(key0))
-    , url1 = base.replace('{key}', encodeURIComponent(key1));
+    , url0 = base.replace('{key}', key0)
+    , url1 = base.replace('{key}', key1);
 
   // saveAndRender(docId0, details, template, templatevars);
 
@@ -389,6 +389,7 @@ imageHandler.gifsicle = function(id, cmd) {
 };
 
 imageHandler.returnImage = function(res, path) {
+  console.log(path);
   var img = fs.readFileSync(path);
   res.writeHead(200, {'Content-Type': 'image/gif' });
   res.end(img, 'binary');
@@ -417,14 +418,10 @@ imageHandler.processVideo = function(url, callback) {
 };
 
 imageHandler.processImage = function(id, url, processor) {
-  console.log('processing image', id);
-
-  db.get(id, null, function(err, doc) {
-    console.log(err);
+  db.get(id, function(err, doc) {
     if (err) return;
 
-    console.log("loading", doc[url]);
-    http.get(encodeURI(doc[url]), function(response) {
+    http.get(doc[url], function(response) {
       var imagedata = '';
 
       response.setEncoding('binary');
@@ -435,7 +432,6 @@ imageHandler.processImage = function(id, url, processor) {
 
       response.on('end', function() {
         if (processor) {
-          console.log('image downloaded');
           processor(doc, imagedata);
         }
         else
@@ -461,7 +457,6 @@ imageHandler.saveImage = function(url, callback) {
 };
 
 app.get('/flipflop/:doc/:image/preview.jpg', function(req, res) {
-  console.log(req.params.doc);
   var docId = req.params.doc,
     image = 'url' + req.params.image, // images are saved as "url0" or "url1"
     tempFolder = config.TEMP;
@@ -470,18 +465,14 @@ app.get('/flipflop/:doc/:image/preview.jpg', function(req, res) {
       var temp = tempFolder + docId + '-flipflop.jpg',
         finalOutput = tempFolder + docId + '-thumbnail.jpg';
 
-      console.log('writing to temp file ', temp);
-
       // write the image to a temp file, then resize it to a smaller image
       fs.writeFile(temp, imagedata, 'binary', function(err) {
         if (err) throw err;
 
         // graphicsmagick-node library
-        gm(temp)
-          .resize(120)
+        gm(temp).resize(120)
           .write(finalOutput, function (err) {
-            if (!err) console.log('done');
-
+            if (err) console.log('error processing:', err);
             imageHandler.returnImage(res, finalOutput);
           });
       });
