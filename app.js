@@ -28,7 +28,8 @@ var express = require('express')
   // database and storage information
   , config = JSON.parse(fs.readFileSync('./settings.json'))
   , nano = require('nano')(config.DATABASE)
-  , db = nano.db.use('gifpop')
+  , db = nano.db.use('gifpop-uploads')
+  , db_orders = nano.db.use('gifpop-orders')
 
   // s3 upload
   , knox = require('knox')
@@ -50,7 +51,6 @@ app.configure(function() {
   app.set('views', __dirname + '/views');
   app.set('view engine', 'ejs');
 
-  // app.use(express.favicon());
   app.use(express.logger('dev'));
   app.use(express.bodyParser());
   app.use(express.methodOverride());
@@ -238,7 +238,7 @@ app.get('/flipflop', function(req, res) {
     , url0 = base.replace('{key}', encodeURIComponent(key0))
     , url1 = base.replace('{key}', encodeURIComponent(key1));
 
-  saveAndRender(docid, details, template, templatevars);
+  // saveAndRender(docId0, details, template, templatevars);
 
   // save the uploaded gif information
   var doc = {
@@ -250,7 +250,7 @@ app.get('/flipflop', function(req, res) {
     source: 'user'
   };
 
-  db.insert(doc, docId, function(err, body) {
+  db.insert(doc, docId0, function(err, body) {
     if (err) {
       util.puts(err);
     }
@@ -276,7 +276,7 @@ app.post('/selected', function(req, res) {
   console.log('selecting', docId);
   console.log('frames:', frames);
 
-  db.get(docId, null, function(err, body) {
+  db.get(docId, function(err, body) {
     if (err) console.log(err);
 
     var doc = {
@@ -301,11 +301,39 @@ app.post('/selected', function(req, res) {
 });
 
 app.post('/ordered', function(req, res) {
-  console.log(req.body);
+  // here we're copying information from shopify orders
+  // into gifpop-uploads documents
+  var updateOrder = function(docId, orderId, quantity, title) {
+    db.get(docId, function(err, body) {
+      var doc = body;
+
+      body.status = 'ordered';
+      body.order_id = orderId;
+      body.quantity = quantity;
+      body.product = title;
+
+      db.insert(doc, docId, function (err, body) {
+        if(!err) {
+          console.log("updated doc", docId, "with order information", orderId);
+        } else {
+          console.log("sadfaces");
+        }
+      });
+    });
+  };
+
   // also keep track of orders in couch
   // not sure if this is smart or dumb
-  db.insert(req.body, 'order-' + new Date().getTime(), function (err, body) {
+  db_orders.insert(req.body, 'order-' + new Date().getTime(), function (err, body) {
     console.log(err, ok);
+
+    var items = req.body.line_items;
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i],
+        docId = item.properties.Document;
+
+        updateOrder(docId, item.id, item.quantity, item.title);
+    }
   });
 });
 
@@ -402,12 +430,13 @@ imageHandler.processImage = function(id, url, processor) {
 
       response.on('data', function(chunk) {
         imagedata += chunk;
-        console.log(imagedata.length);
       });
 
       response.on('end', function() {
-        if (processor)
+        if (processor) {
+          console.log('image downloaded');
           processor(doc, imagedata);
+        }
         else
           console.log('no image processor defined');
       });
@@ -472,25 +501,18 @@ app.get('/gifchop/:doc/preview.gif', function(req, res) {
     fs.writeFile(temp, imagedata, 'binary', function(err) {
       if (err) throw err;
 
-      var output = tempFolder + docId + "-preview.gif";
+      var selection = doc.frames.split(','),
+          start = +selection[0],
+          end = +selection[selection.length-1],
+          frames = "'#" + start + "-" + end + "'";
 
-      exec("gifsicle " + temp + " --resize-width 120 -o " + output, function(err, stdout, stderr) {
+      var finalOutput = tempFolder + [docId, "frames", start, end].join('-') + ".gif";
+
+      // d10 is 100ms delay, -l0 is loop infinitely
+      exec("gifsicle -U " + temp + " --resize-width 120 -d10 -l0 " + frames + "  -o " + finalOutput, function(err, stdout, stderr) {
         if (err) throw err;
 
-        var selection = doc.frames.split(','),
-            start = +selection[0],
-            end = +selection[selection.length-1],
-            frames = "'#" + start + "-" + end + "'";
-
-        var finalOutput = tempFolder + [docId, "frames", start, end].join('-') + ".gif";
-
-        // d10 is 100ms delay
-        exec("gifsicle -U " + output + " -d10 " + frames + "  -o " + finalOutput, function(err, stdout, stderr) {
-          if (err) throw err;
-
-          imageHandler.returnImage(res, finalOutput);
-        });
-
+        imageHandler.returnImage(res, finalOutput);
       });
     });
   });

@@ -1,14 +1,19 @@
 var gm = require('gm')
   , fs = require('fs')
+  , config = JSON.parse(fs.readFileSync('./settings.json'))
+
   , path = require('path')
   , http = require('http')
   , request = require('request')
   , cheerio = require('cheerio')
   , util = require('util')
   , exec = require('child_process').exec
-  , nano = require('nano')('http://db.gifpop.io/')
-  , db = nano.db.use('gifpop')
+  , nano = require('nano')(config.DATABASE)
+  , db = nano.db.use('gifpop-uploads')
+  , db_orders = nano.db.use('gifpop-orders')
   , Q = require('q');
+
+// 1366123565811-8e23cc714beca176d9de30a258633004
 
 var updateDesignDoc = function() {
 	var deferred = Q.defer();

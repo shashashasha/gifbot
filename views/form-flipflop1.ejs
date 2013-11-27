@@ -40,7 +40,7 @@
 			container: 'picker',
 			services: ['COMPUTER','URL','INSTAGRAM','FACEBOOK','FLICKR']
 		},{
-			path: '/uploads/<%=scan_id%>/'
+			path: '/<%=scan_id%>'
 		},function(InkBlobs){
 	   		// console.log(JSON.stringify(InkBlobs));
 	   		var id0 = InkBlobs[0].url.split("/")[5];
