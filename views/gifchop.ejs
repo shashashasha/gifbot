@@ -107,8 +107,9 @@
 			ratio = canvas.width / canvas.height,
 			ph = $("#gif-rotation-preview").height(),
 			pw = $("#gif-rotation-preview").width(),
-			dh = ratio >= 1 ? ph : pw / ratio,
-			dw = ratio >= 1 ? ratio * dh : pw;
+			pr = pw / ph,
+			dh = ratio >= pr ? ph : pw / ratio,
+			dw = ratio >= pr ? ratio * dh : pw;
 
 		previewContext.drawImage(canvas, (pw - dw) / 2, (ph - dh) / 2, dw, dh);
 	}

@@ -461,19 +461,15 @@ imageHandler.saveImage = function(url, callback) {
 
     response.on('data', function(chunk) {
       imagedata += chunk;
-      console.log(imagedata);
     });
 
     response.on('end', function() {
-      console.log('writing file');
       fs.writeFile(tempFilename, imagedata, 'binary', function(err) {
         if (err) throw err;
 
         callback(tempFilename, null);
       });
     });
-
-    // res.pipe(file);
   }).on('error', function(e) {
     console.log("Got error: " + e.message);
   });
