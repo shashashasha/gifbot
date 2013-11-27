@@ -6,7 +6,9 @@
 <% script('/js/gifchop.js') -%>
 
 <div class="bg">
-	<img id="gif" src="<%=image_url%>" style="margin-left: -10000px;">
+	<div id="gif-container">
+		<img id="gif" src="<%=image_url%>" style="margin-left: -10000px;">
+	</div>
 	<div id="gif-controls">
 		<div id="timeline" class="scrubbable"></div>
 		<div id="doc_id" style="display: none;"><%=doc_id%></div>
@@ -31,7 +33,14 @@
 	};
 
 	function displayMessage (evt) {
-		$(".jsgif").attr("class","jsgif "+evt.data);
+		$("#gif-rotation-preview").attr("class",evt.data);
+		var preview = $("#gif-rotation-preview")[0];
+		preview.width = $("#gif-rotation-preview").width();
+		preview.height = $("#gif-rotation-preview").height();
+
+		console.log(preview.width, preview.height);
+
+		redrawCanvas();
 	}
 
 	if (window.addEventListener) {
@@ -53,29 +62,55 @@
 			}
 		});
 
-		var imgHeight = $(".gif-wrapper").height();
-		$(".gif-wrapper").mouseenter(function(){
-			$(".jsgif").css("-webkit-animation","none")
-		}).mousemove(function(e){
-			var percentage = Math.max(1 - e.offsetY/imgHeight,0);
+		previewGif();
+	}
+
+	function previewGif() {
+		// add a new canvas so we can transform it freely
+		var previewCanvas = document.createElement('canvas');
+		previewCanvas.id = "gif-rotation-preview";
+		$("#gif-container").append(previewCanvas);
+
+		// hide existing gif stuff
+		var wrapperHeight = $(".gif-wrapper").height();
+		$(".gif-wrapper").css("margin-left", "10000px");
+
+		$("#gif-container").mouseenter(function() {
+			$("#gif-rotation-preview").css("-webkit-animation","none")
+		}).mousemove(function(e) {
+
+			var percentage = Math.max(1 - (e.pageY / wrapperHeight),0);
 
 			gifchopper.stopIdling();
 			gifchopper.seekPercentOfSelection(percentage);
 
-
-			if (typeof document.getCSSCanvasContext != 'function') {
-				bgContext = d3.select("#ring-preview-canvas").node().getContext('2d');
-				$(".strip div").css("background-image", "-moz-element(#ring-preview-canvas)");
-			} else {
-				bgContext = document.getCSSCanvasContext('2d', 'ring-preview', projWidth, projHeight + topBorder + bottomBorder);
-			}
-
-
 			var transform = "perspective(500) rotateX("+(5-(percentage*20))+"deg)";
-			$(".jsgif").css("-webkit-transform", transform);
-		}).mouseleave(function(){
+			$("#gif-rotation-preview").css("-webkit-transform", transform);
+
+			redrawCanvas();
+		}).mouseleave(function() {
 			// gifchopper.startIdling();
 		});
+
+		// fake the initial click on the business cards
+		displayMessage({ data: 's_Bus'});
+	}
+
+	/*
+		copy the jsgif canvas over to our preview canvas
+		this way we can apply transforms and not end up with total fucking weirdness
+	*/
+	function redrawCanvas() {
+		var canvas = $("#gif-canvas")[0],
+			previewCanvas = $("#gif-rotation-preview")[0],
+			previewContext = previewCanvas.getContext('2d'),
+			ratio = canvas.width / canvas.height,
+			ph = $("#gif-rotation-preview").height(),
+			pw = $("#gif-rotation-preview").width(),
+			dh = ratio >= 1 ? ph : pw / ratio,
+			dw = ratio >= 1 ? ratio * dh : pw;
+
+		previewContext.drawImage(canvas, (pw - dw) / 2, (ph - dh) / 2, dw, dh);
 	}
 
 	// update db with frame numbers

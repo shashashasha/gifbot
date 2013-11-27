@@ -556,7 +556,7 @@ var gifcontrol = function(gif, maxheight) {
   wrapper.className = 'gif-wrapper';
   var div = document.createElement('div');
   var canvas = document.createElement('canvas');
-  canvas.className = 'gif-canvas';
+  canvas.id = 'gif-canvas';
   var ctx = canvas.getContext('2d');
   var toolbar = document.createElement('div');
 
@@ -605,6 +605,10 @@ var gifcontrol = function(gif, maxheight) {
   */
   self.length = function() {
     return frames.length;
+  };
+
+  self.canvas = function() {
+    return canvas;
   };
 
   return self;
