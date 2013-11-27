@@ -16,8 +16,11 @@
 <form class="chop-option">
 	<h2>Enter in a URL</h2>
 	<p class="caps">Links to <a class="logo" href="https://vine.co">Vine</a> and <a class="logo" href="http://instagram.com">Instagram Video</a> work too!</p>
-	<input type="text" id="urlInput" name="url" style="width:80%" placeholder="">
-	<div id="urlSubmit"></div>
+	<div class="url-form">
+		<input type="text" id="urlInput" name="url" style="width:80%" placeholder="">
+		<div id="urlSubmit"></div>
+	</div>
+	<div class="loading">Loading... <img src="images/icons/loading.gif" /></div>
 </form>
 <!-- <div id="fileFromURL">
     <h2>Or paste a URL to a gif here</h2>
@@ -109,64 +112,10 @@
 	.chop-option:hover .diagram:nth-child(even) {
 		display: block;
 	}
-	/*#url {
-		position: absolute;
-		top: 200px;
-		left: 500px;
-		z-index: 100;
-		width: 300px;
-		height: 300px;
-		background-color: #ff9900;
-	}
-	#url:hover {
-		background-color: black;
-	}
-	#fileFromURL {
-	    background: #808080;
-	    width: 400px;
-	    height: 195px;
-	    position: absolute;
-	    top: 215px;
-	    left: 420px;
-	    font-family: Futura;
-	    text-align: center;
-	    color: white;
-	}
 
-	#fileFromURL h2 {
-	    text-transform: uppercase;
-	    font-size: 22px;
-	    font-style: italic;
-	    margin: 30px 0 5px;
+	.loading {
+		display: none;
 	}
-	#fileFromURL #urlInput,
-	#fileFromURL #urlSubmit {
-	    float: left;
-	}
-	#fileFromURL #urlInput {
-	    height: 49px;
-	    border-radius: 0;
-	    border: none;
-	    -webkit-transform: skew(-7deg);
-	    margin: 4px 1px 10px 25px;
-	    width: 225px;
-	}
-	#fileFromURL #urlSubmit {
-	    background-image: url(images/submit.png);
-	    width: 124px;
-	    height: 56px;
-	    cursor: pointer;
-	}
-	#fileFromURL #urlSubmit:hover {
-	    background-image: url(images/submit-over.png);
-	}
-	#fileFromURL #urlSubmit:active {
-	    background-image: url(images/submit-down.png);
-	}
-	#fileFromURL p {
-	    font-size: 14px;
-	    clear: both;
-	}*/
 
 
 </style>
@@ -182,7 +131,10 @@
 	$("#urlSubmit").click(submitUrl);
 
 	function submitUrl() {
+		$(".loading").show();
+		$(".url-form").css({ opacity: .5 });
 		var url = $("#urlInput").val();
+
 		window.location = '/process-url/?url=' + url; // https://vine.co/v/hi2ml1lq0Jp
 	}
 

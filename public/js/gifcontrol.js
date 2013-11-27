@@ -100,7 +100,7 @@ var gifcontrol = function(gif, maxheight) {
 
   var doLoadError = function(originOfError) {
     var drawError = function() {
-      ctx.fillStyle = 'black';
+      ctx.fillStyle = 'rgb(127,127,127)';
       ctx.fillRect(0, 0, hdr.width, hdr.height);
       ctx.strokeStyle = 'red';
       ctx.lineWidth = 3;
@@ -112,7 +112,7 @@ var gifcontrol = function(gif, maxheight) {
     };
 
     loadError = originOfError;
-    hdr = {width: gif.width, height: gif.height}; // Fake header.
+    hdr = {width: gif.width, height: 250}; // Fake header.
     frames = [];
     drawError();
     setTimeout(doPlay, 0);
