@@ -467,6 +467,8 @@ imageHandler.saveImage = function(url, callback) {
       // null image data
       callback(tempFilename, null);
     }
+  }).on('error', function(err) {
+    console.log(err);
   });
 };
 
