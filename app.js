@@ -66,7 +66,7 @@ app.configure('development', function(){
 
 // index page
 app.get('/', function(req, res) {
-  res.render('index', { what: 'bestest :)', title: 'me' });
+  res.render('index');
 });
 
 app.get('/process-url/', function(req, res) {
@@ -223,6 +223,7 @@ app.get('/gifchop', function(req, res) {
 
   db.insert(doc, docId, function(err, body) {
     if (err) {
+      console.log('GIFCHOP:', err);
       util.puts(err);
     }
 
@@ -264,6 +265,7 @@ app.get('/flipflop', function(req, res) {
     if (err) {
       util.puts(err);
     }
+    console.log("FLIPFLOP: uploaded ", url0, url1);
 
     // render the uploaded page if we've saved the gif info to the db
     res.render('flipflop', {
@@ -283,11 +285,11 @@ app.post('/selected', function(req, res) {
   var docId = req.body.id
     , frames = req.body.frames;
 
-  console.log('selecting', docId);
-  console.log('frames:', frames);
+  console.log('SELECTED: selecting', docId);
+  console.log('SELECTED: frames:', frames);
 
   db.get(docId, function(err, body) {
-    if (err) console.log(err);
+    if (err) console.log('SELECTED:', err);
 
     var doc = {
       _rev: body._rev,
@@ -302,10 +304,10 @@ app.post('/selected', function(req, res) {
 
     db.insert(doc, docId, function (err, body) {
       if(!err) {
-        console.log("it worked!!!!");
+        console.log("SELECTED: it worked!!!!");
         res.json({ success: true });
       } else {
-        console.log("sadfaces");
+        console.log("SELECTED: sadfaces");
       }
     });
   });
@@ -314,25 +316,26 @@ app.post('/selected', function(req, res) {
 app.post('/ordered', function(req, res) {
   // here we're copying information from shopify orders
   // into gifpop-uploads documents
-  var updateOrder = function(docId, orderId, quantity, title) {
+  var updateOrder = function(docId, orderId, itemId, quantity, title) {
     db.get(docId, function(err, body) {
       if (err) {
-        console.log(err);
+        console.log('ORDERED:', err);
         return;
       }
-      var doc = body;
 
+      var doc = body;
       body.status = 'ordered';
-      body.order_id = orderId;
+      body.order_doc_id = orderId;
+      body.item_id = itemId;
       body.quantity = quantity;
       body.product = title;
 
       db.insert(doc, docId, function (err, body) {
         if(!err) {
-          console.log("updated doc", docId, "with order information", orderId);
+          console.log("ORDERED: updating order for docid", docId, orderId, itemId, quantity, title);
           res.json({ success: true });
         } else {
-          console.log("sadfaces");
+          console.log("ORDERED: sadfaces");
         }
       });
     });
@@ -341,31 +344,36 @@ app.post('/ordered', function(req, res) {
   // also keep track of orders in couch
   // not sure if this is smart or dumb
   var orderDoc = 'order-' + req.body.order_number;
-  console.log("saving as", orderDoc);
+  console.log("ORDERED: saving as", orderDoc);
 
   db_orders.head(orderDoc, function(err, _, headers) {
 
     if (headers && headers['status-code'] == 200) {
-      console.log('order exists, no need to update!');
+      console.log('ORDERED: order exists, no need to update!');
       res.json({ success: true });
       return;
     } else {
       // if it doesn't exist, add it
       db_orders.insert(req.body, orderDoc, function (err, body) {
-        console.log('order doesn\'t exist, adding', err, body);
+        if (err) {
+          console.log('ORDERED: error inserting!', err);
+          return;
+        }
+
+        console.log('ORDERED: order doesn\'t exist, added', orderDoc);
 
         var items = req.body.line_items;
         for (var i = 0; i < items.length; i++) {
           var item = items[i];
 
           if (item.properties.length == 0) {
-            console.log("no doc-id found");
+            console.log("ORDERED: no doc-id found!");
             continue;
           }
 
           var docId = item.properties[0].value;
-          console.log("updating order for docid", docId, item.quantity, item.title);
-          updateOrder(docId, item.id, item.quantity, item.title);
+          console.log("ORDERED: updating order for docid", docId, orderDoc, item.id, item.quantity, item.title);
+          updateOrder(docId, orderDoc, item.id, item.quantity, item.title);
         }
       });
     }
@@ -389,10 +397,10 @@ uploader.saveAndGifChop = function(filepath, type, res) {
     destination = uploader.getCurrentUploadFolder() + filename,
     headers = { 'x-amz-acl': 'public-read' };
 
-  console.log('putting file to s3', destination);
+  console.log('SAVEANDGIFCHOP: putting file to s3', destination);
   s3.putFile(filepath, destination, function(err, response){
     if (err) {
-      console.log(err);
+      console.log('SAVEANDGIFCHOP:', err);
       res.json({
         success: "false",
         error  : "error-uploading"
@@ -400,8 +408,7 @@ uploader.saveAndGifChop = function(filepath, type, res) {
       return;
     }
 
-    console.log('successfully uploaded to s3');
-
+    console.log('SAVEANDGIFCHOP: SUCCESS!');
     response.resume();
 
     res.json({
