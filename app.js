@@ -329,6 +329,7 @@ app.post('/ordered', function(req, res) {
 
   // also keep track of orders in couch
   // not sure if this is smart or dumb
+  console.log("saving as", 'order-' + req.body.order_number);
   db_orders.insert(req.body, 'order-' + req.body.order_number, function (err, body) {
     console.log(err, body);
 
