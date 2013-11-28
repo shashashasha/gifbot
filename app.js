@@ -328,6 +328,8 @@ app.post('/ordered', function(req, res) {
       db.insert(doc, docId, function (err, body) {
         if(!err) {
           console.log("updated doc", docId, "with order information", orderId);
+          res.writeHead(200, {'Content-Type': 'text/json' });
+          res.json({ success: true });
         } else {
           console.log("sadfaces");
         }
@@ -341,15 +343,16 @@ app.post('/ordered', function(req, res) {
   console.log("saving as", orderDoc);
 
   db_orders.head(orderDoc, function(err, _, headers) {
-    console.log(orderDoc, 'headers', headers);
 
-    if (headers && headers.statusCode == 200) {
-      console.log('order exists, no need to update');
+    if (headers && headers['status-code'] == 200) {
+      console.log('order exists, no need to update!');
+      res.writeHead(200, {'Content-Type': 'text/json' });
+      res.json({ success: true });
       return;
     } else {
       // if it doesn't exist, add it
       db_orders.insert(req.body, orderDoc, function (err, body) {
-        console.log(err, body);
+        console.log('order doesn\'t exist, adding', err, body);
 
         var items = req.body.line_items;
         for (var i = 0; i < items.length; i++) {
@@ -360,7 +363,6 @@ app.post('/ordered', function(req, res) {
             continue;
           }
 
-          console.log("found doc-id", item.properties[0]);
           var docId = item.properties[0].value;
           console.log("updating order for docid", docId, item.quantity, item.title);
           updateOrder(docId, item.id, item.quantity, item.title);
