@@ -322,6 +322,8 @@ app.post('/ordered', function(req, res) {
     });
   };
 
+  console.log(req.body);
+
   // also keep track of orders in couch
   // not sure if this is smart or dumb
   db_orders.insert(req.body, 'order-' + new Date().getTime(), function (err, body) {
