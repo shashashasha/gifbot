@@ -322,7 +322,7 @@ app.post('/ordered', function(req, res) {
     });
   };
 
-  console.log(req.body);
+  console.log(req.body.line_items[0].properties);
 
   // also keep track of orders in couch
   // not sure if this is smart or dumb
