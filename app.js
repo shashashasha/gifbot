@@ -211,6 +211,7 @@ app.get('/gifchop', function(req, res) {
     , base = 'http://gifpop-uploads.s3.amazonaws.com/{key}'
     , url = base.replace('{key}', key);
 
+
   // save the uploaded gif information
   var doc = {
     url: url,
@@ -302,6 +303,7 @@ app.post('/selected', function(req, res) {
     db.insert(doc, docId, function (err, body) {
       if(!err) {
         console.log("it worked!!!!");
+        res.json({ success: true });
       } else {
         console.log("sadfaces");
       }
@@ -328,7 +330,6 @@ app.post('/ordered', function(req, res) {
       db.insert(doc, docId, function (err, body) {
         if(!err) {
           console.log("updated doc", docId, "with order information", orderId);
-          res.writeHead(200, {'Content-Type': 'text/json' });
           res.json({ success: true });
         } else {
           console.log("sadfaces");
@@ -346,7 +347,6 @@ app.post('/ordered', function(req, res) {
 
     if (headers && headers['status-code'] == 200) {
       console.log('order exists, no need to update!');
-      res.writeHead(200, {'Content-Type': 'text/json' });
       res.json({ success: true });
       return;
     } else {
