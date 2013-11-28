@@ -322,17 +322,14 @@ app.post('/ordered', function(req, res) {
     });
   };
 
-  console.log(req.body.line_items[0].properties);
-
   // also keep track of orders in couch
   // not sure if this is smart or dumb
   db_orders.insert(req.body, 'order-' + new Date().getTime(), function (err, body) {
-    console.log(err, body);
 
     var items = req.body.line_items;
     for (var i = 0; i < items.length; i++) {
       var item = items[i],
-        docId = item.properties.Document;
+        docId = item.properties["doc-id"];
 
         updateOrder(docId, item.id, item.quantity, item.title);
     }
