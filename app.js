@@ -310,6 +310,10 @@ app.post('/ordered', function(req, res) {
   // into gifpop-uploads documents
   var updateOrder = function(docId, orderId, quantity, title) {
     db.get(docId, function(err, body) {
+      if (err) {
+        console.log(err);
+        return;
+      }
       var doc = body;
 
       body.status = 'ordered';
@@ -352,9 +356,10 @@ app.post('/ordered', function(req, res) {
             continue;
           }
 
+          console.log("found doc-id", item.properties[0]);
           var docId = item.properties[0].value;
-            console.log("updating order for docid", docId, item.quantity, item.title);
-            updateOrder(docId, item.id, item.quantity, item.title);
+          console.log("updating order for docid", docId, item.quantity, item.title);
+          updateOrder(docId, item.id, item.quantity, item.title);
         }
       });
     }
