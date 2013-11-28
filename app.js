@@ -71,9 +71,9 @@ app.get('/', function(req, res) {
 
 app.get('/process-url/', function(req, res) {
   // var url = req.body.url; // used for POSTing
-  var url = req.query['url'],
+  var url = req.query['url'].replace('https', 'http'),
       uploadFolder = uploader.getCurrentUploadFolder(),
-      domain = url.split('http://').join('').split('https://').join('').split('/')[0];
+      domain = url.split('http://').join('').split('/')[0];
 
   console.log(url, uploadFolder, domain);
 
@@ -298,8 +298,7 @@ app.post('/selected', function(req, res) {
       date: JSON.stringify(new Date()),
       type: 'gif',
       status: 'selected',
-      frames: frames,
-      zip: body.url.replace('.gif', '.zip')
+      frames: frames
     };
 
     db.insert(doc, docId, function (err, body) {
