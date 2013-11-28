@@ -366,13 +366,10 @@ app.post('/ordered', function(req, res) {
   };
 
   db_orders.head(orderDoc, function(err, _, headers) {
-
     if (headers && headers['status-code'] == 200) {
       console.log('ORDERED: order exists, no need to update!');
       // update docs anyway for now for any old requests we haven't caught
       updateDocs(req.body);
-      res.json({ success: true });
-      return;
     } else {
       // if it doesn't exist, add it
       db_orders.insert(req.body, orderDoc, function (err, body) {
