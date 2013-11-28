@@ -111,6 +111,11 @@ app.get('/process-url/', function(req, res) {
           var $ = cheerio.load(body),
               source = $('source');
 
+          if (!source.length) {
+            console.log('no source tags?');
+            return;
+          }
+
           // video tag
           var videoURL = source[0].attribs.src;
           if (videoURL.charAt(0) == '/') {
