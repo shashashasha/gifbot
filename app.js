@@ -75,7 +75,7 @@ app.get('/process-url/', function(req, res) {
       uploadFolder = uploader.getCurrentUploadFolder(),
       domain = url.split('http://').join('').split('/')[0];
 
-  console.log(url, uploadFolder, domain);
+  console.log('PROCESS URL:', url, uploadFolder, domain);
 
   // prefix with http just in case it doesn't have it
   if (url.search('http') < 0) {
@@ -95,7 +95,6 @@ app.get('/process-url/', function(req, res) {
         });
         break;
       case 'giphy.com':
-        console.log('giphy');
 
         var giphyResource = url.split('gifs/').pop(),
             giphyBase = 'http://media.giphy.com/media/{id}/giphy.gif',
@@ -106,13 +105,13 @@ app.get('/process-url/', function(req, res) {
         });
         break;
       case 'vine.co':
-        console.log('loading vine url');
         request(url, function(err, response, body) {
           var $ = cheerio.load(body),
               source = $('source');
 
           if (!source.length) {
-            console.log('no source tags?');
+            console.log('ERROR: no source tags?');
+            res.json({ success: "false", error  : "no-image-type" });
             return;
           }
 
@@ -121,10 +120,8 @@ app.get('/process-url/', function(req, res) {
           if (videoURL.charAt(0) == '/') {
             videoURL = 'http:' + videoURL;
           }
-          console.log('found vine url', videoURL);
 
           imageHandler.processVideo(videoURL, function(tempURL) {
-            console.log('processed vine video', tempURL);
             uploader.saveAndGifChop(tempURL, 'vine', res);
           });
         });
@@ -152,7 +149,7 @@ app.get('/process-url/', function(req, res) {
         });
         break;
       default:
-        console.log('image type not found, sorry!');
+        console.log('ERROR: image type not found, sorry!');
         res.json({
           success: "false",
           error  : "no-image-type"
@@ -173,6 +170,10 @@ var uploadForm = function(res, form, img_uri, doc_id) {
     file_prefix: new Date().getTime()
   };
 
+  /*
+    these two options are for the second flip flop form to
+    be able to show the right image
+  */
   if (img_uri) {
     formOptions.key = img_uri;
   }
@@ -227,6 +228,8 @@ app.get('/gifchop', function(req, res) {
       util.puts(err);
     }
 
+    console.log("GIFCHOP: docid", docId, util.inspect(docId));
+
     // render the uploaded page if we've saved the gif info to the db
     res.render('gifchop', {
       title: 'GifPOP',
@@ -266,6 +269,7 @@ app.get('/flipflop', function(req, res) {
       util.puts(err);
     }
     console.log("FLIPFLOP: uploaded ", url0, url1);
+    console.log("FLIPFLOP: doc_id ", docId0);
 
     // render the uploaded page if we've saved the gif info to the db
     res.render('flipflop', {
@@ -285,21 +289,15 @@ app.post('/selected', function(req, res) {
   var docId = req.body.id
     , frames = req.body.frames;
 
-  console.log('SELECTED: selecting', docId);
-  console.log('SELECTED: frames:', frames);
+  console.log('SELECTED: selecting', docId, 'frames:', frames);
 
   db.get(docId, function(err, body) {
     if (err) console.log('SELECTED:', err);
 
-    var doc = {
-      _rev: body._rev,
-      url: body.url,
-      source: body.source,
-      date: JSON.stringify(new Date()),
-      type: 'gif',
-      status: 'selected',
-      frames: frames
-    };
+    doc.type = 'gif';
+    doc.status = 'selected';
+    doc.date = JSON.stringify(new Date());
+    doc.frames = frames;
 
     db.insert(doc, docId, function (err, body) {
       if(!err) {
@@ -327,16 +325,15 @@ app.post('/ordered', function(req, res) {
         return;
       }
 
-      var doc = body;
       body.status = 'ordered';
       body.order_doc_id = orderId;
       body.item_id = itemId;
       body.quantity = quantity;
       body.product = title;
 
-      db.insert(doc, docId, function (err, body) {
+      db.insert(body, docId, function (err, body) {
         if(!err) {
-          console.log("ORDERED: updating order for docid", docId, orderId, itemId, quantity, title);
+          console.log("ORDERED:  updated order for docid", docId, orderId, itemId, quantity, title);
           res.json({ success: true });
         } else {
           console.log("ORDERED: sadfaces");
@@ -411,12 +408,12 @@ uploader.saveAndGifChop = function(filepath, type, res) {
       return;
     }
 
-    console.log('SAVEANDGIFCHOP: SUCCESS!');
+    console.log('SAVEANDGIFCHOP: SUCCESS!', filename.split('.')[0].toString());
     response.resume();
 
     res.json({
       success: "true",
-      id: filename.split('.')[0],
+      id: filename.split('.')[0].toString(),
       key: destination,
       source: type
     });
@@ -504,12 +501,12 @@ imageHandler.saveImage = function(url, callback) {
   var suffix = url.split('?')[0].split('.').pop(),
       fileRoot = url.split('/').pop().split('.')[0],
       tempFilename = config.TEMP + fileRoot + new Date().getTime() + '.' + suffix;
-  console.log('downloading', url, 'to', tempFilename);
+  console.log('SAVEIMAGE: downloading', url);
 
   // request(url).pipe(file);
 
   http.get(url, function(response) {
-    console.log("Got response: " + response.statusCode);
+    console.log("SAVEIMAGE: Got response: " + response.statusCode);
     var imagedata = '';
 
     response.setEncoding('binary');
@@ -526,7 +523,7 @@ imageHandler.saveImage = function(url, callback) {
       });
     });
   }).on('error', function(e) {
-    console.log("Got error: " + e.message);
+    console.log("SAVEIMAGE: Got error: " + e.message);
   });
 };
 
@@ -554,6 +551,7 @@ app.get('/flipflop/:doc/:image/preview.jpg', function(req, res) {
 });
 
 app.get('/flipflop/:doc/preview.gif', function(req, res) {
+  console.log('PREVIEW FLIPFLOP:', req.params.doc);
   var docId = req.params.doc,
       tempFile = config.TEMP + 'flipflop-' + new Date().getTime() + docId + '-url',
       tempFilename0 = config.TEMP + 'flipflop-' + new Date().getTime() + docId + '-url0.jpg',
@@ -569,12 +567,10 @@ app.get('/flipflop/:doc/preview.gif', function(req, res) {
     file0.on('finish', function(err){
       if (err) return;
 
-      console.log('downloaded first image');
       request(doc.url1).pipe(file1);
       file1.on('finish', function(err) {
         if (err) return;
 
-        console.log('downloaded second image');
         exec("convert   -delay 100   -loop 0   -geometry x76 " + tempFile + "*.jpg" + " " + outputFilename, function(err, stdout, stderr) {
           if (err) throw err;
 
@@ -586,14 +582,13 @@ app.get('/flipflop/:doc/preview.gif', function(req, res) {
 });
 
 app.get('/gifchop/:doc/preview.gif', function(req, res) {
-  console.log(req.params.doc);
+  console.log('PREVIEW GIFCHOP:', req.params.doc);
   var docId = req.params.doc,
     filename = req.params.doc + '-preview.gif',
     tempFolder = config.TEMP;
 
   imageHandler.processImage(docId, 'url', function(doc, imagedata) {
     var temp = tempFolder + filename;
-    console.log('writing to temp file ', temp);
 
     // write the gif to a temp file, then resize it to a smaller gif
     fs.writeFile(temp, imagedata, 'binary', function(err) {
@@ -617,7 +612,7 @@ app.get('/gifchop/:doc/preview.gif', function(req, res) {
 });
 
 app.get('/gifchop/:doc/:start/:end', function(req, res) {
-  console.log(req.params.doc);
+  console.log('CHOPPING GIF:', req.params.doc);
   var start = req.params.start,
     end = req.params.end,
     id = req.params.doc,
@@ -625,7 +620,6 @@ app.get('/gifchop/:doc/:start/:end', function(req, res) {
 
   imageHandler.processImage(id, 'url', function(doc, imagedata) {
     var temp = tempFolder + id + '.gif';
-    console.log('writing to temp file ', temp);
 
     // write the gif to a temp file, then resize it to a smaller gif
     fs.writeFile(temp, imagedata, 'binary', function(err) {
@@ -633,7 +627,7 @@ app.get('/gifchop/:doc/:start/:end', function(req, res) {
 
       var output = tempFolder + [id, "frames", start, end].join('-') + ".gif";
       var frames = "'#" + start + "-" + end + "'";
-      console.log('writing frames ', frames);
+      console.log('CHOPPING GIF: writing frames ', frames);
 
       exec("gifsicle -U " + temp + " " + frames + " -o " + output, function(err, stdout, stderr) {
         if (err) throw err;
