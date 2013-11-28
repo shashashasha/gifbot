@@ -221,8 +221,9 @@
 		},function(InkBlobs){
 	   		console.log(JSON.stringify(InkBlobs));
 	   		var img = InkBlobs[0];
-	   		var id = img.url.split("/");
-	   		window.location = "<%=base_url%>/gifchop/?id="+id[5]+"&key="+img.key;
+	   		var id = img.url.split("/").pop(),
+	   			clean_id = 'user_' + new Date().getTime() + '_' + id;
+	   		window.location = "<%=base_url%>/gifchop/?id=" + clean_id + "&key="+img.key;
 		},function(FPError){ console.log(FPError); }
 	);
 

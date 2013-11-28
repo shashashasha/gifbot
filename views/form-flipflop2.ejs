@@ -68,8 +68,9 @@
 			path: '/<%=scan_id%>'
 		},function(InkBlobs){
 	   		// console.log(JSON.stringify(InkBlobs));
-	   		var id = InkBlobs[0].url.split("/")[5];
-	   		window.location = "<%=base_url%>/flipflop/?id0=<%=doc_id%>&key0=<%=key%>&id1="+id+"&key1="+InkBlobs[0].key;
+	   		var id = InkBlobs[0].url.split("/").pop(),
+	   			clean_id = 'user_' + new Date().getTime() + '_' + id;
+	   		window.location = "<%=base_url%>/flipflop/?id0=<%=doc_id%>&key0=<%=key%>&id1=" + clean_id + "&key1=" + InkBlobs[0].key;
 		},function(FPError){ console.log(FPError); }
 	);
 

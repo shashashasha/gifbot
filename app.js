@@ -500,7 +500,7 @@ imageHandler.processImage = function(id, url, processor) {
 imageHandler.saveImage = function(url, callback) {
   var suffix = url.split('?')[0].split('.').pop(),
       fileRoot = url.split('/').pop().split('.')[0],
-      tempFilename = config.TEMP + fileRoot + new Date().getTime() + '.' + suffix;
+      tempFilename = config.TEMP + new Date().getTime() + '.' + suffix;
   console.log('SAVEIMAGE: downloading', url);
 
   // request(url).pipe(file);

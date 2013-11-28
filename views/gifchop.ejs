@@ -27,9 +27,9 @@
 
 	var image_url = '<%=image_url%>';
 	var image = document.getElementById('gif');
+	var doc_id = '<%=doc_id%>';
 	image.onload = function() {
-		console.log("image loaded");
-		gifchopper.load(image_url, image, '<%=doc_id%>');
+		gifchopper.load(image_url, image, doc_id);
 	};
 
 	function displayMessage (evt) {
@@ -37,8 +37,6 @@
 		var preview = $("#gif-rotation-preview")[0];
 		preview.width = $("#gif-rotation-preview").width();
 		preview.height = $("#gif-rotation-preview").height();
-
-		console.log(preview.width, preview.height);
 
 		redrawCanvas();
 	}
