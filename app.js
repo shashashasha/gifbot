@@ -333,7 +333,7 @@ app.post('/ordered', function(req, res) {
   console.log("saving as", orderDoc);
 
   db_orders.head(orderDoc, function(err, _, headers) {
-    console.log(orderDoc, 'headers': headers);
+    console.log(orderDoc, 'headers', headers);
 
     if (headers.statusCode == 200) {
       console.log('order exists, no need to update');
