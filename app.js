@@ -153,6 +153,10 @@ app.get('/process-url/', function(req, res) {
         break;
       default:
         console.log('image type not found, sorry!');
+        res.json({
+          success: "false",
+          error  : "no-image-type"
+        });
         break;
     }
   }
@@ -387,13 +391,23 @@ uploader.saveAndGifChop = function(filepath, type, res) {
   s3.putFile(filepath, destination, function(err, response){
     if (err) {
       console.log(err);
+      res.json({
+        success: "false",
+        error  : "error-uploading"
+      });
       return;
     }
 
     console.log('successfully uploaded to s3');
 
     response.resume();
-    res.redirect('/gifchop?id=' + filename.split('.')[0] + '&key=' + destination + '&source=' + type);
+
+    res.json({
+      success: "true",
+      id: filename.split('.')[0],
+      key: destination,
+      source: type
+    });
   });
 };
 

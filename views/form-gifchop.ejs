@@ -20,7 +20,7 @@
 		<input type="text" id="urlInput" name="url" style="width:80%" placeholder="">
 		<div id="urlSubmit"></div>
 	</div>
-	<div class="loading">Loading... <img src="images/icons/loading.gif" /></div>
+	<div class="loading"><span id="url-loading-text">Loading...</span> <img id="url-loading-image" src="images/icons/loading.gif" /></div>
 </form>
 <!-- <div id="fileFromURL">
     <h2>Or paste a URL to a gif here</h2>
@@ -141,12 +141,73 @@
 	$("#flipflop").click(saveFrames);
 	$("#urlSubmit").click(submitUrl);
 
+	function refocusURL() {
+		$(".loading").css("visibility","hidden");
+	}
+
+	/*
+		Submitting a URL directly
+	*/
 	function submitUrl() {
 		$(".loading").css("visibility","visible");
-		$(".url-form").css({ opacity: .5 });
-		var url = $("#urlInput").val();
+		$("#url-loading-text").html("Loading... ");
+		$("#url-loading-image").css("visibility","visible");
 
-		window.location = '/process-url/?url=' + url; // https://vine.co/v/hi2ml1lq0Jp
+		$(".url-form").css({ opacity: .5 });
+
+		var url = $("#urlInput").val(),
+			text = $("#url-loading-text"),
+			image = $("#url-loading-image"),
+			input = $("#urlInput"),
+			redirect = '/gifchop?id={id}&key={key}&source={source}';
+
+		var impatient = setTimeout(function() {
+			text.html("Still loading......");
+		}, 5000);
+
+		$.ajax({
+			url: '/process-url/?url=' + url,
+			success: function(res) {
+				clearTimeout(impatient);
+
+				if (res.success == 'true' || res.success == true) {
+					text.html("AWESOME! It worked!");
+					image.css("visibility","hidden");
+
+					setTimeout(function() {
+						window.location = redirect.replace('{id}', res.id)
+							.replace('{key}', res.key)
+							.replace('{source}', res.source);
+					}, 200);
+				} else {
+					var message = 'We\'re sorry, something went wrong! Try again?';
+
+					switch (res.error) {
+						case "error-uploading":
+							message = 'Oops, there was an error uploading. Try again?';
+							break;
+
+						case "no-image-type":
+							message = 'Oops, we couldn\'t find a gif there. Try another link?';
+							break;
+					}
+
+					$(".url-form").css({ opacity: 1 });
+					text.html(message);
+					image.css("visibility","hidden");
+					input.focusin(refocusURL);
+				}
+			},
+			error: function(e) {
+				clearTimeout(impatient);
+
+				$(".url-form").css({ opacity: 1 });
+
+				text.html("Oops, an error occurred... try again?");
+				image.css("visibility","hidden");
+				input.focusin(refocusURL);
+			}
+		});
 	}
 
 	filepicker.setKey("AYkBZ0oUOTTqvkwhxMx3Ez");
