@@ -291,7 +291,7 @@ app.post('/selected', function(req, res) {
 
   console.log('SELECTED: selecting', docId, 'frames:', frames);
 
-  db.get(docId, function(err, body) {
+  db.get(docId, function(err, doc) {
     if (err) console.log('SELECTED:', err);
 
     doc.type = 'gif';
