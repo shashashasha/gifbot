@@ -314,9 +314,14 @@ app.post('/selected', function(req, res) {
 });
 
 app.post('/ordered', function(req, res) {
+  // also keep track of orders in couch
+  // not sure if this is smart or dumb
+  var orderDoc = 'order-' + req.body.order_number;
+  console.log("ORDERED: saving as", orderDoc);
+
   // here we're copying information from shopify orders
   // into gifpop-uploads documents
-  var updateOrder = function(docId, orderId, itemId, quantity, title) {
+  var updateDocWithOrder = function(docId, orderId, itemId, quantity, title) {
     db.get(docId, function(err, body) {
       if (err) {
         console.log('ORDERED:', err);
@@ -341,15 +346,31 @@ app.post('/ordered', function(req, res) {
     });
   };
 
-  // also keep track of orders in couch
-  // not sure if this is smart or dumb
-  var orderDoc = 'order-' + req.body.order_number;
-  console.log("ORDERED: saving as", orderDoc);
+  // given a shopify order object, update our gifpop-uploads docs
+  var updateDocs = function(body) {
+    var items = body.line_items,
+      orderId = 'order-' + req.body.order_number;
+
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i];
+
+      if (item.properties.length == 0) {
+        console.log("ORDERED: no doc-id found!");
+        continue;
+      }
+
+      var docId = item.properties[0].value;
+      console.log("ORDERED: updating order for docid", docId, orderId, item.id, item.quantity, item.title);
+      updateDocWithOrder(docId, orderId, item.id, item.quantity, item.title);
+    }
+  };
 
   db_orders.head(orderDoc, function(err, _, headers) {
 
     if (headers && headers['status-code'] == 200) {
       console.log('ORDERED: order exists, no need to update!');
+      // update docs anyway for now for any old requests we haven't caught
+      updateDocs(req.body);
       res.json({ success: true });
       return;
     } else {
@@ -360,21 +381,7 @@ app.post('/ordered', function(req, res) {
           return;
         }
 
-        console.log('ORDERED: order doesn\'t exist, added', orderDoc);
-
-        var items = req.body.line_items;
-        for (var i = 0; i < items.length; i++) {
-          var item = items[i];
-
-          if (item.properties.length == 0) {
-            console.log("ORDERED: no doc-id found!");
-            continue;
-          }
-
-          var docId = item.properties[0].value;
-          console.log("ORDERED: updating order for docid", docId, orderDoc, item.id, item.quantity, item.title);
-          updateOrder(docId, orderDoc, item.id, item.quantity, item.title);
-        }
+        updateDocs(req.body);
       });
     }
   });
