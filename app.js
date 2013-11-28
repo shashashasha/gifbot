@@ -329,22 +329,34 @@ app.post('/ordered', function(req, res) {
 
   // also keep track of orders in couch
   // not sure if this is smart or dumb
-  console.log("saving as", 'order-' + req.body.order_number);
-  db_orders.insert(req.body, 'order-' + req.body.order_number, function (err, body) {
-    console.log(err, body);
+  var orderDoc = 'order-' + req.body.order_number;
+  console.log("saving as", orderDoc);
 
-    var items = req.body.line_items;
-    for (var i = 0; i < items.length; i++) {
-      var item = items[i];
+  db_orders.head(orderDoc, function(err, _, headers) {
+    console.log(orderDoc, 'headers': headers);
 
-      if (item.properties.length == 0) {
-        console.log("no doc-id found");
-        continue;
-      }
+    if (headers.statusCode == 200) {
+      console.log('order exists, no need to update');
+      return;
+    } else {
+      // if it doesn't exist, add it
+      db_orders.insert(req.body, orderDoc, function (err, body) {
+        console.log(err, body);
 
-      var docId = item.properties[0].value;
-        console.log("updating order for docid", docId, item.quantity, item.title);
-        updateOrder(docId, item.id, item.quantity, item.title);
+        var items = req.body.line_items;
+        for (var i = 0; i < items.length; i++) {
+          var item = items[i];
+
+          if (item.properties.length == 0) {
+            console.log("no doc-id found");
+            continue;
+          }
+
+          var docId = item.properties[0].value;
+            console.log("updating order for docid", docId, item.quantity, item.title);
+            updateOrder(docId, item.id, item.quantity, item.title);
+        }
+      });
     }
   });
 });
