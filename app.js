@@ -34,8 +34,8 @@ var express = require('express')
   // s3 upload
   , knox = require('knox')
   , s3 = knox.createClient({
-      key: config.AWSAccessKeyId,
-      secret: config.AWSSecret,
+      key: config.AWSCDNAccessKey,
+      secret: config.AWSCDNSecret,
       bucket: config.S3Bucket
   });
 
@@ -411,7 +411,7 @@ uploader.saveAndGifChop = function(filepath, type, res) {
     console.log('SAVEANDGIFCHOP: SUCCESS!', filename.split('.')[0].toString());
     response.resume();
 
-    res.json({
+    res.jsonp({
       success: "true",
       id: filename.split('.')[0].toString(),
       key: destination,

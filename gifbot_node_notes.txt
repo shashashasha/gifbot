@@ -95,3 +95,22 @@ screen -r screenname
 
 # gifpop cdn
 cdn.gifpop.io.s3-website-us-east-1.amazonaws.com
+
+
+
+@		A	204.93.213.45
+db		A	75.126.24.77
+gifbot		A	75.126.24.77
+www.devstore	A	204.93.213.45
+blog		CNAME	domains.tumblr.com
+www.blog	CNAME	domains.tumblr.com
+devstore	CNAME	shabinx.myshopify.com
+www		CNAME	shabinx.myshopify.com
+
+@		MX1	mx7.webfaction.com
+@		MX1	mx8.webfaction.com
+@		MX1	mx9.webfaction.com
+
+
+# use forever 
+https://github.com/nodejitsu/forever
