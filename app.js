@@ -324,7 +324,7 @@ app.post('/selected', function(req, res) {
     db.insert(doc, docId, function (err, body) {
       if(!err) {
         console.log("SELECTED: it worked!!!!");
-        res.json({ success: true });
+        res.jsonp({ success: true });
       } else {
         console.log("SELECTED: sadfaces");
       }

@@ -53,7 +53,7 @@
 		$.ajax({
 			type: "POST",
 			url: "/selected",
-			dataType: "json",
+			dataType: "jsonp",
 			data: {
 				id: '<%=doc_id%>',
 				frames: gifchopper.getFrames().toString()
