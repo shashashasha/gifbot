@@ -434,10 +434,16 @@ imageHandler.gifsicle = function(id, cmd) {
 
   // write the gif to a temp file, then resize it to a smaller gif
   fs.writeFile(temp, imagedata, 'binary', function(err) {
-    if (err) throw err;
+    if (err) {
+      console.log(err);
+      return;
+    }
 
     exec("gifsicle " + temp + " " + cmd + " -o " + output, function(err) {
-      if (err) throw err;
+      if (err) {
+        console.log(err);
+        return;
+      }
 
       imageHandler.returnImage(res, output);
     });
@@ -459,11 +465,17 @@ imageHandler.processVideo = function(url, callback) {
     // exec("ffmpeg -i " + tempURL + " -t 10 " + output + "%02d.gif");
 
     exec("ffmpeg -i " + tempURL + " -r 10 -vf scale=640:-1 " + output + "%03d.gif", function(err, stdout, stderr) {
-      if (err) throw err;
+      if (err) {
+        console.log(err);
+        return;
+      }
 
       var finaloutput = config.TEMP + new Date().getTime() + '_anim.gif';
       exec("gifsicle --delay=10 --loop " + output + "*.gif" + " > " + finaloutput, function(err, stdout, stderr) {
-        if (err) throw err;
+        if (err) {
+          console.log(err);
+          return;
+        }
         if (callback) {
           callback(finaloutput);
         }
@@ -517,7 +529,10 @@ imageHandler.saveImage = function(url, callback) {
 
     response.on('end', function() {
       fs.writeFile(tempFilename, imagedata, 'binary', function(err) {
-        if (err) throw err;
+        if (err) {
+          console.log(err);
+          return;
+        }
 
         callback(tempFilename, null);
       });
@@ -538,7 +553,10 @@ app.get('/flipflop/:doc/:image/preview.jpg', function(req, res) {
 
       // write the image to a temp file, then resize it to a smaller image
       fs.writeFile(temp, imagedata, 'binary', function(err) {
-        if (err) throw err;
+        if (err) {
+          console.log(err);
+          return;
+        }
 
         // graphicsmagick-node library
         gm(temp).resize(120)
@@ -561,18 +579,30 @@ app.get('/flipflop/:doc/preview.gif', function(req, res) {
       file1 = fs.createWriteStream(tempFilename1);
 
   db.get(docId, function(err, doc) {
-    if (err) return;
+    if (err) {
+      console.log(err);
+      return;
+    }
 
     request(doc.url0).pipe(file0);
     file0.on('finish', function(err){
-      if (err) return;
+      if (err) {
+        console.log(err);
+        return;
+      }
 
       request(doc.url1).pipe(file1);
       file1.on('finish', function(err) {
-        if (err) return;
+        if (err) {
+          console.log(err);
+          return;
+        }
 
         exec("convert   -delay 100   -loop 0   -geometry x76 " + tempFile + "*.jpg" + " " + outputFilename, function(err, stdout, stderr) {
-          if (err) throw err;
+          if (err) {
+            console.log(err);
+            return;
+          }
 
           imageHandler.returnImage(res, outputFilename);
         });
@@ -592,7 +622,10 @@ app.get('/gifchop/:doc/preview.gif', function(req, res) {
 
     // write the gif to a temp file, then resize it to a smaller gif
     fs.writeFile(temp, imagedata, 'binary', function(err) {
-      if (err) throw err;
+      if (err) {
+        console.log(err);
+        return;
+      }
 
       var selection = doc.frames.split(','),
           start = +selection[0],
@@ -603,7 +636,10 @@ app.get('/gifchop/:doc/preview.gif', function(req, res) {
 
       // d10 is 100ms delay, -l0 is loop infinitely
       exec("gifsicle -U " + temp + " --resize-width 120 -d10 -l0 " + frames + "  -o " + finalOutput, function(err, stdout, stderr) {
-        if (err) throw err;
+        if (err) {
+          console.log(err);
+          return;
+        }
 
         imageHandler.returnImage(res, finalOutput);
       });
@@ -623,14 +659,20 @@ app.get('/gifchop/:doc/:start/:end', function(req, res) {
 
     // write the gif to a temp file, then resize it to a smaller gif
     fs.writeFile(temp, imagedata, 'binary', function(err) {
-      if (err) throw err;
+      if (err) {
+        console.log(err);
+        return;
+      }
 
       var output = tempFolder + [id, "frames", start, end].join('-') + ".gif";
       var frames = "'#" + start + "-" + end + "'";
       console.log('CHOPPING GIF: writing frames ', frames);
 
       exec("gifsicle -U " + temp + " " + frames + " -o " + output, function(err, stdout, stderr) {
-        if (err) throw err;
+        if (err) {
+          console.log(err);
+          return;
+        }
 
         imageHandler.returnImage(res, output);
       });
