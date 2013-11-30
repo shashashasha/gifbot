@@ -316,6 +316,8 @@ app.post('/selected', function(req, res) {
   db.get(docId, function(err, doc) {
     if (err) console.log('SELECTED:', err);
 
+    doc = doc || {};
+
     doc.type = 'gif';
     doc.status = 'selected';
     doc.date = JSON.stringify(new Date());
