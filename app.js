@@ -352,14 +352,14 @@ app.get('/flipflop', function(req, res) {
 
 app.post('/flipflop', function(req, res) {
   console.log("FLIPFLOPPING");
-  var docId0 = req.body.id0
+  var docId = req.body.id
     , key0 = decodeURIComponent(req.body.key0)
     , key1 = decodeURIComponent(req.body.key1)
     , base = 'http://cdn.gifpop.io/{key}'
     , url0 = base.replace('{key}', key0)
     , url1 = base.replace('{key}', key1);
 
-  db.get(docId0, function(err, existing_doc) {
+  db.get(docId, function(err, existing_doc) {
     var doc = existing_doc || {};
 
     doc.url0 = url0;
@@ -369,17 +369,17 @@ app.post('/flipflop', function(req, res) {
     doc.status = 'uploaded';
     doc.source = 'user';
 
-    db.insert(doc, docId0, function(err, body) {
+    db.insert(doc, docId, function(err, body) {
       if (err) {
         util.puts(err);
       }
 
       console.log("FLIPFLOP: uploaded ", url0, url1);
-      console.log("FLIPFLOP: doc_id ", docId0);
+      console.log("FLIPFLOP: doc_id ", docId);
 
       res.jsonp({
         success: 'true',
-        doc_id: docId0,
+        doc_id: docId,
         image_url0: url0,
         image_url1: url1
       });
