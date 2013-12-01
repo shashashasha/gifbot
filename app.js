@@ -61,7 +61,7 @@ app.configure(function() {
       res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT');
 
       // Request headers you wish to allow
-      res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+      res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,Content-Type');
 
       // Set to true if you need the website to include cookies in the requests sent
       // to the API (e.g. in case you use sessions)
@@ -84,6 +84,12 @@ app.configure(function() {
 
 app.configure('development', function(){
   app.use(express.errorHandler());
+});
+
+app.all('/*', function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "X-Requested-With");
+  next();
 });
 
 // index page

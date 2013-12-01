@@ -120,7 +120,7 @@
 			url0: image_url0,
 			url1: image_url1
 		},
-		dataType: "jsonp"
+		dataType: "jsonp",
 		success: function() {
 			console.log(arguments);
 		},
@@ -128,17 +128,6 @@
 			console.log(arguments);
 		}
 	});
-
-		$.ajax({
-			type: "POST",
-			url: "http://gifbot.gifpop.io/selected",
-			dataType: "jsonp",
-			data: {
-				id: doc_id,
-				frames: gifchopper.getFrames().toString()
-			}
-		});
-
 
 	var imgHeight = $("#wrapper").height();
 	$(".bg").mouseenter(function(){
