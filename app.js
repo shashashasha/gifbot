@@ -552,14 +552,9 @@ imageHandler.gifsicle = function(id, cmd) {
         return;
       }
 
-      imageHandler.returnImage(res, output);
+      res.sendfile(output);
     });
   });
-};
-
-imageHandler.returnImage = function(res, path) {
-  console.log(path);
-  res.sendfile(path);
 };
 
 imageHandler.processVideo = function(url, callback) {
@@ -589,6 +584,33 @@ imageHandler.processVideo = function(url, callback) {
 
   });
 };
+
+imageHandler.grabImage = function(url, dest, callback) {
+
+  http.get(url, function(response) {
+    console.log("SAVEIMAGE: Got response: " + response.statusCode);
+    var imagedata = '';
+
+    response.setEncoding('binary');
+
+    response.on('data', function(chunk) {
+      imagedata += chunk;
+    });
+
+    response.on('end', function() {
+      fs.writeFile(dest, imagedata, 'binary', function(err) {
+        if (err) {
+          console.log(err);
+          return;
+        }
+
+        callback(dest);
+      });
+    });
+  }).on('error', function(e) {
+    console.log("SAVEIMAGE: Got error: " + e.message);
+  });
+}
 
 imageHandler.processImage = function(id, url, processor) {
   db.get(id, function(err, doc) {
@@ -667,7 +689,7 @@ app.get('/flipflop/:doc/:image/preview.jpg', function(req, res) {
         gm(temp).resize(120)
           .write(finalOutput, function (err) {
             if (err) console.log('error processing:', err);
-            imageHandler.returnImage(res, finalOutput);
+            res.sendfile(finalOutput);
           });
       });
     });
@@ -691,21 +713,28 @@ app.get('/flipflop/:doc/preview.gif', function(req, res) {
 
     console.log("PREVIEW FLIPFLOP: got doc");
 
+    imageHandler.grabImage(doc.url0, tempFilename0, function() {
+      console.log("PREVIEW FLIPFLOP: got ", doc.url0);
+      imageHandler.grabImage(doc.url1, tempFilename1, function() {
+        console.log("PREVIEW FLIPFLOP: got ", doc.url1);
+        exec("convert   -delay 100   -loop 0   -geometry x76 " + tempFile + "*.jpg" + " " + outputFilename, function(err, stdout, stderr) {
+          if (err) {
+            console.log(err);
+            return;
+          }
+          console.log("PREVIEW FLIPFLOP: converted gif", outputFilename);
+
+          res.sendfile(outputFilename);
+        });
+      });
+    });
+
+    /*
     var file0 = fs.createWriteStream(tempFilename0);
 
     console.log("PREVIEW FLIPFLOP: created write stream", doc.url0);
-    request(doc.url0, function (error, response, body) {
-      if (!error && response.statusCode == 200) {
-        console.log('loaded some bytes', body.length) // Print the google web page.
-      } else {
-        console.log(error);
-      }
-    });
     request(doc.url0).pipe(file0);
 
-    file0.on('error', function(err) {
-      console.log('error emitted', err);
-    });
     file0.on('finish', function(err){
       if (err) {
         console.log(err);
@@ -730,10 +759,11 @@ app.get('/flipflop/:doc/preview.gif', function(req, res) {
           }
           console.log("PREVIEW FLIPFLOP: converted gif", outputFilename);
 
-          imageHandler.returnImage(res, outputFilename);
+          res.sendfile(outputFilename);
         });
       });
     });
+    */
   });
 });
 
@@ -767,7 +797,7 @@ app.get('/gifchop/:doc/preview.gif', function(req, res) {
           return;
         }
 
-        imageHandler.returnImage(res, finalOutput);
+        res.sendfile(finalOutput);
       });
     });
   });
@@ -800,7 +830,7 @@ app.get('/gifchop/:doc/:start/:end', function(req, res) {
           return;
         }
 
-        imageHandler.returnImage(res, output);
+        res.sendfile(output);
       });
     });
   });
