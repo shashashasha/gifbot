@@ -695,7 +695,12 @@ app.get('/flipflop/:doc/preview.gif', function(req, res) {
     console.log("PREVIEW FLIPFLOP: got doc", doc);
 
     var file0 = fs.createWriteStream(tempFilename0);
+    console.log("PREVIEW FLIPFLOP: created write stream", file0);
     request(doc.url0).pipe(file0);
+
+    file0.on('error', function(err) {
+      console.log('error emitted', err);
+    });
     file0.on('finish', function(err){
       if (err) {
         console.log(err);
