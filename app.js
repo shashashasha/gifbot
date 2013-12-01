@@ -684,11 +684,15 @@ app.get('/flipflop/:doc/preview.gif', function(req, res) {
       tempFilename1 = config.TEMP + 'flipflop-' + new Date().getTime() + docId + '-url1.jpg',
       outputFilename = config.TEMP + 'flipflop-' + new Date().getTime() + docId + '-preview.gif';
 
+  console.log(docId, tempFile, tempFilename0, tempFilename1, outputFilename);
+
   db.get(docId, function(err, doc) {
     if (err) {
       console.log(err);
       return;
     }
+
+    console.log("PREVIEW FLIPFLOP: got doc", doc);
 
     var file0 = fs.createWriteStream(tempFilename0);
     request(doc.url0).pipe(file0);
@@ -698,6 +702,8 @@ app.get('/flipflop/:doc/preview.gif', function(req, res) {
         return;
       }
 
+      console.log("PREVIEW FLIPFLOP: wrote stream", tempFilename0);
+
       var file1 = fs.createWriteStream(tempFilename1);
       request(doc.url1).pipe(file1);
       file1.on('finish', function(err) {
@@ -706,11 +712,13 @@ app.get('/flipflop/:doc/preview.gif', function(req, res) {
           return;
         }
 
+        console.log("PREVIEW FLIPFLOP: wrote stream", tempFilename1);
         exec("convert   -delay 100   -loop 0   -geometry x76 " + tempFile + "*.jpg" + " " + outputFilename, function(err, stdout, stderr) {
           if (err) {
             console.log(err);
             return;
           }
+          console.log("PREVIEW FLIPFLOP: converted gif", outputFilename);
 
           imageHandler.returnImage(res, outputFilename);
         });
