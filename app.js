@@ -507,9 +507,9 @@ uploader.getCurrentUploadFolder = function() {
 
 uploader.getTempFilename = function(id, type, extension) {
   if (extension) {
-    return [config.TEMP, new Date().getTime, id, type].join('_') + '.' + extension;
+    return [config.TEMP, new Date().getTime(), id, type].join('_') + '.' + extension;
   } else {
-    return [config.TEMP, new Date().getTime, id, type].join('_');
+    return [config.TEMP, new Date().getTime(), id, type].join('_');
   }
 };
 
