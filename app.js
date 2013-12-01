@@ -303,6 +303,44 @@ app.get('/flipflop', function(req, res) {
   });
 });
 
+app.post('/flipflop', function(req, res) {
+  var docId0 = req.body.id0
+    , key0 = decodeURIComponent(req.body.key0)
+    , key1 = decodeURIComponent(req.body.key1)
+    , base = 'http://cdn.gifpop.io/{key}'
+    , url0 = base.replace('{key}', key0)
+    , url1 = base.replace('{key}', key1);
+
+  db.get(docId0, function(err, doc) {
+    if (err) console.log('FLIPFLOP:', err);
+
+    doc = doc || {};
+    doc.url0 = url0;
+    doc.url1 = url1,
+    doc.date = JSON.stringify(new Date());
+    doc.type = 'flip';
+    doc.status = 'uploaded';
+    doc.source = 'user';
+
+    db.insert(doc, docId0, function(err, body) {
+      if (err) {
+        util.puts(err);
+      }
+
+      console.log("FLIPFLOP: uploaded ", url0, url1);
+      console.log("FLIPFLOP: doc_id ", docId0);
+
+      res.setHeader("Access-Control-Allow-Origin", "http://cdn.gifpop.io");
+      res.jsonp({
+        success: 'true',
+        doc_id: docId0,
+        image_url0: url0,
+        image_url1: url1
+      });
+    });
+  });
+});
+
 /*
   save frame selection to couch, need to get the latest rev number to update it though
 */
