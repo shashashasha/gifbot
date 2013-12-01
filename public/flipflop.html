@@ -3,6 +3,7 @@
     <link href="css/style.css" media="screen" rel="stylesheet" type="text/css">
 
     <script src="lib/jquery.min.js"></script>
+    <script src="js/helper.js"></script>
 
   </head>
   <body>
@@ -65,17 +66,6 @@
 </style>
 
 <script type="text/javascript">
-	function getURLParameter(name) {
-	  return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null
-	}
-
-	function getUploadFolder() {
-	  var d = new Date(),
-	      date = ("0" + d.getDate()).slice(-2),
-	      month = ("0" + (d.getMonth() + 1)).slice(-2);
-
-	    return '/uploads/' + [d.getFullYear(), month, date].join('-') + '/';
-	}
 
 	function displayMessage (evt) {
 		$("#wrapper").attr("class","jsgif " + evt.data);
@@ -89,9 +79,9 @@
 		window.attachEvent("onmessage", displayMessage);
 	}
 
-	var doc_id = getURLParameter('id');
-	var key0 = getURLParameter('key0'),
-		key1 = getURLParameter('key1'),
+	var doc_id = helper.getURLParameter('id');
+	var key0 = helper.getURLParameter('key0'),
+		key1 = helper.getURLParameter('key1'),
 		image_url0 = 'http://cdn.gifpop.io/' + key0,
 		image_url1 = 'http://cdn.gifpop.io/' + key1;
 	$("#b1").css("background-image", "url(" + image_url0 + ")");
@@ -100,21 +90,10 @@
 	/*
 		save to db
 	*/
-	$.ajax({
-		type: "POST",
-		url: "http://gifbot.gifpop.io/flipflop",
-		data: {
-			id: doc_id,
-			key0: key0,
-			key1: key1
-		},
-		dataType: "json",
-		success: function() {
-			console.log(arguments);
-		},
-		error: function() {
-			console.log(arguments);
-		}
+	helper.send("flipflop", {
+		id: doc_id,
+		key0: key0,
+		key1: key1
 	});
 
 	var imgHeight = $("#wrapper").height();

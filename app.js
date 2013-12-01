@@ -505,6 +505,7 @@ uploader.getCurrentUploadFolder = function() {
     return 'uploads/' + [d.getFullYear(), month, date].join('-') + '/';
 };
 
+// helper function to make sure we don't have colliding tempfiles
 uploader.getTempFilename = function(id, type, extension) {
   if (extension) {
     return [config.TEMP, new Date().getTime(), id, type].join('_') + '.' + extension;
@@ -577,11 +578,9 @@ imageHandler.processVideo = function(url, callback) {
 
 imageHandler.grabImage = function(url, dest, callback) {
   http.get(url, function(response) {
-    console.log("GRABIMAGE: Got response: " + response.statusCode);
+    console.log("GRABIMAGE: " + url);
     var imagedata = '';
-
     response.setEncoding('binary');
-
     response.on('data', function(chunk) {
       imagedata += chunk;
     });
@@ -626,17 +625,15 @@ imageHandler.saveImage = function(url, callback) {
 app.get('/flipflop/:doc/:image/preview.jpg', function(req, res) {
   var docId = req.params.doc,
     image = 'url' + req.params.image, // images are saved as "url0" or "url1"
-    tempFolder = config.TEMP;
-
-  var temp = uploader.getTempFilename(docId, 'flipflop', 'jpg'),
-    finalOutput = tempFolder + docId + '-thumbnail.jpg';
+    temp = uploader.getTempFilename(docId, 'flipflop', 'jpg'),
+    output = uploader.getTempFilename(docId, 'flipflop-thumbnail', 'jpg');
 
   imageHandler.processImage(docId, image, temp, function(dest, doc) {
     // graphicsmagick-node library
     gm(temp).resize(120)
-      .write(finalOutput, function (err) {
+      .write(output, function (err) {
         if (err) console.log('error processing:', err);
-        res.sendfile(finalOutput);
+        res.sendfile(output);
       });
   });
 });
@@ -678,25 +675,24 @@ app.get('/gifchop/:doc/preview.gif', function(req, res) {
   console.log('PREVIEW GIFCHOP:', req.params.doc);
   var docId = req.params.doc,
     filename = req.params.doc + '-preview.gif',
-    tempFolder = config.TEMP;
+    tempFilename = uploader.getTempFilename(docId, 'preview', 'gif');
 
-  var temp = tempFolder + filename;
-  imageHandler.processImage(docId, 'url', temp, function(dest, doc) {
+  imageHandler.processImage(docId, 'url', tempFilename, function(dest, doc) {
     var selection = doc.frames.split(','),
         start = +selection[0],
         end = +selection[selection.length-1],
-        frames = "'#" + start + "-" + end + "'";
-
-    var finalOutput = tempFolder + [docId, "frames", start, end].join('-') + ".gif";
+        frames = "'#" + start + "-" + end + "'",
+        framenums = ["frames", start, end].join('-'),
+        output = uploader.getTempFilename(docId, framenums, "gif");
 
     // d10 is 100ms delay, -l0 is loop infinitely
-    exec("gifsicle -U " + dest + " --resize-width 120 -d10 -l0 " + frames + "  -o " + finalOutput, function(err, stdout, stderr) {
+    exec("gifsicle -U " + dest + " --resize-width 120 -d10 -l0 " + frames + "  -o " + output, function(err, stdout, stderr) {
       if (err) {
         console.log(err);
         return;
       }
 
-      res.sendfile(finalOutput);
+      res.sendfile(output);
     });
   });
 });
@@ -706,13 +702,14 @@ app.get('/gifchop/:doc/:start/:end', function(req, res) {
   var start = req.params.start,
     end = req.params.end,
     id = req.params.doc,
-    tempFolder = config.TEMP;
+    tempFolder = uploader.getTempFilename(id, 'chop', 'gif');
 
-  var temp = tempFolder + id + '.gif';
-  imageHandler.processImage(id, 'url', dest, function(dest, doc) {
+  imageHandler.processImage(id, 'url', temp, function(dest, doc) {
 
-    var output = tempFolder + [id, "frames", start, end].join('-') + ".gif";
-    var frames = "'#" + start + "-" + end + "'";
+    var framenums = ["frames", start, end].join('-'),
+        frames = "'#" + start + "-" + end + "'",
+        output = uploader.getTempFilename(id, framenums, 'gif');
+
     console.log('CHOPPING GIF: writing frames ', frames);
 
     exec("gifsicle -U " + dest + " " + frames + " -o " + output, function(err, stdout, stderr) {

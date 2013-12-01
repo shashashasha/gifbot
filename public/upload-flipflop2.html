@@ -4,6 +4,7 @@
 
     <script src="//api.filepicker.io/v1/filepicker.js"></script>
     <script src="lib/jquery.min.js"></script>
+    <script src="js/helper.js"></script>
 
   </head>
   <body>
@@ -58,7 +59,6 @@
 		width: 90px;
 		height: 90px;
 		float: left;
-		/*background-image: url(http://cdn.gifpop.io/uploads/2013-12-01/JJmgw7ATni7Z5kDtwpA4_IMG_9638.JPG);*/
 		background-position: center;
 		background-size: cover;
 		border: solid #808080;
@@ -68,20 +68,8 @@
 </style>
 
 <script type="text/javascript">
-	function getURLParameter(name) {
-	  return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null
-	}
-
-	function getUploadFolder() {
-	  var d = new Date(),
-	      date = ("0" + d.getDate()).slice(-2),
-	      month = ("0" + (d.getMonth() + 1)).slice(-2);
-
-	    return '/uploads/' + [d.getFullYear(), month, date].join('-') + '/';
-	}
-
-	var doc_id = getURLParameter('id');
-	var image_url = 'http://cdn.gifpop.io/' + getURLParameter('key0');
+	var doc_id = helper.getURLParameter('id');
+	var image_url = 'http://cdn.gifpop.io/' + helper.getURLParameter('key0');
 	$("#img-box").css("background-image", "url(" + image_url + ")");
 
 	filepicker.setKey("AYkBZ0oUOTTqvkwhxMx3Ez");
@@ -91,12 +79,14 @@
 			container: 'picker',
 			services: ['COMPUTER','URL','INSTAGRAM','FACEBOOK','FLICKR']
 		},{
-			path: getUploadFolder()
+			path: helper.getUploadFolder()
 		},function(InkBlobs){
-	   		// console.log(JSON.stringify(InkBlobs));
 	   		var id = InkBlobs[0].url.split("/").pop(),
-	   			clean_id = 'user_' + new Date().getTime() + '_' + id;
-	   		window.location = "flipflop.html?id=" + doc_id + "&key0=" + getURLParameter('key0') + "&id1=" + clean_id + "&key1=" + encodeURIComponent(InkBlobs[0].key);
+	   			clean_id = 'user_' + new Date().getTime() + '_' + id,
+	   			key0 = helper.getURLParameter('key0'),
+	   			key1 = encodeURIComponent(InkBlobs[0].key);
+
+	   		window.location = "flipflop.html?id=" + doc_id + "&key0=" + key0 + "&id1=" + clean_id + "&key1=" + key1;
 		},function(FPError){ console.log(FPError); }
 	);
 

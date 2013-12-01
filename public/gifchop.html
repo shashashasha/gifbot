@@ -4,6 +4,7 @@
 
     <script src="lib/jsgif/gif.js"></script>
 	<script src="lib/jquery.min.js"></script>
+    <script src="js/helper.js"></script>
 	<script src="js/gifcontrol.js"></script>
 	<script src="js/gifchop.js"></script>
 
@@ -35,12 +36,9 @@
     </div>
 
 <script type="text/javascript">
-	function getURLParameter(name) {
-	  return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null
-	}
 
-	var doc_id = getURLParameter('id'),
-		key = getURLParameter('key'),
+	var doc_id = helper.getURLParameter('id'),
+		key = helper.getURLParameter('key'),
 		image_url = 'http://cdn.gifpop.io/' + key;
 
 	var image = document.getElementById('gif');
@@ -72,32 +70,16 @@
 	/*
 		save to db
 	*/
-	$.ajax({
-		type: "POST",
-		url: "http://gifbot.gifpop.io/gifchop",
-		data: {
-			id: doc_id,
-			key: key
-		},
-		dataType: "json",
-		success: function() {
-			console.log(arguments);
-		},
-		error: function() {
-			console.log(arguments);
-		}
+	helper.send("gifchop", {
+		id: doc_id,
+		key: key
 	});
 
 	// grab the current frames, give them to couch
 	function saveFrames() {
-		$.ajax({
-			type: "POST",
-			url: "http://gifbot.gifpop.io/selected",
-			dataType: "json",
-			data: {
-				id: doc_id,
-				frames: gifchopper.getFrames().toString()
-			}
+		helper.send("selected", {
+			id: doc_id,
+			frames: gifchopper.getFrames().toString()
 		});
 
 		previewGif();

@@ -3,6 +3,8 @@
     <link href="css/style.css" media="screen" rel="stylesheet" type="text/css">
 
     <script src="//api.filepicker.io/v1/filepicker.js"></script>
+	<script src="lib/jquery.min.js"></script>
+    <script src="js/helper.js"></script>
 
 
 	<style>
@@ -43,14 +45,6 @@
 
 <script type="text/javascript">
 
-	function getUploadFolder() {
-	  var d = new Date(),
-	      date = ("0" + d.getDate()).slice(-2),
-	      month = ("0" + (d.getMonth() + 1)).slice(-2);
-
-	    return '/uploads/' + [d.getFullYear(), month, date].join('-') + '/';
-	}
-
 	filepicker.setKey("AYkBZ0oUOTTqvkwhxMx3Ez");
 
 	filepicker.pickAndStore({
@@ -58,17 +52,16 @@
 			container: 'picker',
 			services: ['COMPUTER','URL','INSTAGRAM','FACEBOOK','FLICKR']
 		},{
-			path: getUploadFolder()
+			path: helper.getUploadFolder()
 		},function(InkBlobs){
-	   		// console.log(JSON.stringify(InkBlobs));
 	   		var id = InkBlobs[0].url.split("/").pop();
-	   			clean_id = 'user_' + new Date().getTime() + '_' + id;
-	   		window.location = "/static/upload-flipflop2.html?id=" + clean_id + "&key0="+encodeURIComponent(InkBlobs[0].key);
+	   			clean_id = 'user_' + new Date().getTime() + '_' + id,
+	   			key0 = encodeURIComponent(InkBlobs[0].key);
+	   		window.location = "/static/upload-flipflop2.html?id=" + clean_id + "&key0=" + key0;
 		},function(FPError){ console.log(FPError); }
 	);
 
 </script>
-<!-- <iframe name="filepicker_comm_iframe" id="filepicker_comm_iframe" src="https://www.filepicker.io/dialog/comm_iframe/" style="display: none;"></iframe> -->
     <footer>
 
     </footer>
