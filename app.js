@@ -275,9 +275,17 @@ app.post('/gifchop', function(req, res) {
     , base = 'http://cdn.gifpop.io/{key}'
     , url = base.replace('{key}', key);
 
-  var doc;
   db.get(docId, function(err, existing_doc) {
-    doc = existing_doc || {};
+    if (existing_doc && existing_doc.status != 'uploaded') {
+      console.log("GIFCHOP: doc already exists, not updating ", docId);
+      res.jsonp({
+        success: 'false',
+        message: 'doc already exists, protecting status'
+      });
+      return;
+    }
+
+    var doc = existing_doc || {};
 
     doc.url = url;
     doc.date = JSON.stringify(new Date());
@@ -351,9 +359,8 @@ app.post('/flipflop', function(req, res) {
     , url0 = base.replace('{key}', key0)
     , url1 = base.replace('{key}', key1);
 
-  var doc;
   db.get(docId0, function(err, existing_doc) {
-    doc = existing_doc || {};
+    var doc = existing_doc || {};
 
     doc.url0 = url0;
     doc.url1 = url1,
@@ -403,7 +410,6 @@ app.post('/selected', function(req, res) {
     db.insert(doc, docId, function (err, body) {
       if(!err) {
         console.log("SELECTED: it worked!!!!");
-        res.setHeader("Access-Control-Allow-Origin", "http://cdn.gifpop.io");
         res.jsonp({ success: "true" });
       } else {
         console.log("SELECTED: sadfaces");
