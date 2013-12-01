@@ -56,17 +56,17 @@ app.configure(function() {
   app.use(function (req, res, next) {
 
       // Website you wish to allow to connect
-      res.setHeader('Access-Control-Allow-Origin', 'http://cdn.gifpop.io');
+      res.set('Access-Control-Allow-Origin', 'http://cdn.gifpop.io');
 
       // Request methods you wish to allow
-      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT');
+      res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT');
 
       // Request headers you wish to allow
-      res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,Content-Type');
+      res.set('Access-Control-Allow-Headers', 'X-Requested-With,content-type,Content-Type');
 
       // Set to true if you need the website to include cookies in the requests sent
       // to the API (e.g. in case you use sessions)
-      res.setHeader('Access-Control-Allow-Credentials', true);
+      res.set('Access-Control-Allow-Credentials', true);
 
       // Pass to next layer of middleware
       next();
@@ -90,12 +90,6 @@ app.configure(function() {
 
 app.configure('development', function(){
   app.use(express.errorHandler());
-});
-
-app.all('/*', function(req, res, next) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Headers", 'X-Requested-With,content-type,Content-Type');
-  next();
 });
 
 // index page
@@ -508,8 +502,7 @@ uploader.getCurrentUploadFolder = function() {
 
 uploader.saveAndGifChop = function(filepath, type, res) {
   var filename = type + '_' + filepath.split('/').pop(),
-    destination = uploader.getCurrentUploadFolder() + filename,
-    headers = { 'x-amz-acl': 'public-read' };
+    destination = uploader.getCurrentUploadFolder() + filename;
 
   console.log('SAVEANDGIFCHOP: putting file to s3', destination);
   s3.putFile(filepath, destination, function(err, response){
@@ -566,9 +559,7 @@ imageHandler.gifsicle = function(id, cmd) {
 
 imageHandler.returnImage = function(res, path) {
   console.log(path);
-  var img = fs.readFileSync(path);
-  res.writeHead(200, {'Content-Type': 'image/gif' });
-  res.end(img, 'binary');
+  res.sendfile(path);
 };
 
 imageHandler.processVideo = function(url, callback) {
