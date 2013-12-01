@@ -204,7 +204,7 @@ var gifchopper = function() {
   /*
     loop between the *start* and *stop* frame numbers, with default *delay*
   */
-  self.startIdling = function() {
+  self.startIdling = function(callback) {
     if (intervalID) {
       clearInterval(intervalID);
       intervalID = null;
@@ -235,6 +235,10 @@ var gifchopper = function() {
           self.controller.nextFrame();
         }
 
+      }
+
+      if (callback) {
+        callback();
       }
     }, delay);
 

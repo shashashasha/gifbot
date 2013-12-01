@@ -113,25 +113,51 @@
 		var wrapperHeight = $(".gif-wrapper").height();
 		$(".gif-wrapper").css("margin-left", "10000px");
 
+		// interaction over the actual gif
 		$("#gif-container").mouseenter(function() {
-			$("#gif-rotation-preview").css("-webkit-animation","none")
+			stopPingPoinging();
 		}).mousemove(function(e) {
-
-			var percentage = Math.max(1 - (e.pageY / wrapperHeight),0);
-
-			gifchopper.stopIdling();
-			gifchopper.seekPercentOfSelection(percentage);
-
-			var transform = "perspective(500) rotateX("+(5-(percentage*20))+"deg)";
-			$("#gif-rotation-preview").css("-webkit-transform", transform);
-
-			redrawCanvas();
+			currentPercent = Math.max(1 - (e.pageY / wrapperHeight),0);
+			seek(currentPercent);
 		}).mouseleave(function() {
-			// gifchopper.startIdling();
+			startPingPoinging();
 		});
 
 		// fake the initial click on the business cards
 		displayMessage({ data: 's_Bus'});
+		startPingPoinging();
+	}
+
+	var intervalID = null,
+		forwards = true,
+		currentPercent = 0;
+	function startPingPoinging() {
+		intervalID = setInterval(function() {
+			if (forwards == true && currentPercent >= 1) {
+				forwards = false;
+			} if (forwards == false && currentPercent <= 0) {
+				forwards = true;
+			}
+
+			currentPercent = forwards ? currentPercent + .05 : currentPercent - .05;
+			seek(currentPercent);
+		}, 40);
+	}
+
+	function stopPingPoinging() {
+		if (intervalID) {
+			clearInterval(intervalID);
+		}
+	}
+
+	function seek(percent) {
+		gifchopper.stopIdling();
+		gifchopper.seekPercentOfSelection(percent);
+
+		var transform = "perspective(500) rotateX("+(10-(percent*20))+"deg)";
+		$("#gif-rotation-preview").css("-webkit-transform", transform);
+
+		redrawCanvas();
 	}
 
 	/*
