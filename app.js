@@ -10,6 +10,7 @@ var express = require('express')
 
   // grabbing urls and elements
   , http = require('http')
+  , connect = require('connect')
   , request = require('request')
   , cheerio = require('cheerio')
 
