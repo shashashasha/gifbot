@@ -72,7 +72,12 @@ app.configure(function() {
   });
 
   app.use(express.logger('dev'));
-  app.use(express.bodyParser());
+
+  // app.use(express.bodyParser());
+  // because http://andrewkelley.me/post/do-not-use-bodyparser-with-express-js.html
+  app.use(connect.json());
+  app.use(connect.urlencoded());
+
   app.use(express.methodOverride());
   app.use(app.router);
 
