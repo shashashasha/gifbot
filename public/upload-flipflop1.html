@@ -1,0 +1,76 @@
+<html><head>
+    <title></title>
+    <link href="css/style.css" media="screen" rel="stylesheet" type="text/css">
+
+    <script src="//api.filepicker.io/v1/filepicker.js"></script>
+
+
+	<style>
+		.wrapper {
+			width: 875px;
+		}
+		h2 {
+			font-family: Futura;
+			text-transform: uppercase;
+			font-weight: normal;
+			font-size: 24px;
+			text-align: center;
+			-webkit-font-smoothing: antialiased;
+			transform: skew(-7deg);
+			-ms-transform: skew(-7deg);
+			-moz-transform: skew(-7deg);
+			-webkit-transform: skew(-7deg);
+			-o-transform: skew(-7deg);
+			margin: 0;
+			padding: 10px 0 10px 10px;
+		}
+		#picker {
+			width: 100%;
+			height: 500px;
+			border: none;
+		}
+	</style>
+  </head>
+  <body>
+    <header>
+
+    </header>
+    <div class="wrapper">
+
+<h2>Pick the first of your two images:</h2>
+<iframe id="picker"></iframe>
+</div>
+
+<script type="text/javascript">
+
+	function getUploadFolder() {
+	  var d = new Date(),
+	      date = ("0" + d.getDate()).slice(-2),
+	      month = ("0" + (d.getMonth() + 1)).slice(-2);
+
+	    return '/uploads/' + [d.getFullYear(), month, date].join('-') + '/';
+	}
+
+	filepicker.setKey("AYkBZ0oUOTTqvkwhxMx3Ez");
+
+	filepicker.pickAndStore({
+			mimetype: 'image/*',
+			container: 'picker',
+			services: ['COMPUTER','URL','INSTAGRAM','FACEBOOK','FLICKR']
+		},{
+			path: getUploadFolder()
+		},function(InkBlobs){
+	   		// console.log(JSON.stringify(InkBlobs));
+	   		var id = InkBlobs[0].url.split("/").pop();
+	   			clean_id = 'user_' + new Date().getTime() + '_' + id;
+	   		window.location = "/static/upload-flipflop2.html?id0=" + clean_id + "&key0="+InkBlobs[0].key;
+		},function(FPError){ console.log(FPError); }
+	);
+
+</script>
+<!-- <iframe name="filepicker_comm_iframe" id="filepicker_comm_iframe" src="https://www.filepicker.io/dialog/comm_iframe/" style="display: none;"></iframe> -->
+    <footer>
+
+    </footer>
+
+</body></html>

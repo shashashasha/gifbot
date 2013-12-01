@@ -1,0 +1,138 @@
+<html><head>
+    <title></title>
+    <link href="css/style.css" media="screen" rel="stylesheet" type="text/css">
+
+    <script src="lib/jquery.min.js"></script>
+
+  </head>
+  <body>
+    <header>
+
+    </header>
+    <div class="wrapper">
+		<div class="bg">
+			<div id="wrapper" class="box">
+				<div id="b1" class="box"></div>
+				<div id="b2-wrapper" class="box">
+					<div id="b2" class="box"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+<style>
+	.bg {
+		width: 875px;
+	}
+	.box, #b2-wrapper {
+		width: 100%;
+		height: 100%;
+		position: absolute;
+		overflow: hidden;
+	}
+	#wrapper {
+		width: 500px;
+		height: 500px;
+		position: relative;
+		margin: 10px auto;
+		-webkit-animation: skew 5s infinite;
+	}
+	@-webkit-keyframes skew {
+		0% {
+			-webkit-transform: perspective(500) rotateX(-5deg);
+		}
+		50% {
+			-webkit-transform: perspective(500) rotateX(5deg);
+		}
+		100% {
+			-webkit-transform: perspective(500) rotateX(-5deg);
+		}
+	}
+	#b1, #b2 {
+		background-size: cover;
+		background-position: center;
+	}
+	#b1 {
+		/*background-image: url(http://cdn.gifpop.io/uploads/2013-12-01/JJmgw7ATni7Z5kDtwpA4_IMG_9638.JPG);*/
+	}
+	#b2 {
+		/*background-image: url(http://cdn.gifpop.io/uploads/2013-12-01/ATMHWjjQRGWGP9LHyVOB_dvdp120430_f01.png);*/
+	}
+	#b2-wrapper {
+		-webkit-animation: wipe 5s infinite;
+		-webkit-mask-size: 1040px 1040px;
+		-webkit-mask-image: -webkit-gradient(linear, left 0%, left bottom,
+				color-stop(0.00,  rgba(0,0,0,1)),
+				color-stop(0.45,  rgba(0,0,0,1)),
+				color-stop(0.50,  rgba(0,0,0,0)),
+				color-stop(0.55,  rgba(0,0,0,0)),
+				color-stop(1.00,  rgba(0,0,0,0)));
+	}
+	@-webkit-keyframes wipe {
+		0% {
+			-webkit-mask-position: 0px 0px;
+		}
+		50% {
+			-webkit-mask-position: -500px -500px;
+		}
+		100% {
+			-webkit-mask-position: 0px 0px;
+		}
+	}
+</style>
+
+<script type="text/javascript">
+	function getURLParameter(name) {
+	  return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null
+	}
+
+	function getUploadFolder() {
+	  var d = new Date(),
+	      date = ("0" + d.getDate()).slice(-2),
+	      month = ("0" + (d.getMonth() + 1)).slice(-2);
+
+	    return '/uploads/' + [d.getFullYear(), month, date].join('-') + '/';
+	}
+
+	function displayMessage (evt) {
+		$("#wrapper").attr("class","jsgif " + evt.data);
+	}
+
+	if (window.addEventListener) {
+		window.addEventListener("message", displayMessage, false);
+	}
+	else {
+		window.attachEvent("onmessage", displayMessage);
+	}
+
+	var doc_id = getURLParameter('id0');
+	var image_url0 = 'http://cdn.gifpop.io/' + getURLParameter('key0'),
+		image_url1 = 'http://cdn.gifpop.io/' + getURLParameter('key1');
+	$("#b1").css("background-image", "url(" + image_url0 + ")");
+	$("#b2").css("background-image", "url(" + image_url1 + ")");
+
+	var imgHeight = $("#wrapper").height();
+	$(".bg").mouseenter(function(){
+		// $(".box").css("-webkit-animation-play-state", "paused");
+		$(".box").css("-webkit-animation","none")
+	}).mousemove(function(e){
+		var percentage = Math.max(1 - e.offsetY/imgHeight,0);
+		$("#wrapper").css("-webkit-transform","perspective(500) rotateX("+(5-(percentage*20))+"deg)");
+		$("#b2-wrapper").css("-webkit-mask-position",-imgHeight*percentage+"px "+-imgHeight*percentage+"px");
+	}).mouseleave(function(){
+		// $(".box").css("-webkit-animation-play-state", "running");
+	});
+
+	// fake the initial click on the business cards
+	displayMessage({ data: 's_Bus'});
+
+	// save the doc-id to the line-item properties field of the shopify page
+	// do this on load because we don't need to do any "selected" buttons on the flip flop page
+	if (parent)
+		parent.postMessage(doc_id, 'http://gifpop.io');
+</script>
+    <footer>
+
+    </footer>
+
+</body></html>

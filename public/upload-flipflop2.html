@@ -1,0 +1,108 @@
+<html><head>
+    <title></title>
+    <link href="css/style.css" media="screen" rel="stylesheet" type="text/css">
+
+    <script src="//api.filepicker.io/v1/filepicker.js"></script>
+    <script src="lib/jquery.min.js"></script>
+
+  </head>
+  <body>
+    <header>
+
+    </header>
+    <div class="wrapper">
+
+
+
+<div id="img-wrapper">
+	<div id="img-box"></div>
+	<h2>Nice find!</h2>
+	<h2 style="top:55px">Now pick the second:</h2>
+</div>
+<iframe id="picker"></iframe>
+
+<style>
+	.wrapper {
+		width: 875px;
+	}
+	#img-wrapper {
+		width: 875px;
+		min-height: 100px;
+	}
+	#img1 {
+		max-width: 400px;
+		max-height: 200px;
+		display: block;
+		float: right;
+	}
+	#picker {
+		width: 875px;
+		height: 500px;
+		border: none;
+	}
+	h2 {
+		font-family: Futura;
+		text-transform: uppercase;
+		font-weight: normal;
+		font-size: 24px;
+		-webkit-font-smoothing: antialiased;
+		transform: skew(-7deg);
+		-ms-transform: skew(-7deg);
+		-moz-transform: skew(-7deg);
+		-webkit-transform: skew(-7deg);
+		-o-transform: skew(-7deg);
+		padding: 23px 10px 0 5px;
+		float: left;
+	}
+	#img-box {
+		width: 90px;
+		height: 90px;
+		float: left;
+		/*background-image: url(http://cdn.gifpop.io/uploads/2013-12-01/JJmgw7ATni7Z5kDtwpA4_IMG_9638.JPG);*/
+		background-position: center;
+		background-size: cover;
+		border: solid #808080;
+		border-width: 5px;
+		margin: 10px 10px 10px 150px;
+	}
+</style>
+
+<script type="text/javascript">
+	function getURLParameter(name) {
+	  return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null
+	}
+
+	function getUploadFolder() {
+	  var d = new Date(),
+	      date = ("0" + d.getDate()).slice(-2),
+	      month = ("0" + (d.getMonth() + 1)).slice(-2);
+
+	    return '/uploads/' + [d.getFullYear(), month, date].join('-') + '/';
+	}
+
+	var doc_id = getURLParameter('id0');
+	var image_url = 'http://cdn.gifpop.io/' + getURLParameter('key0');
+	$("#img-box").css("background-image", "url(" + image_url + ")");
+
+	filepicker.setKey("AYkBZ0oUOTTqvkwhxMx3Ez");
+
+	filepicker.pickAndStore({
+			mimetype: 'image/*',
+			container: 'picker',
+			services: ['COMPUTER','URL','INSTAGRAM','FACEBOOK','FLICKR']
+		},{
+			path: getUploadFolder()
+		},function(InkBlobs){
+	   		// console.log(JSON.stringify(InkBlobs));
+	   		var id = InkBlobs[0].url.split("/").pop(),
+	   			clean_id = 'user_' + new Date().getTime() + '_' + id;
+	   		window.location = "flipflop.html?id0=" + doc_id + "&key0=" + getURLParameter('key0') + "&id1=" + clean_id + "&key1=" + InkBlobs[0].key;
+		},function(FPError){ console.log(FPError); }
+	);
+
+</script>    </div>
+    <footer>
+
+    </footer>
+
+</body></html>

@@ -1,0 +1,253 @@
+<html><head>
+    <title></title>
+    <link href="css/style.css" media="screen" rel="stylesheet" type="text/css">
+
+    <script src="//api.filepicker.io/v1/filepicker.js"></script>
+	<script src="lib/jquery.min.js"></script>
+
+  </head>
+  <body>
+    <header>
+
+    </header>
+    <div class="wrapper">
+
+
+<iframe id="picker"></iframe>
+
+<h1>More ways to pop</h1>
+
+<div id="flipflop" class="chop-option">
+	<h2>Flip Between Two Images</h2>
+	<p class="caps">If you don't have a gif, just upload two images!</p>
+	<img src="images/diagrams/upload_flipflop.jpg" class="diagram">
+	<img src="images/diagrams/upload_flipflop_hover.gif" class="diagram">
+</div>
+<form class="chop-option">
+	<h2>Enter in a URL</h2>
+	<p class="caps">Links to <a class="logo" href="https://vine.co">Vine</a> and <a class="logo" href="http://instagram.com">Instagram Video</a> work too!</p>
+	<div class="url-form">
+		<input type="text" id="urlInput" name="url" style="width:80%" placeholder="">
+		<div id="urlSubmit"></div>
+	</div>
+	<div class="loading"><span id="url-loading-text">Loading...</span> <img id="url-loading-image" src="images/icons/loading.gif"></div>
+</form>
+<!-- <div id="fileFromURL">
+    <h2>Or paste a URL to a gif here</h2>
+    <input id="urlInput"></input>
+    <div id="urlSubmit"></div>
+    <p>(links to your Vines or Instagram videos also work!)</p>
+</div> -->
+<!-- <div id="url"></div> -->
+
+<style>
+	h1, h2 {
+		font-family: Futura, Helvetia, sans-serif;
+		font-style: italic;
+		text-transform: uppercase;
+		text-align: center;
+		font-weight: normal;
+	}
+	h2 {
+		color: #808080;
+		margin-bottom: 0;
+	}
+	.caps {
+		text-transform: uppercase;
+	}
+	#picker {
+		width: 875px;
+		height: 270px;
+		border: none;
+	}
+	#urlInput {
+		width: 250px !important;
+		border-radius: 0;
+		box-shadow: none;
+		-webkit-transform: skew(-7deg);
+		height: 40px;
+		float: left;
+		margin: 30px 0 15px 25px;
+	}
+	#urlSubmit {
+	    background-image: url(images/submit.png);
+	    width: 124px;
+	    height: 56px;
+	    cursor: pointer;
+	    float: left;
+	    margin-top: 25px;
+	}
+	#urlSubmit:hover {
+	    background-image: url(images/submit-over.png);
+	}
+	#urlSubmit:active {
+	    background-image: url(images/submit-down.png);
+	}
+	#flipflop {
+		cursor: pointer;
+	}
+	.chop-option {
+		width: 50%;
+		background-color: #eee;
+		font-family: Futura, Helvetia, sans-serif;
+		float: left;
+		box-sizing: border-box;
+	}
+	.chop-option:nth-child(even) {
+		border-left: 5px solid white;
+	}
+	.chop-option:nth-child(odd) {
+		border-right: 5px solid white;
+	}
+	.chop-option p {
+		color: #808080;
+		text-align: center;
+		font-size: 12px;
+		clear: both;
+		padding-top: 0;
+		margin-bottom: 10px;
+	}
+	.chop-option a {
+		color: #808080;
+	}
+	.diagram {
+		position: absolute;
+	}
+	.diagram:nth-child(even) {
+		display: none;
+	}
+	.chop-option:hover .diagram:nth-child(odd) {
+		display: none;
+	}
+	.chop-option:hover .diagram:nth-child(even) {
+		display: block;
+	}
+
+	.loading {
+		visibility: hidden;
+		clear: both;
+		text-align: center;
+		margin-bottom: 29px;
+		color: #808080;
+		text-transform: uppercase;
+		line-height: 27px;
+		vertical-align: top;
+		font-size: 12px;
+	}
+	.loading img {
+		margin-left: 3px;
+	}
+
+
+</style>
+
+<script type="text/javascript">
+
+	function getUploadFolder() {
+	  var d = new Date(),
+	      date = ("0" + d.getDate()).slice(-2),
+	      month = ("0" + (d.getMonth() + 1)).slice(-2);
+
+	    return '/uploads/' + [d.getFullYear(), month, date].join('-') + '/';
+	}
+
+	function saveFrames() {
+		parent.postMessage("gotoflipflop","*");
+	}
+
+	// update db with frame numbers
+	$("#flipflop").click(saveFrames);
+	$("#urlSubmit").click(submitUrl);
+
+	function refocusURL() {
+		$(".loading").css("visibility","hidden");
+	}
+
+	/*
+		Submitting a URL directly
+	*/
+	function submitUrl() {
+		$(".loading").css("visibility","visible");
+		$("#url-loading-text").html("Loading... ");
+		$("#url-loading-image").css("visibility","visible");
+
+		$(".url-form").css({ opacity: .5 });
+
+		var url = $("#urlInput").val(),
+			text = $("#url-loading-text"),
+			image = $("#url-loading-image"),
+			input = $("#urlInput"),
+			redirect = 'http://cdn.gifpop.io/static/gifchop.html?id={id}&key={key}&source={source}';
+
+		var impatient = setTimeout(function() {
+			text.html("Still loading......");
+		}, 5000);
+
+		$.ajax({
+			url: 'http://gifbot.gifpop.io/process-url/?url=' + url,
+			dataType: 'jsonp',
+			success: function(res) {
+				clearTimeout(impatient);
+
+				if (res.success == 'true' || res.success == true) {
+					text.html("AWESOME! It worked!");
+					image.css("visibility","hidden");
+
+					setTimeout(function() {
+						window.location = redirect.replace('{id}', res.id)
+							.replace('{key}', res.key)
+							.replace('{source}', res.source);
+					}, 200);
+				} else {
+					var message = 'We\'re sorry, something went wrong! Try again?';
+
+					switch (res.error) {
+						case "error-uploading":
+							message = 'Oops, there was an error uploading. Try again?';
+							break;
+
+						case "no-image-type":
+							message = 'Oops, we couldn\'t find a gif there. Try another link?';
+							break;
+					}
+
+					$(".url-form").css({ opacity: 1 });
+					text.html(message);
+					image.css("visibility","hidden");
+					input.focusin(refocusURL);
+				}
+			},
+			error: function(e) {
+				clearTimeout(impatient);
+
+				$(".url-form").css({ opacity: 1 });
+
+				text.html("Oops, an error occurred... try again?");
+				image.css("visibility","hidden");
+				input.focusin(refocusURL);
+			}
+		});
+	}
+
+	filepicker.setKey("AYkBZ0oUOTTqvkwhxMx3Ez");
+
+	filepicker.pickAndStore({
+			extension: '.gif',
+			container: 'picker',
+			services: ['COMPUTER']
+		},{
+			path: getUploadFolder()
+		},function(InkBlobs){
+	   		var img = InkBlobs[0];
+	   		var id = img.url.split("/").pop(),
+	   			clean_id = 'user_' + new Date().getTime() + '_' + id;
+	   		window.location = "/static/gifchop.html?id=" + clean_id + "&key="+img.key;
+		},function(FPError){ console.log(FPError); }
+	);
+
+</script>    </div><iframe name="filepicker_comm_iframe" id="filepicker_comm_iframe" src="https://www.filepicker.io/dialog/comm_iframe/" style="display: none;"></iframe>
+    <footer>
+
+    </footer>
+
+</body></html>

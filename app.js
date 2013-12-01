@@ -327,7 +327,7 @@ app.post('/selected', function(req, res) {
       if(!err) {
         console.log("SELECTED: it worked!!!!");
         res.setHeader("Access-Control-Allow-Origin", "http://cdn.gifpop.io");
-        res.jsonp({ success: true });
+        res.jsonp({ success: "true" });
       } else {
         console.log("SELECTED: sadfaces");
       }
