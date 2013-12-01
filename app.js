@@ -221,7 +221,7 @@ app.get('/upload-flipflop', function(req, res) {
 app.get('/upload-flipflop2', function(req, res) {
   var docId0 = req.query["id0"]
     , key0 = decodeURIComponent(req.query["key0"])
-    , base = 'http://gifpop-uploads.s3.amazonaws.com/{key}'
+    , base = 'http://cdn.gifpop.io/{key}'
     , url0 = base.replace('{key}', key0);
 
   uploadForm(res, 'form-flipflop2', key0, docId0);
@@ -231,7 +231,7 @@ app.get('/gifchop', function(req, res) {
   var docId = req.query["id"]
     , source = req.query["source"]
     , key = decodeURIComponent(req.query["key"])
-    , base = 'http://gifpop-uploads.s3.amazonaws.com/{key}'
+    , base = 'http://cdn.gifpop.io/{key}'
     , url = base.replace('{key}', key);
 
 
@@ -270,7 +270,7 @@ app.get('/flipflop', function(req, res) {
     , key0 = decodeURIComponent(req.query["key0"])
     , docId1 = req.query["id1"]
     , key1 = decodeURIComponent(req.query["key1"])
-    , base = 'http://gifpop-uploads.s3.amazonaws.com/{key}'
+    , base = 'http://cdn.gifpop.io/{key}'
     , url0 = base.replace('{key}', key0)
     , url1 = base.replace('{key}', key1);
 
