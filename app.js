@@ -310,6 +310,7 @@ app.get('/flipflop', function(req, res) {
 });
 
 app.post('/flipflop', function(req, res) {
+  console.log('FLIP FLOPPING:', req, res);
   var docId0 = req.body.id0
     , key0 = decodeURIComponent(req.body.key0)
     , key1 = decodeURIComponent(req.body.key1)
