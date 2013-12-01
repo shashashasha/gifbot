@@ -682,9 +682,7 @@ app.get('/flipflop/:doc/preview.gif', function(req, res) {
       tempFile = config.TEMP + 'flipflop-' + new Date().getTime() + docId + '-url',
       tempFilename0 = config.TEMP + 'flipflop-' + new Date().getTime() + docId + '-url0.jpg',
       tempFilename1 = config.TEMP + 'flipflop-' + new Date().getTime() + docId + '-url1.jpg',
-      outputFilename = config.TEMP + 'flipflop-' + new Date().getTime() + docId + '-preview.gif',
-      file0 = fs.createWriteStream(tempFilename0),
-      file1 = fs.createWriteStream(tempFilename1);
+      outputFilename = config.TEMP + 'flipflop-' + new Date().getTime() + docId + '-preview.gif';
 
   db.get(docId, function(err, doc) {
     if (err) {
@@ -692,6 +690,7 @@ app.get('/flipflop/:doc/preview.gif', function(req, res) {
       return;
     }
 
+    var file0 = fs.createWriteStream(tempFilename0);
     request(doc.url0).pipe(file0);
     file0.on('finish', function(err){
       if (err) {
@@ -699,6 +698,7 @@ app.get('/flipflop/:doc/preview.gif', function(req, res) {
         return;
       }
 
+      var file1 = fs.createWriteStream(tempFilename1);
       request(doc.url1).pipe(file1);
       file1.on('finish', function(err) {
         if (err) {
