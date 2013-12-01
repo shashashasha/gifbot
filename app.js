@@ -285,7 +285,7 @@ app.post('/gifchop', function(req, res) {
     doc.status = 'uploaded';
     doc.source = source ? source : 'user';
 
-    db.insert(doc, docId0, function(err, body) {
+    db.insert(doc, docId, function(err, body) {
       if (err) {
         util.puts(err);
       }
@@ -306,9 +306,8 @@ app.post('/gifchop', function(req, res) {
   (basically we're just showing a preview, no editing has to be done)
 */
 app.get('/flipflop', function(req, res) {
-  var docId0 = req.query["id0"]
+  var docId = req.query["id"]
     , key0 = decodeURIComponent(req.query["key0"])
-    , docId1 = req.query["id1"]
     , key1 = decodeURIComponent(req.query["key1"])
     , base = 'http://cdn.gifpop.io/{key}'
     , url0 = base.replace('{key}', key0)
@@ -326,17 +325,17 @@ app.get('/flipflop', function(req, res) {
     source: 'user'
   };
 
-  db.insert(doc, docId0, function(err, body) {
+  db.insert(doc, docId, function(err, body) {
     if (err) {
       util.puts(err);
     }
     console.log("FLIPFLOP: uploaded ", url0, url1);
-    console.log("FLIPFLOP: doc_id ", docId0);
+    console.log("FLIPFLOP: doc_id ", docId);
 
     // render the uploaded page if we've saved the gif info to the db
     res.render('flipflop', {
       title: 'GifPop',
-      doc_id: docId0,
+      doc_id: docId,
       image_url0: url0,
       image_url1: url1
     });
