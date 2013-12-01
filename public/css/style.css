@@ -17,13 +17,13 @@ body{
 }
 @-webkit-keyframes skew {
 	0% {
-		-webkit-transform: perspective(500) rotateX(-5deg);
+		-webkit-transform: perspective(500) rotateX(-10deg);
 	}
 	50% {
-		-webkit-transform: perspective(500) rotateX(5deg);
+		-webkit-transform: perspective(500) rotateX(10deg);
 	}
 	100% {
-		-webkit-transform: perspective(500) rotateX(-5deg);
+		-webkit-transform: perspective(500) rotateX(-10deg);
 	}
 }
 #timeline {
@@ -169,5 +169,5 @@ body{
 #wrapper.s_Sma {
 	width: 350px !important;
 	height: 350px;
-	margin-top: 125px;
+	margin-top: 75px;
 }

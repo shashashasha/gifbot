@@ -15,23 +15,24 @@
     <div class="wrapper">
 
 
-<div class="bg">
-	<div id="gif-container">
-		<img id="gif" style="margin-left: -10000px;">
-	</div>
-	<div id="gif-controls">
-		<div id="timeline" class="scrubbable"></div>
-		<div id="doc_id" style="display: none;"></div>
-		<div id="selection"></div>
-		<div id="playhead"></div>
-		<div id="gif-ui">
-			<div id="instructions" class="large-helper-text" style="display: none;">Click to select a clip</div>
-			<div id="finalize" class="large-helper-text" style="display: none;">
-				<span id="finalize-text">Click or drag to adjust, then hit</span> <button id="gif-submit">DONE!</button>
+		<div class="bg">
+			<div id="gif-container">
+				<img id="gif" style="margin-left: -10000px;">
+			</div>
+			<div id="gif-controls">
+				<div id="timeline" class="scrubbable"></div>
+				<div id="doc_id" style="display: none;"></div>
+				<div id="selection"></div>
+				<div id="playhead"></div>
+				<div id="gif-ui">
+					<div id="instructions" class="large-helper-text" style="display: none;">Click to select a clip</div>
+					<div id="finalize" class="large-helper-text" style="display: none;">
+						<span id="finalize-text">Click or drag to adjust, then hit</span> <button id="gif-submit">DONE!</button>
+					</div>
+				</div>
 			</div>
 		</div>
-	</div>
-</div>
+    </div>
 
 <script type="text/javascript">
 	function getURLParameter(name) {
@@ -154,7 +155,6 @@
 	// update db with frame numbers
 	$("#gif-submit").click(saveFrames);
 </script>
-    </div>
     <footer>
 
     </footer>
