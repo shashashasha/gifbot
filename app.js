@@ -87,7 +87,6 @@ app.configure(function() {
   app.use(express.static(path.join(__dirname, 'public')));
 });
 
-
 app.configure('development', function(){
   app.use(express.errorHandler());
 });
@@ -170,6 +169,12 @@ app.get('/process-url/', function(req, res) {
               videoURL = meta[key].attribs.content;
             }
           });
+
+          if (!videoURL) {
+            console.log('ERROR: no open graph tags?');
+            res.json({ success: "false", error  : "no-image-type" });
+            return;
+          }
 
           imageHandler.processVideo(videoURL, function(tempURL) {
             uploader.saveAndGifChop(tempURL, 'instagram', res);
@@ -500,6 +505,14 @@ uploader.getCurrentUploadFolder = function() {
     return 'uploads/' + [d.getFullYear(), month, date].join('-') + '/';
 };
 
+uploader.getTempFilename = function(id, type, extension) {
+  if (extension) {
+    return [config.TEMP, new Date().getTime, id, type].join('_') + '.' + extension;
+  } else {
+    return [config.TEMP, new Date().getTime, id, type].join('_');
+  }
+};
+
 uploader.saveAndGifChop = function(filepath, type, res) {
   var filename = type + '_' + filepath.split('/').pop(),
     destination = uploader.getCurrentUploadFolder() + filename;
@@ -534,32 +547,9 @@ uploader.saveAndGifChop = function(filepath, type, res) {
 */
 var imageHandler = {};
 
-// write temp gif and run command
-imageHandler.gifsicle = function(id, cmd) {
-  var output = id + '-' + mode + '.gif',
-    temp = config.TEMP + id + '.gif';
-
-  // write the gif to a temp file, then resize it to a smaller gif
-  fs.writeFile(temp, imagedata, 'binary', function(err) {
-    if (err) {
-      console.log(err);
-      return;
-    }
-
-    exec("gifsicle " + temp + " " + cmd + " -o " + output, function(err) {
-      if (err) {
-        console.log(err);
-        return;
-      }
-
-      res.sendfile(output);
-    });
-  });
-};
-
 imageHandler.processVideo = function(url, callback) {
   imageHandler.saveImage(url, function(tempURL) {
-    var output = config.TEMP + new Date().getTime() + '_frames';
+    var output = uploader.getTempFilename('', 'frames');
 
     // exec("ffmpeg -i %s -r 6 -vf scale=240:-1 %s" % (mp4_path, jpg_out)
     // exec("ffmpeg -i " + tempURL + " -t 10 " + output + "%02d.gif");
@@ -570,7 +560,7 @@ imageHandler.processVideo = function(url, callback) {
         return;
       }
 
-      var finaloutput = config.TEMP + new Date().getTime() + '_anim.gif';
+      var finaloutput = uploader.getTempFilename('', 'videogif', 'gif');
       exec("gifsicle --delay=10 --loop " + output + "*.gif" + " > " + finaloutput, function(err, stdout, stderr) {
         if (err) {
           console.log(err);
@@ -587,7 +577,7 @@ imageHandler.processVideo = function(url, callback) {
 
 imageHandler.grabImage = function(url, dest, callback) {
   http.get(url, function(response) {
-    console.log("SAVEIMAGE: Got response: " + response.statusCode);
+    console.log("GRABIMAGE: Got response: " + response.statusCode);
     var imagedata = '';
 
     response.setEncoding('binary');
@@ -607,7 +597,7 @@ imageHandler.grabImage = function(url, dest, callback) {
       });
     });
   }).on('error', function(e) {
-    console.log("SAVEIMAGE: Got error: " + e.message);
+    console.log("GRABIMAGE: Got error: " + e.message);
   });
 };
 
@@ -629,6 +619,7 @@ imageHandler.saveImage = function(url, callback) {
       tempFilename = config.TEMP + new Date().getTime() + '.' + suffix;
   console.log('SAVEIMAGE: downloading', url);
 
+  var tempFilename = uploader.getTempFilename('', 'temp', suffix);
   imageHandler.grabImage(url, tempFilename, callback);
 };
 
@@ -637,7 +628,7 @@ app.get('/flipflop/:doc/:image/preview.jpg', function(req, res) {
     image = 'url' + req.params.image, // images are saved as "url0" or "url1"
     tempFolder = config.TEMP;
 
-  var temp = tempFolder + docId + '-flipflop.jpg',
+  var temp = uploader.getTempFilename(docId, 'flipflop', 'jpg'),
     finalOutput = tempFolder + docId + '-thumbnail.jpg';
 
   imageHandler.processImage(docId, image, temp, function(dest, doc) {
@@ -653,10 +644,10 @@ app.get('/flipflop/:doc/:image/preview.jpg', function(req, res) {
 app.get('/flipflop/:doc/preview.gif', function(req, res) {
   console.log('PREVIEW FLIPFLOP:', req.params.doc);
   var docId = req.params.doc,
-      tempFile = config.TEMP + 'flipflop-' + new Date().getTime() + docId + '-url',
-      tempFilename0 = config.TEMP + 'flipflop-' + new Date().getTime() + docId + '-url0.jpg',
-      tempFilename1 = config.TEMP + 'flipflop-' + new Date().getTime() + docId + '-url1.jpg',
-      outputFilename = config.TEMP + 'flipflop-' + new Date().getTime() + docId + '-preview.gif';
+      tempFile = uploader.getTempFilename(docId, 'url'),
+      tempFilename0 = uploader.getTempFilename(docId, 'url0', 'jpg'),
+      tempFilename1 = uploader.getTempFilename(docId, 'url1', 'jpg'),
+      outputFilename = uploader.getTempFilename(docId, 'flipflop-preview', 'gif');
 
   db.get(docId, function(err, doc) {
     if (err) {
