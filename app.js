@@ -641,13 +641,12 @@ app.get('/flipflop/:doc/:image/preview.jpg', function(req, res) {
     finalOutput = tempFolder + docId + '-thumbnail.jpg';
 
   imageHandler.processImage(docId, image, temp, function(dest, doc) {
-      // graphicsmagick-node library
-      gm(temp).resize(120)
-        .write(finalOutput, function (err) {
-          if (err) console.log('error processing:', err);
-          res.sendfile(finalOutput);
-        });
-    });
+    // graphicsmagick-node library
+    gm(temp).resize(120)
+      .write(finalOutput, function (err) {
+        if (err) console.log('error processing:', err);
+        res.sendfile(finalOutput);
+      });
   });
 });
 
