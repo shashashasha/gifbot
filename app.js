@@ -318,10 +318,10 @@ app.post('/flipflop', function(req, res) {
     , url0 = base.replace('{key}', key0)
     , url1 = base.replace('{key}', key1);
 
-  db.get(docId0, function(err, doc) {
-    if (err) console.log('FLIPFLOP:', err);
+  var doc;
+  db.get(docId0, function(err, existing_doc) {
+    doc = existing_doc || {};
 
-    doc = doc || {};
     doc.url0 = url0;
     doc.url1 = url1,
     doc.date = JSON.stringify(new Date());
@@ -337,7 +337,6 @@ app.post('/flipflop', function(req, res) {
       console.log("FLIPFLOP: uploaded ", url0, url1);
       console.log("FLIPFLOP: doc_id ", docId0);
 
-      res.setHeader("Access-Control-Allow-Origin", "http://cdn.gifpop.io");
       res.jsonp({
         success: 'true',
         doc_id: docId0,
