@@ -38,8 +38,10 @@
 	  return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null
 	}
 
-	var doc_id = getURLParameter('id');
-	var image_url = 'http://cdn.gifpop.io/' + getURLParameter('key');
+	var doc_id = getURLParameter('id'),
+		key = getURLParameter('key'),
+		image_url = 'http://cdn.gifpop.io/' + key;
+
 	var image = document.getElementById('gif');
 
 	var doc_div = document.getElementById('doc_id');
@@ -65,6 +67,25 @@
 	else {
 		window.attachEvent("onmessage", displayMessage);
 	}
+
+	/*
+		save to db
+	*/
+	$.ajax({
+		type: "POST",
+		url: "http://gifbot.gifpop.io/gifchop",
+		data: {
+			id: doc_id,
+			key: key
+		},
+		dataType: "json",
+		success: function() {
+			console.log(arguments);
+		},
+		error: function() {
+			console.log(arguments);
+		}
+	});
 
 	// grab the current frames, give them to couch
 	function saveFrames() {

@@ -267,6 +267,40 @@ app.get('/gifchop', function(req, res) {
   });
 });
 
+app.post('/gifchop', function(req, res) {
+  console.log("GIFCHOPPING");
+  var docId = req.body.id
+    , source = req.body.source
+    , key = decodeURIComponent(req.body.key)
+    , base = 'http://cdn.gifpop.io/{key}'
+    , url = base.replace('{key}', key);
+
+  var doc;
+  db.get(docId, function(err, existing_doc) {
+    doc = existing_doc || {};
+
+    doc.url = url;
+    doc.date = JSON.stringify(new Date());
+    doc.type = 'gif';
+    doc.status = 'uploaded';
+    doc.source = source ? source : 'user';
+
+    db.insert(doc, docId0, function(err, body) {
+      if (err) {
+        util.puts(err);
+      }
+
+      console.log("GIFCHOP: uploaded ", docId, url, util.inspect(docId));
+
+      res.jsonp({
+        success: 'true',
+        doc_id: docId,
+        image_url: url
+      });
+    });
+  });
+});
+
 /*
   this is the actual page where we show the flipflop
   (basically we're just showing a preview, no editing has to be done)

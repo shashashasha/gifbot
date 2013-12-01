@@ -113,6 +113,9 @@
 	$("#b1").css("background-image", "url(" + image_url0 + ")");
 	$("#b2").css("background-image", "url(" + image_url1 + ")");
 
+	/*
+		save to db
+	*/
 	$.ajax({
 		type: "POST",
 		url: "http://gifbot.gifpop.io/flipflop",
@@ -121,7 +124,7 @@
 			key0: key0,
 			key1: key1
 		},
-		dataType: "jsonp",
+		dataType: "json",
 		success: function() {
 			console.log(arguments);
 		},
