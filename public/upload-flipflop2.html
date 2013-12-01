@@ -80,7 +80,7 @@
 	    return '/uploads/' + [d.getFullYear(), month, date].join('-') + '/';
 	}
 
-	var doc_id = getURLParameter('id0');
+	var doc_id = getURLParameter('id');
 	var image_url = 'http://cdn.gifpop.io/' + getURLParameter('key0');
 	$("#img-box").css("background-image", "url(" + image_url + ")");
 
@@ -96,7 +96,7 @@
 	   		// console.log(JSON.stringify(InkBlobs));
 	   		var id = InkBlobs[0].url.split("/").pop(),
 	   			clean_id = 'user_' + new Date().getTime() + '_' + id;
-	   		window.location = "flipflop.html?id0=" + doc_id + "&key0=" + getURLParameter('key0') + "&id1=" + clean_id + "&key1=" + InkBlobs[0].key;
+	   		window.location = "flipflop.html?id=" + doc_id + "&key0=" + getURLParameter('key0') + "&id1=" + clean_id + "&key1=" + encodeURIComponent(InkBlobs[0].key);
 		},function(FPError){ console.log(FPError); }
 	);
 

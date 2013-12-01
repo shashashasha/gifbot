@@ -63,7 +63,7 @@
 	   		// console.log(JSON.stringify(InkBlobs));
 	   		var id = InkBlobs[0].url.split("/").pop();
 	   			clean_id = 'user_' + new Date().getTime() + '_' + id;
-	   		window.location = "/static/upload-flipflop2.html?id0=" + clean_id + "&key0="+InkBlobs[0].key;
+	   		window.location = "/static/upload-flipflop2.html?id=" + clean_id + "&key0="+encodeURIComponent(InkBlobs[0].key);
 		},function(FPError){ console.log(FPError); }
 	);
 
