@@ -692,10 +692,18 @@ app.get('/flipflop/:doc/preview.gif', function(req, res) {
       return;
     }
 
-    console.log("PREVIEW FLIPFLOP: got doc", doc);
+    console.log("PREVIEW FLIPFLOP: got doc");
 
     var file0 = fs.createWriteStream(tempFilename0);
-    console.log("PREVIEW FLIPFLOP: created write stream", file0);
+
+    console.log("PREVIEW FLIPFLOP: created write stream", doc.url0);
+    request(doc.url0, function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+        console.log('loaded some bytes', body.length) // Print the google web page.
+      } else {
+        console.log(error);
+      }
+    });
     request(doc.url0).pipe(file0);
 
     file0.on('error', function(err) {
