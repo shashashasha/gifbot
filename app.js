@@ -621,7 +621,7 @@ imageHandler.saveImage = function(url, callback) {
       tempFilename = config.TEMP + new Date().getTime() + '.' + suffix;
   console.log('SAVEIMAGE: downloading', url);
 
-  var tempFilename = uploader.getTempFilename('', 'temp', suffix);
+  var tempFilename = uploader.getTempFilename('', 'external', suffix);
   imageHandler.grabImage(url, tempFilename, callback);
 };
 

@@ -75,15 +75,17 @@
 		key: key
 	});
 
+	// save the doc id immediately
+    if (parent)
+    	parent.postMessage("doc_id|" + doc_id, 'http://gifpop.io');
+
+
 	// grab the current frames, give them to couch
 	function saveFrames() {
 		helper.send("selected", {
 			id: doc_id,
 			frames: gifchopper.getFrames().toString()
 		});
-
-	    if (parent)
-	    	parent.postMessage("doc_id|" + doc_id, 'http://gifpop.io');
 
 		$("#gif-controls").slideUp();
 		$("body").addClass("done");
