@@ -196,29 +196,17 @@ body{
 	height: 233px;
 	margin-top: 133px;
 }
-#wrapper.s_Bus #b2{
-	height: 233px;
-}
 #wrapper.s_Pos {
 	width: 600px !important;
 	height: 400px;
 	margin-top: 50px;
 }
-#wrapper.s_Pos #b2{
-	height: 400px;
-}
 #wrapper.s_Lar {
 	width: 500px !important;
 	height: 500px;
-}
-#wrapper.s_Lar #b2{
-	height: 400px;
 }
 #wrapper.s_Sma {
 	width: 350px !important;
 	height: 350px;
 	margin-top: 75px;
-}
-#wrapper.s_Lar #b2{
-	height: 350px;
 }
