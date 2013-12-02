@@ -36,6 +36,7 @@
 		height: 500px;
 		position: relative;
 		margin: 10px auto;
+		animation: skew 5s infinite;
 		-webkit-animation: skew 5s infinite;
 	}
 	#b1, #b2 {
@@ -43,6 +44,8 @@
 		background-position: center;
 	}
 	#b2-wrapper {
+		animation: wipe 5s infinite;
+		-moz-animation: wipe 5s infinite;
 		-webkit-animation: wipe 5s infinite;
 		-webkit-mask-size: 1040px 1040px;
 		-webkit-mask-image: -webkit-gradient(linear, left 0%, left bottom,
@@ -51,6 +54,17 @@
 				color-stop(0.50,  rgba(0,0,0,0)),
 				color-stop(0.55,  rgba(0,0,0,0)),
 				color-stop(1.00,  rgba(0,0,0,0)));
+	}
+	@keyframes wipe {
+		0% {
+			height: 100%;
+		}
+		50% {
+			height: 0%;
+		}
+		100% {
+			height: 100%;
+		}
 	}
 	@-webkit-keyframes wipe {
 		0% {
@@ -62,6 +76,18 @@
 		100% {
 			-webkit-mask-position: -500px -500px;
 		}
+	}
+	#wrapper.s_Bus #b2 {
+		height: 233px;
+	}
+	#wrapper.s_Pos #b2 {
+		height: 400px;
+	}
+	#wrapper.s_Lar #b2 {
+		height: 500px;
+	}
+	#wrapper.s_Sma #b2 {
+		height: 350px;
 	}
 </style>
 

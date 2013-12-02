@@ -63,9 +63,14 @@
 	#urlInput {
 		width: 250px !important;
 		border-radius: 0;
+		border: 1px solid #aaa;
 		box-shadow: none;
-		-webkit-transform: skew(-7deg);
-		height: 40px;
+		transform:skew(-7deg);
+		-ms-transform:skew(-7deg); /* IE 9 */
+		-moz-transform:skew(-7deg); /* Firefox */
+		-webkit-transform:skew(-7deg); /* Safari and Chrome */
+		-o-transform:skew(-7deg); /* Opera */
+		height: 46px;
 		float: left;
 		margin: 30px 0 15px 25px;
 	}
@@ -88,10 +93,12 @@
 	}
 	.chop-option {
 		width: 50%;
+		height: 242px;
 		background-color: #eee;
 		font-family: Futura, Helvetia, sans-serif;
 		float: left;
 		box-sizing: border-box;
+		-moz-box-sizing: border-box;
 	}
 	.chop-option:nth-child(even) {
 		border-left: 5px solid white;

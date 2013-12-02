@@ -17,13 +17,48 @@ body{
 }
 @-webkit-keyframes skew {
 	0% {
+		transform: perspective(500) rotateX(-10deg);
 		-webkit-transform: perspective(500) rotateX(-10deg);
+		-ms-transform: perspective(500) rotateX(-10deg);
+		-moz-transform: perspective(500) rotateX(-10deg);
+		-o-transform: perspective(500) rotateX(-10deg);
 	}
 	50% {
+		transform: perspective(500) rotateX(10deg);
 		-webkit-transform: perspective(500) rotateX(10deg);
+		-ms-transform: perspective(500) rotateX(10deg);
+		-moz-transform: perspective(500) rotateX(10deg);
+		-o-transform: perspective(500) rotateX(10deg);
 	}
 	100% {
+		transform: perspective(500) rotateX(-10deg);
 		-webkit-transform: perspective(500) rotateX(-10deg);
+		-ms-transform: perspective(500) rotateX(-10deg);
+		-moz-transform: perspective(500) rotateX(-10deg);
+		-o-transform: perspective(500) rotateX(-10deg);
+	}
+}
+@keyframes skew {
+	0% {
+		transform: perspective(500) rotateX(-10deg);
+		-webkit-transform: perspective(500) rotateX(-10deg);
+		-ms-transform: perspective(500) rotateX(-10deg);
+		-moz-transform: perspective(500) rotateX(-10deg);
+		-o-transform: perspective(500) rotateX(-10deg);
+	}
+	50% {
+		transform: perspective(500) rotateX(10deg);
+		-webkit-transform: perspective(500) rotateX(10deg);
+		-ms-transform: perspective(500) rotateX(10deg);
+		-moz-transform: perspective(500) rotateX(10deg);
+		-o-transform: perspective(500) rotateX(10deg);
+	}
+	100% {
+		transform: perspective(500) rotateX(-10deg);
+		-webkit-transform: perspective(500) rotateX(-10deg);
+		-ms-transform: perspective(500) rotateX(-10deg);
+		-moz-transform: perspective(500) rotateX(-10deg);
+		-o-transform: perspective(500) rotateX(-10deg);
 	}
 }
 #timeline {
@@ -45,7 +80,11 @@ body{
 	text-align: center;
 	font-size: 18px;
 	background: black;
-	-webkit-transform: skew(-7deg);
+	transform:skew(-7deg);
+	-ms-transform:skew(-7deg); /* IE 9 */
+	-moz-transform:skew(-7deg); /* Firefox */
+	-webkit-transform:skew(-7deg); /* Safari and Chrome */
+	-o-transform:skew(-7deg); /* Opera */
 	padding: 10px;
 	position: absolute;
 	left: 330px;
