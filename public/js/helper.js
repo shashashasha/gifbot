@@ -19,10 +19,10 @@ helper.send = function(endpoint, data, success, error) {
 		data: data,
 		dataType: "json",
 		success: function() {
-			console.log(arguments);
+			console.log('success', endpoint, arguments);
 		},
 		error: function() {
-			console.log(arguments);
+			console.log('error', endpoint, arguments);
 		}
 	});
 };

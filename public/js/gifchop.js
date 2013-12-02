@@ -70,7 +70,7 @@ var gifchopper = function() {
       $("body").addClass("done");
 
       if (parent)
-        parent.postMessage(self.id, 'http://gifpop.io');
+        parent.postMessage("doc_id|" + self.id, 'http://gifpop.io');
     });
   };
 

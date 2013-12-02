@@ -415,7 +415,10 @@ app.post('/selected', function(req, res) {
     db.insert(doc, docId, function (err, body) {
       if(!err) {
         console.log("SELECTED: it worked!!!!");
-        res.jsonp({ success: "true" });
+        res.jsonp({
+          success: "true",
+          doc_id: docId
+        });
       } else {
         console.log("SELECTED: sadfaces");
       }
@@ -508,9 +511,9 @@ uploader.getCurrentUploadFolder = function() {
 // helper function to make sure we don't have colliding tempfiles
 uploader.getTempFilename = function(id, type, extension) {
   if (extension) {
-    return [config.TEMP, new Date().getTime(), id, type].join('_') + '.' + extension;
+    return config.TEMP + [new Date().getTime(), id, type].join('_') + '.' + extension;
   } else {
-    return [config.TEMP, new Date().getTime(), id, type].join('_');
+    return config.TEMP + [new Date().getTime(), id, type].join('_');
   }
 };
 
