@@ -82,6 +82,12 @@
 			frames: gifchopper.getFrames().toString()
 		});
 
+	    if (parent)
+	    	parent.postMessage("doc_id|" + doc_id, 'http://gifpop.io');
+
+		$("#gif-controls").slideUp();
+		$("body").addClass("done");
+
 		previewGif();
 	}
 

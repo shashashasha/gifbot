@@ -63,15 +63,6 @@ var gifchopper = function() {
       allowautoplay = true;
       self.startIdling();
     });
-
-    // on "done" store id in form
-    $("#gif-submit").click(function() {
-      $("#gif-controls").slideUp();
-      $("body").addClass("done");
-
-      if (parent)
-        parent.postMessage("doc_id|" + self.id, 'http://gifpop.io');
-    });
   };
 
   self.getFrames = function() {

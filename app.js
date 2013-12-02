@@ -525,7 +525,7 @@ uploader.saveAndGifChop = function(filepath, type, res) {
   s3.putFile(filepath, destination, function(err, response){
     if (err) {
       console.log('SAVEANDGIFCHOP:', err);
-      res.json({
+      res.jsonp({
         success: "false",
         error  : "error-uploading"
       });
