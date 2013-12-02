@@ -19,7 +19,7 @@ var gifchopper = function() {
   // parse the gif on the page
   self.load = function(url, gif, id) {
     self.url = url;
-    self.controller = gifcontrol(gif, 450);
+    self.controller = gifcontrol(gif, 460);
     self.id = id;
     $("#status").fadeIn();
 
@@ -102,7 +102,8 @@ var gifchopper = function() {
       // if (e.target.id == 'selection') {
       //   return;
       // }
-      var percent = e.offsetX / e.srcElement.clientWidth;
+      var src = e.target || e.srcElement;
+      var percent = e.pageX / src.clientWidth;
       self.controller.seekPercent(percent);
       self.stopIdling();
 
@@ -140,7 +141,8 @@ var gifchopper = function() {
   };
 
   var getFrame = function(e) {
-    var offset = e.target.id == 'selection' ? parseFloat(e.target.style.marginLeft) + e.offsetX : e.offsetX;
+    // target.id == 'selection' ? parseFloat(e.target.style.marginLeft) + e.offsetX : e.offsetX
+    var offset = e.pageX;
     var length = self.controller.length() - 1;
     var percent = offset / e.currentTarget.clientWidth;
     return Math.round(percent * length);

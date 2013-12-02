@@ -70,17 +70,48 @@
 	/*
 		save to db
 	*/
-	helper.send("gifchop", {
-		id: doc_id,
-		key: key
+	// helper.send("gifchop", {
+	// 	id: doc_id,
+	// 	key: key
+	// });
+	$.ajax({
+		type: "POST",
+		url: "http://gifbot.gifpop.io/gifchop",
+		data: {
+			id: doc_id,
+			key: key
+		},
+		dataType: "json",
+		success: function() {
+			console.log(arguments);
+		},
+		error: function() {
+			console.log(arguments);
+		}
 	});
 
 	// grab the current frames, give them to couch
 	function saveFrames() {
-		helper.send("selected", {
-			id: doc_id,
-			frames: gifchopper.getFrames().toString()
+		$.ajax({
+			type: "POST",
+			url: "http://gifbot.gifpop.io/selected",
+			data: {
+				id: doc_id,
+				frames: gifchopper.getFrames().toString()
+			},
+			dataType: "json",
+			success: function() {
+				console.log(arguments);
+			},
+			error: function() {
+				console.log(arguments);
+			}
 		});
+
+		// helper.send("selected", {
+		// 	id: doc_id,
+		// 	frames: gifchopper.getFrames().toString()
+		// });
 
 		previewGif();
 	}

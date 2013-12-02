@@ -114,3 +114,17 @@ www		CNAME	shabinx.myshopify.com
 
 # use forever 
 https://github.com/nodejitsu/forever
+
+# using pm2
+# starts max processes of app.js
+pm2 start app.js -i max
+
+# monitors all process cpu / memory usage
+pm2 monit
+# shows realtime logs
+pm2 logs
+
+# couch file, setting RESPAWN_TIMEOUT to 10
+~/bin/couchdb
+# couch config
+/home/meshu/etc/couchdb/local.ini

@@ -90,14 +90,31 @@
 	/*
 		save to db
 	*/
-	helper.send("flipflop", {
-		id: doc_id,
-		key0: key0,
-		key1: key1
+	// helper.send("flipflop", {
+	// 	id: doc_id,
+	// 	key0: key0,
+	// 	key1: key1
+	// });
+
+	$.ajax({
+		type: "POST",
+		url: "http://gifbot.gifpop.io/flipflop",
+		data: {
+			id: doc_id,
+			key0: key0,
+			key1: key1
+		},
+		dataType: "json",
+		success: function() {
+			console.log(arguments);
+		},
+		error: function() {
+			console.log(arguments);
+		}
 	});
 
 	var imgHeight = $("#wrapper").height();
-	$(document).mouseenter(function(){
+	$(document).mouseenter(function() {
 		$("#wrapper").css("-webkit-animation","none");
 		$("#b2-wrapper").css("-webkit-animation","none");
 	}).mousemove(function(e){
@@ -109,8 +126,6 @@
 		$("#wrapper").css("-webkit-transform","perspective(500) rotateX(" + (10-(percentage*20)) + "deg)");
 
 		$("#b2-wrapper").css("-webkit-mask-position", maskPosition + "px " +  maskPosition + "px");
-
-		console.log(imgY, current, percentage, maskPosition);
 	}).mouseleave(function(){
 		$("#wrapper").css("-webkit-animation","skew 5s infinite");
 		$("#b2-wrapper").css("-webkit-animation","wipe 5s infinite");

@@ -131,12 +131,12 @@ var gifcontrol = function(gif, maxheight) {
     // div.style.width = (hdr.width * scale) + 'px';
 
     // adding this line, cropping max height
-    div.style.height = '450px';
+    div.style.height = '460px';
 
     // adding this line, vertically centering the full bleed gif
     var horzStretch = $(div).width() / hdr.width;
     var vertStretch = horzStretch * hdr.height;
-    canvas.style.marginTop = -(vertStretch - 450)/2 + 'px';
+    canvas.style.marginTop = -(vertStretch - 460)/2 + 'px';
 
     // div.style.height = hdr.height + 'px';
     // toolbar.style.minWidth = (hdr.width * scale) + 'px';
@@ -239,7 +239,11 @@ var gifcontrol = function(gif, maxheight) {
       };
 
       var updateFrame = function(num) {
+        if (!frames) return;
+
         i = Math.max(0, Math.min(frames.length-1, num));
+        if (!frames[i]) return;
+
         if (curFrame && delayInfo) {
           curFrame.value = i + 1;
           delayInfo.value = frames[i].delay;

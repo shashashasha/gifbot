@@ -61,7 +61,7 @@ body{
 	background-image: url(../images/timeline-center.png);
 	background-repeat: no-repeat;
 	background-position: 50%;
-	margin-top: -50px;
+	margin-top: -40px;
 	border-left: 2px solid white;
 	border-right: 2px solid white;
 	pointer-events: none;
