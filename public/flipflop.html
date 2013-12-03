@@ -119,8 +119,10 @@
 
 	// save the doc-id to the line-item properties field of the shopify page
 	// do this on load because we don't need to do any "selected" buttons on the flip flop page
-	if (parent)
+	if (parent) {
 		parent.postMessage("doc_id|" + doc_id, 'http://gifpop.io');
+		parent.postMessage("save_frames|", 'http://gifpop.io');
+	}
 </script>
     <footer>
 
