@@ -82,13 +82,17 @@
 
 	// grab the current frames, give them to couch
 	function saveFrames() {
+		var frames = gifchopper.getFrames().toString();
 		helper.send("selected", {
 			id: doc_id,
-			frames: gifchopper.getFrames().toString()
+			frames: frames
 		});
 
 		$("#gif-controls").slideUp();
 		$("body").addClass("done");
+
+		if (parent)
+			parent.postMessage("save_frames|" + frames, 'http://gifpop.io');
 
 		previewGif();
 	}
