@@ -8,6 +8,12 @@ body{
 #pickerComputer {
 	background: red;
 }
+.note {
+	font-family: Helvetica;
+	font-size: 12px;
+	color: #808080;
+	text-align: center;
+}
 .wrapper {
 }
 .done .wrapper {
@@ -150,7 +156,7 @@ body{
 	overflow: hidden;
 	background: #ccc;
 	opacity: .99;
-	margin: 20px auto 0;
+	margin: 0 auto;
 }
 .jsgif_simple_tools {
 	display: none;
