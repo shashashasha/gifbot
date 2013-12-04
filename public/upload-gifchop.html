@@ -15,8 +15,6 @@
 
 <iframe id="picker"></iframe>
 
-<p>Respect the rights of others. Ensure that you have the right to use the images you upload.</p>
-
 <h1>More ways to pop</h1>
 
 <div id="flipflop" class="chop-option">
@@ -34,6 +32,7 @@
 	</div>
 	<div class="loading"><span id="url-loading-text">Loading...</span> <img id="url-loading-image" src="images/icons/loading.gif"></div>
 </form>
+<p class="note">Respect the rights of others. Please ensure that you have the right to use the images you upload.</p>
 <!-- <div id="fileFromURL">
     <h2>Or paste a URL to a gif here</h2>
     <input id="urlInput"></input>
@@ -77,7 +76,7 @@
 		margin: 30px 0 15px 25px;
 	}
 	#urlSubmit {
-	    background-image: url(images/submit.png);
+	    background-image: url(images/submit_sprite.png);
 	    width: 124px;
 	    height: 56px;
 	    cursor: pointer;
@@ -85,10 +84,10 @@
 	    margin-top: 25px;
 	}
 	#urlSubmit:hover {
-	    background-image: url(images/submit-over.png);
+	    background-position: 0 -56px;
 	}
 	#urlSubmit:active {
-	    background-image: url(images/submit-down.png);
+	    background-position: 0 -112px;
 	}
 	#flipflop {
 		cursor: pointer;
@@ -176,6 +175,7 @@
 		Submitting a URL directly
 	*/
 	function submitUrl() {
+		if ($("#urlInput").val().length == 0) return;
 		$(".loading").css("visibility","visible");
 		$("#url-loading-text").html("Loading... ");
 		$("#url-loading-image").css("visibility","visible");
