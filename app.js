@@ -98,7 +98,7 @@ app.get('/', function(req, res) {
 
 app.get('/process-url/', function(req, res) {
   // var url = req.body.url; // used for POSTing
-  var url = req.query['url'].replace('https', 'http'),
+  var url = req.query['url'].replace('https', 'http').split('?')[0],
       uploadFolder = uploader.getCurrentUploadFolder(),
       domain = url.split('http://').join('').split('/')[0];
 
@@ -681,6 +681,11 @@ app.get('/gifchop/:doc/preview.gif', function(req, res) {
     tempFilename = uploader.getTempFilename(docId, 'preview', 'gif');
 
   imageHandler.processImage(docId, 'url', tempFilename, function(dest, doc) {
+    if (!doc || !doc.frames) {
+      console.log("PREVIEW GIFCHOP ERROR: no frames selected");
+      return;
+    }
+
     var selection = doc.frames.split(','),
         start = +selection[0],
         end = +selection[selection.length-1],
