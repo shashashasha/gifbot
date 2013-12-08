@@ -279,6 +279,8 @@ var gifcontrol = function(gif, maxheight) {
           if (!frame) frame = tmpCanvas.getContext('2d');
           frame.putImageData(frames[i].data, 0, 0);
 
+          ctx.fillStyle = 'rgba(255,255,255,1)';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
           ctx.drawImage(tmpCanvas, 0, 0, tmpCanvas.width, tmpCanvas.height, 0, 0, canvas.width, canvas.height);
 
           // ctx.putImageData(frames[i].data, 0, 0);
