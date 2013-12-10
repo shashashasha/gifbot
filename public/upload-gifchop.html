@@ -240,12 +240,15 @@
 
 	filepicker.setKey("AYkBZ0oUOTTqvkwhxMx3Ez");
 
+	// pretty dumb right here but less dumb than filepicker not cleaning up filenames for emoji
+	var img_id = 'gifchop_' + new Date().getTime() + '_' + Math.round(Math.random() * 100);
+
 	filepicker.pickAndStore({
 			extension: '.gif',
 			container: 'picker',
 			services: ['COMPUTER']
 		},{
-			path: getUploadFolder()
+			path: getUploadFolder() + img_id + '.gif'
 		},function(InkBlobs){
 	   		var img = InkBlobs[0];
 	   		var id = img.url.split("/").pop(),

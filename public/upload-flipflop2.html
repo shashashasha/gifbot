@@ -69,7 +69,8 @@
 </style>
 
 <script type="text/javascript">
-	var doc_id = helper.getURLParameter('id');
+	var doc_id = helper.getURLParameter('id'),
+		img_id = helper.getURLParameter('img_id');
 	var image_url = 'http://cdn.gifpop.io/' + helper.getURLParameter('key0');
 	$("#img-box").css("background-image", "url(" + image_url + ")");
 
@@ -80,14 +81,12 @@
 			container: 'picker',
 			services: ['COMPUTER','URL','INSTAGRAM','FACEBOOK','FLICKR']
 		},{
-			path: helper.getUploadFolder()
+			path: helper.getUploadFolder() + img_id + '_2.jpg'
 		},function(InkBlobs){
-	   		var id = InkBlobs[0].url.split("/").pop(),
-	   			clean_id = 'user_' + new Date().getTime() + '_' + id,
-	   			key0 = helper.getURLParameter('key0'),
+	   		var key0 = helper.getURLParameter('key0'),
 	   			key1 = encodeURIComponent(InkBlobs[0].key);
 
-	   		window.location = "flipflop.html?id=" + doc_id + "&key0=" + key0 + "&id1=" + clean_id + "&key1=" + key1;
+	   		window.location = "flipflop.html?id=" + doc_id + "&key0=" + key0 + "&key1=" + key1;
 		},function(FPError){ console.log(FPError); }
 	);
 
