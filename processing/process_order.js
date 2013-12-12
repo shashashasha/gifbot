@@ -509,7 +509,7 @@ var makeFullOrderRequest = function(order_details) {
 
 	console.log(full_order);
 
-	if (!DEBUG) {
+	if (!DEBUG && !PREP) {
 		request({
 			method: 'GET',
 			uri: config.REQUESTENDPOINT,
@@ -526,7 +526,8 @@ var makeFullOrderRequest = function(order_details) {
 };
 
 var order_id = null,
-	DEBUG = false;
+	DEBUG = false,
+	PREP = false;
 process.argv.forEach(function (val, index, array) {
 	if (index == 2 && val != null) {
 		order_id = 'order-' + val;
@@ -534,6 +535,10 @@ process.argv.forEach(function (val, index, array) {
 	if (val == '-debug') {
 		console.log('running in debug mode, no uploading or saving to database');
 		DEBUG = true;
+	}
+	if (val == '-prep') {
+		console.log('running in prep mode, uploading to s3 and saving to db, but not pushing to manufacturer');
+		PREP = true;
 	}
 });
 
