@@ -6,6 +6,7 @@ var fs = require('fs')
   , db_orders = nano.db.use('gifpop-orders')
   , Q = require('q');
 
+
 // manufacturer's internal product ids
 // 2.75 Instagram Motion Print	CAP01A0A
 // 3.5 Instagram Motion Print	CAQ01A0A
@@ -70,44 +71,34 @@ var getOrderGifsFromShopify = function(page) {
 	  res.on('end', function(d) {
 	  		var orders = JSON.parse(full_order).orders;
 
-			orders.forEach(saveOrderToCouch);
-			// orders.forEach(function(order) {
-			// 	var order_id = "order-" + order.order_number;
-			// 	db_orders.get(order_id, function(err, order_doc) {
-			// 		if (err) {
-			// 			console.log(order_id, err);
-			// 			return;
-			// 		}
-			// 		// console.log(order);
-			// 		order_doc.line_items.forEach(function(item) {
-			// 			var item_id;
-			// 			// console.log(order_id, item.variant_title);
-			// 			if (item.variant_title == '3&#189; x 3&#189;"' || item.variant_title == '10x10"' || item.variant_title == '10 x 10"') {
-			// 				item_id = 'print_' + item.product_id;
-			// 			}
-			// 			else if (item.properties.length) {
-			// 				item_id = item.properties[0].value;
-			// 			}
+			orders.forEach(function(order) {
+				var order_id = "order-" + order.order_number;
+				db_orders.get(order_id, function(err, order_doc) {
+					if (err) {
+						console.log(order_id, err);
+						return;
+					} else if (order_doc.note != '') {
+						console.log(order_id + '\t' + order_doc.note);
+						order_doc.line_items.forEach(function(item) {
+							var item_id;
 
-			// 			var product_id = getProductId(item.variant_title);
-			// 			console.log(order_id + ',' + item_id + ',' + product_id);
-			// 		});
-			// 	});
-			// });
+							if (item.variant_title == '3&#189; x 3&#189;"' || item.variant_title == '10x10"' || item.variant_title == '10 x 10"') {
+								item_id = 'print_' + item.product_id;
+							}
+							else if (item.properties.length) {
+								item_id = item.properties[0].value;
+							}
+
+							var product_id = getProductId(item.variant_title);
+							console.log(order_id + '\t' + item_id + '\t' + product_id);
+						});
+						console.log('');
+					}
+				});
+			});
 	  });
 	}).on('error', function(e) {
 	  console.error(e);
-	});
-};
-
-var saveOrderToCouch = function(order) {
-	var order_id = "order-" + order.name.split('#').pop();
-	db_orders.insert(order, order_id, function(error, response) {
-		if (error) {
-			console.log(order_id, ":", error.reason);
-			return;
-		}
-		console.log(order_id, ": saved!");
 	});
 };
 

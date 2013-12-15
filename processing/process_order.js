@@ -26,7 +26,7 @@ var gm = require('gm')
 	load an order
 	and grab the doc_id's associated with it, and render them
 */
-var getOrderGifs = function() {
+var getOrderGifs = function(order_id) {
 	console.log(order_id, 'loading...');
 	var deferred = Q.defer(),
 		gifs = [];
@@ -48,6 +48,11 @@ var getOrderGifs = function() {
 				variant = item.variant_title.split(' - ')[0], // "Large Square - 2+"
 				quantity = item.quantity,
 				product_name = item.title; // item.title = "GIF CHOP" item.name = "GIF CHOP - Small Square 2+"
+
+			if (product_name == 'Gift Card') {
+				console.log(order_id, 'gift card, skipping!');
+				return;
+			}
 
 			// make sure we have a doc-id
 			if (property.name == 'doc-id' && property.value.length) {
@@ -84,7 +89,7 @@ var getOrderGifs = function() {
 		});
 
 		processGifs(gifs, order).then(function(results) {
-			console.log(order_id, 'processed order');
+			console.log(order_id, 'processed order\n');
 			deferred.resolve({
 				gifs: gifs,
 				order: order,
@@ -146,14 +151,15 @@ var processRow = function(row) {
 		// if it has the url, don't bother reprocessing it
 		// otherwise we need to download it and chop it up and put it on s3
 		console.log("type:", doc._id, doc.type);
-		if (doc.zip_url && doc.zip_url.search('cdn.gifpop.io') > 0) {
+		if (doc.zip_url && doc.zip_url.search('cdn.gifpop.io') > 0 && FORCE == false) {
 			console.log('>>>> already processed:\t', doc.zip_url);
 			deferred.resolve(doc);
 		} else if (doc.type == "flip") {
 			console.log('>>>> processing as flipflop');
 			downloadImages(doc)
-				.then(zipFlip)
-				.then(uploadZip)
+				.then(processFlip)
+				// .then(uploadZip)
+				.then(uploadFlip)
 				.then(saveDoc);
 		} else {
 			console.log('>>>> processing as gifchop');
@@ -171,7 +177,7 @@ var processRow = function(row) {
 var downloadImages = function(doc) {
 	var deferred = Q.defer();
 
-	var tempimages = 'processing/frames/' + doc.order_id + '_' + doc._id,
+	var tempimages = 'processing/renamedframes/' + doc.order_id + '_' + doc._id,
 		filename0 = './' + tempimages + '/frame0.' + doc.url0.split('.').pop(),
 		filename1 = './' + tempimages + '/frame1.' + doc.url1.split('.').pop();
 
@@ -196,32 +202,69 @@ var downloadImages = function(doc) {
 	return deferred.promise;
 };
 
-var zipFlip = function(doc) {
+var processFlip = function(doc) {
 	var deferred = Q.defer();
 	var fileroot = doc.order_id + '_' + doc._id,
 		size = getSize(doc.size),
-		input = 'processing/frames/' + fileroot + '/frame*',
-		output = 'processing/frames/' + fileroot + '/flip_%03d.jpg',
+		input = 'processing/renamedframes/' + fileroot + '/frame*',
+		output = 'processing/renamedframes/' + fileroot + '/%03d.jpg',
 		cmd = "convert {input} -adaptive-resize {size} -quality 90% {output}",
-		cmd_exec = cmd.replace("{folder}", 'processing/frames/' + fileroot)
+		cmd_exec = cmd.replace("{folder}", 'processing/renamedframes/' + fileroot)
 						.replace("{input}", input)
 						.replace("{output}", output)
 						.replace("{size}", "'" + size + "'");
 
 	console.log('>>>> exporting frames:\t', fileroot);
 	exec(cmd_exec, function(err, stdout, stderr) {
-		var zip = "cd {folder}; zip {output} {input}",
-			zip_exec = zip.replace("{folder}", 'processing/frames/' + fileroot)
-							.replace("{output}", getFilename(doc, 'zip'))
-							.replace("{input}", "flip*.jpg");
+		deferred.resolve(doc);
+		// var zip = "cd {folder}; zip {output} {input}",
+		// 	zip_exec = zip.replace("{folder}", 'processing/renamedframes/' + fileroot)
+		// 					.replace("{output}", getFilename(doc, 'zip'))
+		// 					.replace("{input}", "flip*.jpg");
 
-		console.log('>>>> zipping:\t\t', fileroot);
-		exec(zip_exec, function(err, stdout, stderr) {
-			deferred.resolve(doc);
-		});
+		// console.log('>>>> zipping:\t\t', fileroot);
+		// exec(zip_exec, function(err, stdout, stderr) {
+		// 	deferred.resolve(doc);
+		// });
 	});
 
 	return deferred.promise;
+};
+
+var uploadFlip = function(doc) {
+	var deferred = Q.defer();
+
+	var tempfolder = './processing/renamedframes/' + doc.order_id + '_' + doc._id + '/',
+		filename0 = tempfolder + '000.jpg',
+		filename1 = tempfolder + '001.jpg',
+		destination = getCurrentUploadFolder() + doc.order_id + '_' + doc._id + '_';
+
+	doc.zip_url = 'http://' + config.S3Bucket + '/' + destination;
+	console.log('>>>> uploading to s3:\t', doc.zip_url);
+
+	if (DEBUG) {
+		console.log('>>>> skipping upload because DEBUG');
+		deferred.resolve(doc);
+	} else {
+		s3.putFile(filename0, destination + '000.jpg', function(err, response) {
+		    if (!err) {
+		    	s3.putFile(filename1, destination + '001.jpg', function(err, response) {
+		    		if (!err) {
+				    	console.log('>>>> uploaded!\t\t', doc.order_id, doc._id);
+				    	deferred.resolve(doc);
+		    		} else {
+		    			console.log(err);
+		    		}
+			    });
+		    }
+		    else {
+			    console.log(err);
+		    }
+		});
+	}
+
+	return deferred.promise;
+
 };
 
 var downloadGif = function(doc) {
@@ -240,6 +283,29 @@ var downloadGif = function(doc) {
 	return deferred.promise;
 };
 
+var getTenFrames = function(doc, folder) {
+	var frames = doc.frames.split(','),
+		front = true,
+		offset = 0,
+		cp = [];
+
+	while (frames.length < 10) {
+		if (front) {
+			frames.splice(offset, 0, frames[offset]);
+		} else {
+			var end = frames.length - 1 - offset;
+			frames.splice(end, 0, frames[end]);
+			offset++;
+		}
+		front = !front;
+	}
+
+	for (var i = 0; i < frames.length; i++) {
+		cp.push('cp processing/frames/' + folder + '/' + getPad(frames[i], 3) + '.jpg processing/renamedframes/' + folder + '/' + getPad(i, 3) + '.jpg');
+	}
+	// console.log(cp);
+	return cp.join(';');
+};
 /*
 	the image processing part, where we get the selected frames
 	and then use gifsicle to chop them out into a new gif
@@ -249,22 +315,23 @@ var chopGif = function(doc) {
 
     var fileroot = doc.order_id + '_' + doc._id,
 		size = getSize(doc.size),
-		mkdir = "mkdir processing/frames/{folder}; ".replace("{folder}", fileroot),
+		mkdir = "mkdir processing/frames/{folder}; mkdir processing/renamedframes/{folder};".replace("{folder}", fileroot).replace("{folder}", fileroot),
     	cmd = "convert ./processing/images/{input} -coalesce -adaptive-resize {size} -quality 90% 'processing/frames/{output}/%03d.jpg'",
-    	makegif = 'convert ./processing/frames/{folder}/%03d.jpg[{frames}] ./processing/choppt/{output}.gif';
+    	makegif = 'convert ./processing/frames/{folder}/%03d.jpg[{frames}] ./processing/choppt/{output}.gif; {cp_exec}';
 
     var cmd_exec = mkdir + cmd.replace("{input}", getFilename(doc, 'gif'))
-    					.replace("{frames}", doc.frames)
     					.replace("{size}", size)
     					.replace("{output}", fileroot);
 
-    console.log('>>>> chopping:\t', cmd_exec);
+    console.log('>>>> chopping:\t\t', fileroot);
     exec(cmd_exec, function(err, stdout, stderr) {
     	var gif_exec = makegif.replace("{folder}", fileroot)
+					    	.replace("{folder}", fileroot)
     						.replace("{frames}", doc.frames)
-    						.replace("{output}", fileroot);
+    						.replace("{output}", fileroot)
+    						.replace("{cp_exec}", getTenFrames(doc, fileroot));
 
-    	console.log('>>>> making gif:\t', gif_exec);
+    	console.log('>>>> making gif:\t', fileroot);
     	exec(gif_exec, function(err, stdout, stderr) {
     		console.log('>>>> made gif!');
 			deferred.resolve(doc);
@@ -283,25 +350,30 @@ var zipGifChop = function(doc) {
 	var deferred = Q.defer();
 
 	var tempchoppt = './processing/choppt/',
-		tempframes = './processing/frames/',
+		tempframes = './processing/renamedframes/',
 		fileroot = doc.order_id + '_' + doc._id,
 		filename = tempchoppt + getFilename(doc, 'gif'),
 		size = getSize(doc.size);
 
 	// in case we want to change the frames in the admin, we don't assume ranges here
     var frames = doc.frames.split(','),
-    	selection = '';
+    	selection = '',
+    	i = 0;
 
-    frames.forEach(function(frame) {
-    	selection += getPad(frame, 3) + '.jpg ';
-    });
+    // frames.forEach(function(frame) {
+    // 	selection += getPad(i, 3) + '.jpg ';
+    // 	i++;
+    // });
+	for (var j = 0; j < 10; j++) {
+		selection += getPad(j, 3) + '.jpg ';
+	}
 
 	var zip = "cd {folder}; zip {output} {input}",
-		zip_exec = zip.replace("{folder}", 'processing/frames/' + fileroot)
+		zip_exec = zip.replace("{folder}", 'processing/renamedframes/' + fileroot)
 						.replace("{output}", getFilename(doc, 'zip'))
 						.replace("{input}", selection);
 
-	console.log('>>>> zipping:\t\t', zip_exec);
+	console.log('>>>> zipping:\t\t', selection);
 	exec(zip_exec, function(err, stdout, stderr) {
 		deferred.resolve(doc);
 	});
@@ -312,7 +384,7 @@ var zipGifChop = function(doc) {
 var uploadZip = function(doc) {
 	var deferred = Q.defer();
 
-	var tempzipped = './processing/frames/' + doc.order_id + '_' + doc._id + '/',
+	var tempzipped = './processing/renamedframes/' + doc.order_id + '_' + doc._id + '/',
 		filename = tempzipped + getFilename(doc, 'zip'),
 		destination = getCurrentUploadFolder() + getFilename(doc, 'zip');
 
@@ -325,7 +397,7 @@ var uploadZip = function(doc) {
 	} else {
 		s3.putFile(filename, destination, function(err, response) {
 		    if (!err) {
-		    	console.log('>>>> uploaded successfully!');
+		    	console.log('>>>> uploaded!\t\t', doc.order_id, doc._id);
 		    	deferred.resolve(doc);
 		    }
 		    else {
@@ -354,8 +426,8 @@ var getFilename = function(doc, ext) {
 
 var getCurrentUploadFolder = function() {
   var d = new Date(),
-      date = ("0" + d.getDate()).slice(-2),
-      month = ("0" + (d.getMonth() + 1)).slice(-2);
+      date = FORCE_DATE || ("0" + d.getDate()).slice(-2),
+      month = FORCE_MONTH || ("0" + (d.getMonth() + 1)).slice(-2);
 
     return 'zips/' + [d.getFullYear(), month, date].join('-') + '/';
 };
@@ -364,7 +436,16 @@ var getSize = function(size) {
 	var words = size.split(' '),
 		size = words.length > 2 ? words[0] + ' ' + words[1] : size;
 
-	switch (size) {
+	var realwords = [];
+	words.forEach(function(word, i) {
+		if (word.charAt(word.length-1) != '+') {
+			realwords.push(word);
+		}
+	});
+
+	var realsize = realwords.join(' ');
+
+	switch (realsize) {
 		case 'Business Card':
 			return "1012x637^";
 		case 'Postcard':
@@ -407,28 +488,30 @@ var getProductId = function(size) {
 
 	switch (realsize) {
 		case 'Business Card':
-			return "AA10110A";
+			return "AA10110A3";
+		case 'Postcard 2+':
+		case 'Postcard ':
 		case 'Postcard':
 		case 'Landscape Postcard':
-			return "AA20110A";
+			return "AA20110A3";
 
 		case 'Portrait Postcard':
-			return "AA20110A";
+			return "AA20110A31";
 
 		case 'Large Square':
-			return "AAS01A00";
+			return "AAS01A003";
 
 		case 'Artist Small':
 		case '3&#189; x 3&#189;\"':
-			return "CAQ01A0A";
+			return "CAQ01A0A3";
 
 		case 'Artist Large':
 		case 'Artist Print':
 		case '10 x 10\"':
-			return "AAT01A00"
+			return "AAT01A003"
 
 		case 'Small Square':
-			return "CAP01A0A";
+			return "CAP01A0A3";
 
 		default:
 			console.log("unable to find", size);
@@ -463,14 +546,14 @@ var makeFullOrderRequest = function(order_details) {
 	var full_order = config.REQUEST;
 
 	full_order.requestId = new Date().getTime();
-	full_order.orderId = order_id;
+	full_order.orderId = "order-" + order.order_number;
 
 	full_order.orderDate = order.created_at;
 	full_order.orderLineItems = [];
 
 	// attach all gifpop product information
 	gifs.forEach(function(gif, i) {
-		var amazon_url = 'http://' + config.S3Bucket + '/' + getCurrentUploadFolder() + gif.order_id + '_' + gif.id + '.zip',
+		var amazon_url = 'http://' + config.S3Bucket + '/' + getCurrentUploadFolder() + gif.order_id + '_' + gif.id,
 			thumbnail_url = 'http://gifbot.gifpop.io/' + gif.type + '/' + gif.id + '/preview.gif';
 
 		if (gif.type == 'artist') {
@@ -479,16 +562,24 @@ var makeFullOrderRequest = function(order_details) {
 			console.log(gif.thumb, gif.id);
 		}
 
-		full_order.orderLineItems.push({
+		var item = {
 			lineId: gif.id,
 			productId: getProductId(gif.size),
 			productInfo: gif.size,
 			productName: gif.product_name,
 			quantity: gif.quantity,
-			pictures: amazon_url,
 			thumbnail: thumbnail_url,
 			effect: gif.effect
-		});
+		};
+
+		if (gif.type == 'flipflop') {
+			item.picture0 = amazon_url + '_000.jpg';
+			item.picture1 = amazon_url + '_001.jpg';
+		} else {
+			item.pictures = amazon_url + '.zip';
+		}
+
+		full_order.orderLineItems.push(item);
 	});
 
 	// attach shipping information from shopify order
@@ -512,35 +603,82 @@ var makeFullOrderRequest = function(order_details) {
 	if (!DEBUG && !PREP) {
 		request({
 			method: 'GET',
-			uri: config.REQUESTENDPOINT,
+			uri: config.REQUESTENDPOINT_LIVE,
 			json: full_order
 	    }, function(err, res, body) {
 	    	if (!err) {
 				console.log('-------------------------------------');
-				console.log('------- ' + order_id + ' SUBMITTED! -------');
+				console.log('------- order-' + order.order_number + ' SUBMITTED! -------');
 				console.log('-------------------------------------');
 	    	}
 			console.log(err, body);
 		});
+
+		// https.request({
+		// 	method: 'GET',
+		// 	hostname: 'www.tracerpix.com',
+		// 	path: '/api/order?format=json',
+		// 	// uri: config.REQUESTENDPOINT_LIVE,
+		// 	json: full_order
+	 //    }, function(err, res, body) {
+	 //    	if (!err) {
+		// 		console.log('-------------------------------------');
+		// 		console.log('------- order-' + order.order_number + ' SUBMITTED! -------');
+		// 		console.log('-------------------------------------');
+	 //    	}
+		// 	console.log(err, body);
+		// });
 	}
 };
 
-var order_id = null,
+var ORDER_ID = null,
 	DEBUG = false,
-	PREP = false;
+	PREP = false,
+	FORCE = false,
+	FORCE_MONTH = null,
+	FORCE_DATE = null,
+	ORDER_START = null,
+	ORDER_END = null;
 process.argv.forEach(function (val, index, array) {
 	if (index == 2 && val != null) {
-		order_id = 'order-' + val;
+		if (val.split('-').length > 1) {
+			ORDER_START = parseInt(val.split('-')[0]);
+			ORDER_END = parseInt(val.split('-')[1]);
+			console.log(ORDER_START, ORDER_END);
+		} else {
+			ORDER_ID = 'order-' + val;
+		}
 	}
+
 	if (val == '-debug') {
 		console.log('running in debug mode, no uploading or saving to database');
 		DEBUG = true;
 	}
-	if (val == '-prep') {
+	else if (val == '-prep') {
 		console.log('running in prep mode, uploading to s3 and saving to db, but not pushing to manufacturer');
 		PREP = true;
 	}
+	else if (val == '-force') {
+		console.log('running in force mode, regenerating files');
+		FORCE = true;
+	}
+	else if (val.search("date=") == 0) {
+		FORCE_DATE = val.split("date=")[1];
+		console.log('forcing date', FORCE_DATE);
+	}
 });
 
-getOrderGifs(order_id)
-	.then(makeFullOrderRequest);
+if (ORDER_ID) {
+	getOrderGifs(ORDER_ID)
+		.then(makeFullOrderRequest);
+} else if (ORDER_START && ORDER_END) {
+	for (var i = ORDER_START; i <= ORDER_END; i++) {
+		var makeOrder = function(num) {
+			return function() {
+				getOrderGifs('order-' + num);
+			};
+		};
+		setTimeout(makeOrder(i), (i - ORDER_START) * 30000);
+			// .then(makeFullOrderRequest); // not submitting for now just processing
+	}
+}
