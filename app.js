@@ -700,14 +700,15 @@ app.get('/gifchop/:doc/preview.gif', function(req, res) {
     // d10 is 100ms delay, -l0 is loop infinitely
     // exec("gifsicle --colors=255 -U " + dest + " --resize-width 120 -d10 -l0 " + frames + "  -o " + output, function(err, stdout, stderr) {
     // exec("convert -delay 20 -loop 0 -coalesce " + dest + "[" + doc.frames + "] -adaptive-resize 120x80 " + output, function(err, stdout, stderr) {
-    exec("convert " + dest + " -coalesce " + frameoutput, function(err, stdout, stderr) {
+    exec("gifsicle --colors=255 -U " + dest + " --resize-width 120 -d10 -l0 " + frames + "  -o " + output, function(err, stdout, stderr) {
       if (err) {
         console.log('new error', err);
-      } else {
-        exec("convert " + frameoutput + "[" + doc.frames + "] " + output, function(err, stdout, stderr) {
+        exec("convert " + dest + " -coalesce -resize 120x80 " + frameoutput + "; convert " + frameoutput + "[" + doc.frames + "] " + output, function(err, stdout, stderr) {
           console.log('second error', err);
           res.sendfile(output);
         });
+      } else {
+        res.sendfile(output);
       }
     });
   });
