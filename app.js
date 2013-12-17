@@ -703,7 +703,7 @@ app.get('/gifchop/:doc/preview.gif', function(req, res) {
     exec("gifsicle --colors=255 -U " + dest + " --resize-width 120 -d10 -l0 " + frames + "  -o " + output, function(err, stdout, stderr) {
       if (err) {
         console.log('new error', err);
-        exec("convert " + dest + " -coalesce -resize 120x80 " + frameoutput + "; convert " + frameoutput + "[" + doc.frames + "] " + output, function(err, stdout, stderr) {
+        exec("convert " + dest + " -coalesce " + frameoutput + "; convert " + frameoutput + "[" + doc.frames + "] -scale x76 " + output, function(err, stdout, stderr) {
           console.log('second error', err);
           res.sendfile(output);
         });
