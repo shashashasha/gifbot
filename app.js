@@ -694,11 +694,14 @@ app.get('/gifchop/:doc/preview.gif', function(req, res) {
         end = +selection[selection.length-1],
         frames = "'#" + start + "-" + end + "'",
         framenums = ["frames", start, end].join('-'),
-        output = uploader.getTempFilename(docId, framenums, "gif");
+        output = uploader.getTempFilename(docId, framenums, "gif"),
+        frameoutput = uploader.getTempFilename(docId, "%03d", "jpg");
+        frameinput = uploader.getTempFilename(docId, "*", "jpg");
 
     // d10 is 100ms delay, -l0 is loop infinitely
     // exec("gifsicle --colors=255 -U " + dest + " --resize-width 120 -d10 -l0 " + frames + "  -o " + output, function(err, stdout, stderr) {
-    exec("convert -delay 20 -loop 0 " + dest + "[" + doc.frames + "] -adaptive-resize 120x80 " + output, function(err, stdout, stderr) {
+    // exec("convert -delay 20 -loop 0 -coalesce " + dest + "[" + doc.frames + "] -adaptive-resize 120x80 " + output, function(err, stdout, stderr) {
+    exec("convert " + dest + " -coalesce -adaptive-resize 120x80 " + frameoutput + "; convert " + frameoutput + "[" + doc.frames + "] " + output, function(err, stdout, stderr) {
       if (err) {
         console.log('new error', err);
       } else {
