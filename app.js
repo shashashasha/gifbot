@@ -558,14 +558,15 @@ imageHandler.processVideo = function(url, callback) {
     // exec("ffmpeg -i %s -r 6 -vf scale=240:-1 %s" % (mp4_path, jpg_out)
     // exec("ffmpeg -i " + tempURL + " -t 10 " + output + "%02d.gif");
 
-    exec("ffmpeg -i " + tempURL + " -r 10 -vf scale=640:-1 " + output + "%03d.gif", function(err, stdout, stderr) {
+    exec("ffmpeg -i " + tempURL + " -r 10 -vf scale=640:-1 " + output + "%03d.jpg", function(err, stdout, stderr) {
       if (err) {
         console.log(err);
         return;
       }
 
       var finaloutput = uploader.getTempFilename('', 'videogif', 'gif');
-      exec("gifsicle --delay=10 --loop " + output + "*.gif" + " > " + finaloutput, function(err, stdout, stderr) {
+      // exec("gifsicle --delay=10 --loop " + output + "*.gif" + " > " + finaloutput, function(err, stdout, stderr) {
+      exec("convert -delay 100 -loop 0 " + output + "*.jpg " + finaloutput, function(err, stdout, stderr) {
         if (err) {
           console.log(err);
           return;
@@ -580,6 +581,7 @@ imageHandler.processVideo = function(url, callback) {
 };
 
 imageHandler.grabImage = function(url, dest, callback) {
+
   http.get(url, function(response) {
     console.log("GRABIMAGE: " + url);
     var imagedata = '';
@@ -591,7 +593,7 @@ imageHandler.grabImage = function(url, dest, callback) {
     response.on('end', function() {
       fs.writeFile(dest, imagedata, 'binary', function(err) {
         if (err) {
-          console.log(err);
+          console.log('GRABIMAGE: Write error: ', err);
           return;
         }
 
@@ -659,7 +661,8 @@ app.get('/flipflop/:doc/preview.gif', function(req, res) {
 
     imageHandler.grabImage(doc.url0, tempFilename0, function() {
       imageHandler.grabImage(doc.url1, tempFilename1, function() {
-        exec("convert   -delay 100   -loop 0   -geometry x76 " + tempFile + "*.jpg" + " " + outputFilename, function(err, stdout, stderr) {
+        console.log(tempFile);
+        exec("convert -delay 100 -loop 0 -geometry x76 '" + tempFile + "*.jpg' " + outputFilename, function(err, stdout, stderr) {
           if (err) {
             console.log(err);
             return;
@@ -694,14 +697,13 @@ app.get('/gifchop/:doc/preview.gif', function(req, res) {
         output = uploader.getTempFilename(docId, framenums, "gif");
 
     // d10 is 100ms delay, -l0 is loop infinitely
-    // --colors=255 -U
-    exec("gifsicle " + dest + " --resize-width 120 -d10 -l0 " + frames + "  -o " + output, function(err, stdout, stderr) {
+    // exec("gifsicle --colors=255 -U " + dest + " --resize-width 120 -d10 -l0 " + frames + "  -o " + output, function(err, stdout, stderr) {
+    exec("convert -delay 20 -loop 0 " + dest + "[" + doc.frames + "] -adaptive-resize 120x80 " + output, function(err, stdout, stderr) {
       if (err) {
-        console.log(err);
-        return;
+        console.log('new error', err);
+      } else {
+        res.sendfile(output);
       }
-
-      res.sendfile(output);
     });
   });
 });
