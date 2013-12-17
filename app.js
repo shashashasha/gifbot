@@ -694,7 +694,8 @@ app.get('/gifchop/:doc/preview.gif', function(req, res) {
         output = uploader.getTempFilename(docId, framenums, "gif");
 
     // d10 is 100ms delay, -l0 is loop infinitely
-    exec("gifsicle -U " + dest + " --resize-width 120 -d10 -l0 " + frames + "  -o " + output, function(err, stdout, stderr) {
+    // --colors=255 -U
+    exec("gifsicle " + dest + " --resize-width 120 -d10 -l0 " + frames + "  -o " + output, function(err, stdout, stderr) {
       if (err) {
         console.log(err);
         return;
