@@ -67,7 +67,7 @@ var getOrderGifs = function(order_id) {
 					type: product_name == 'FLIP FLOP' ? 'flipflop' : 'gifchop',
 					effect: product_name == 'FLIP FLOP' ? '2FLIP' : 'MOVIE'
 				});
-			} else if (variant == '3&#189; x 3&#189;\"' || variant == '10x10\"' || variant == '10 x 10"') {
+			} else if (variant == '3&#189; x 3&#189;\"' || variant == '10x10\"' || variant == '10 x 10"' || variant == '10x10"') {
 				console.log(order_id, 'artist gif!');
 				var artist_size = variant == '3&#189; x 3&#189;\"' ? 'Artist Small' : 'Artist Large';
 
@@ -88,14 +88,21 @@ var getOrderGifs = function(order_id) {
 			}
 		});
 
-		processGifs(gifs, order).then(function(results) {
-			console.log(order_id, 'processed order\n');
+		if (!gifs.length) {
+			console.log('no line items', order.line_items.length);
 			deferred.resolve({
-				gifs: gifs,
-				order: order,
-				docs: results
+				id: order_id
 			});
-		});
+		} else {
+			processGifs(gifs, order).then(function(results) {
+				console.log(order_id, 'processed order\n');
+				deferred.resolve({
+					gifs: gifs,
+					order: order,
+					docs: results
+				});
+			});
+		}
 	});
 
 	return deferred.promise;
@@ -317,6 +324,7 @@ var chopGif = function(doc) {
 		size = getSize(doc.size),
 		mkdir = "mkdir processing/frames/{folder}; mkdir processing/renamedframes/{folder};".replace("{folder}", fileroot).replace("{folder}", fileroot),
     	cmd = "convert ./processing/images/{input} -coalesce -adaptive-resize {size} -quality 90% 'processing/frames/{output}/%03d.jpg'",
+    	// cmd = "convert ./processing/images/{input} -coalesce -quality 90% 'processing/frames/{output}/%03d.jpg'", // no resize
     	makegif = 'convert ./processing/frames/{folder}/%03d.jpg[{frames}] ./processing/choppt/{output}.gif; {cp_exec}';
 
     var cmd_exec = mkdir + cmd.replace("{input}", getFilename(doc, 'gif'))
@@ -488,6 +496,7 @@ var getProductId = function(size) {
 
 	switch (realsize) {
 		case 'Business Card':
+		case 'Business Card 10+':
 			return "AA10110A3";
 		case 'Postcard 2+':
 		case 'Postcard ':
@@ -508,6 +517,7 @@ var getProductId = function(size) {
 		case 'Artist Large':
 		case 'Artist Print':
 		case '10 x 10\"':
+		case '10 x 10"':
 			return "AAT01A003"
 
 		case 'Small Square':
@@ -538,6 +548,10 @@ var getShippingMethod = function(order) {
 };
 
 var makeFullOrderRequest = function(order_details) {
+	if (!order_details.gifs) {
+		console.log(order_details.id, 'ended before making request');
+		return;
+	}
 	var gifs = order_details.gifs,
 		order = order_details.order,
 		docs = order_details.docs,
@@ -546,7 +560,7 @@ var makeFullOrderRequest = function(order_details) {
 	var full_order = config.REQUEST;
 
 	full_order.requestId = new Date().getTime();
-	full_order.orderId = "order-" + order.order_number;
+	full_order.orderId = "order-" + order.order_number; // + 'a'; // add for resubmissions
 
 	full_order.orderDate = order.created_at;
 	full_order.orderLineItems = [];
@@ -555,12 +569,6 @@ var makeFullOrderRequest = function(order_details) {
 	gifs.forEach(function(gif, i) {
 		var amazon_url = 'http://' + config.S3Bucket + '/' + getCurrentUploadFolder() + gif.order_id + '_' + gif.id,
 			thumbnail_url = 'http://gifbot.gifpop.io/' + gif.type + '/' + gif.id + '/preview.gif';
-
-		if (gif.type == 'artist') {
-			amazon_url =     artist_info[gif.artist.toUpperCase()][gif.id];
-			thumbnail_url =  artist_info[gif.artist.toUpperCase()][gif.thumb];
-			console.log(gif.thumb, gif.id);
-		}
 
 		var item = {
 			lineId: gif.id,
@@ -575,8 +583,14 @@ var makeFullOrderRequest = function(order_details) {
 		if (gif.type == 'flipflop') {
 			item.picture0 = amazon_url + '_000.jpg';
 			item.picture1 = amazon_url + '_001.jpg';
-		} else {
+		} else if (gif.type == 'gifchop' ) {
 			item.pictures = amazon_url + '.zip';
+		} else if (gif.type == 'artist') {
+			item.pictures  = artist_info[gif.artist.toUpperCase()][gif.id];
+			item.thumbnail = artist_info[gif.artist.toUpperCase()][gif.thumb];
+			console.log(gif.thumb, gif.id);
+		} else {
+			console.log('UNKNOWN ORDER TYPE!');
 		}
 
 		full_order.orderLineItems.push(item);
@@ -675,10 +689,11 @@ if (ORDER_ID) {
 	for (var i = ORDER_START; i <= ORDER_END; i++) {
 		var makeOrder = function(num) {
 			return function() {
-				getOrderGifs('order-' + num);
+				getOrderGifs('order-' + num)
+					.then(makeFullOrderRequest);
 			};
 		};
-		setTimeout(makeOrder(i), (i - ORDER_START) * 30000);
+		setTimeout(makeOrder(i), (i - ORDER_START) * 60000);
 			// .then(makeFullOrderRequest); // not submitting for now just processing
 	}
 }
