@@ -38,7 +38,7 @@ var getOrderGifs = function(order_id) {
 		}
 
 		if (order.note != '') {
-			console.log("has note!");
+			console.log("has note:", order.note);
 			return;
 		}
 
@@ -323,15 +323,16 @@ var chopGif = function(doc) {
     var fileroot = doc.order_id + '_' + doc._id,
 		size = getSize(doc.size),
 		mkdir = "mkdir processing/frames/{folder}; mkdir processing/renamedframes/{folder};".replace("{folder}", fileroot).replace("{folder}", fileroot),
-    	cmd = "convert ./processing/images/{input} -coalesce -adaptive-resize {size} -quality 90% 'processing/frames/{output}/%03d.jpg'",
+    	cmd = "convert ./processing/images/{input} -coalesce -background white -alpha Remove -adaptive-resize {size} -quality 90% {border} 'processing/frames/{output}/%03d.jpg'",
     	// cmd = "convert ./processing/images/{input} -coalesce -quality 90% 'processing/frames/{output}/%03d.jpg'", // no resize
     	makegif = 'convert ./processing/frames/{folder}/%03d.jpg[{frames}] ./processing/choppt/{output}.gif; {cp_exec}';
 
     var cmd_exec = mkdir + cmd.replace("{input}", getFilename(doc, 'gif'))
     					.replace("{size}", size)
-    					.replace("{output}", fileroot);
+    					.replace("{output}", fileroot)
+						.replace("{border}", BORDER_VALUE ? '-bordercolor black -border ' + BORDER_VALUE + 'x' + BORDER_VALUE : '');
 
-    console.log('>>>> chopping:\t\t', fileroot);
+    console.log('>>>> chopping:\t\t', cmd_exec);
     exec(cmd_exec, function(err, stdout, stderr) {
     	var gif_exec = makegif.replace("{folder}", fileroot)
 					    	.replace("{folder}", fileroot)
@@ -536,6 +537,7 @@ var getShippingMethod = function(order) {
 		var code = order.shipping_lines[0].code;
 		switch (code) {
 			case '2 Day':
+			case "Fedex International Shipping, 2-3 Days":
 				return '2day';
 			case 'Priority':
 				return 'priority';
@@ -560,7 +562,7 @@ var makeFullOrderRequest = function(order_details) {
 	var full_order = config.REQUEST;
 
 	full_order.requestId = new Date().getTime();
-	full_order.orderId = "order-" + order.order_number; // + 'a'; // add for resubmissions
+	full_order.orderId = "order-" + order.order_number + FORCE_SUFFIX;
 
 	full_order.orderDate = order.created_at;
 	full_order.orderLineItems = [];
@@ -624,8 +626,17 @@ var makeFullOrderRequest = function(order_details) {
 				console.log('-------------------------------------');
 				console.log('------- order-' + order.order_number + ' SUBMITTED! -------');
 				console.log('-------------------------------------');
+
+				var csv = [];
+				csv.push('\n' + full_order.orderId);
+				csv.push(full_order.orderLineItems.length + ' line items');
+				csv.push(getCurrentUploadFolder());
+				csv.push(full_order.requestId);
+				csv.push(body.desc);
+				fs.appendFile('processing/render_logs.txt', csv.join(','), function (err) { });
 	    	}
 			console.log(err, body);
+
 		});
 
 		// https.request({
@@ -651,6 +662,8 @@ var ORDER_ID = null,
 	FORCE = false,
 	FORCE_MONTH = null,
 	FORCE_DATE = null,
+	FORCE_SUFFIX = '',
+	BORDER_VALUE = null,
 	ORDER_START = null,
 	ORDER_END = null;
 process.argv.forEach(function (val, index, array) {
@@ -679,6 +692,12 @@ process.argv.forEach(function (val, index, array) {
 	else if (val.search("date=") == 0) {
 		FORCE_DATE = val.split("date=")[1];
 		console.log('forcing date', FORCE_DATE);
+	} else if (val.search("suffix=") == 0) {
+		FORCE_SUFFIX = val.split("suffix=")[1];
+		console.log('forcing suffix', FORCE_SUFFIX);
+	} else if (val.search("border=") == 0) {
+		BORDER_VALUE = val.split("border=")[1];
+		console.log('adding a black border of ', BORDER_VALUE);
 	}
 });
 

@@ -36,7 +36,7 @@ var gifchopper = function() {
       // skip to selected state if there are less than 10 frames
       if (self.controller.length() <= 10) {
         start = 0;
-        stop = self.controller.length() - 1;
+        stop = self.controller.length();
         centerSelection(0);
         $("#finalize-text").html("Bask in your gif, then hit")
       }
@@ -74,6 +74,7 @@ var gifchopper = function() {
         j++;
       }
 
+      console.log(frames);
       return frames;
   };
 
@@ -166,7 +167,7 @@ var gifchopper = function() {
       }
 
       // cap them still just in case we have less than 10 frames
-      stop = Math.min(length - 1, stop);
+      stop = Math.min(length < 10 ? length : length - 1, stop);
       start = Math.max(0, start);
 
       drawSelection();
