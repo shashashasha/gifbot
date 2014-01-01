@@ -291,21 +291,30 @@ var downloadGif = function(doc) {
 };
 
 var getTenFrames = function(doc, folder) {
-	var frames = doc.frames.split(','),
+	var oldframes = doc.frames.split(','),
+		frames = [],
 		front = true,
 		offset = 0,
 		cp = [];
 
-	while (frames.length < 10) {
-		if (front) {
-			frames.splice(offset, 0, frames[offset]);
-		} else {
-			var end = frames.length - 1 - offset;
-			frames.splice(end, 0, frames[end]);
-			offset++;
-		}
-		front = !front;
+	// while (frames.length < 10) {
+	// 	if (front) {
+	// 		frames.splice(offset, 0, frames[offset]);
+	// 	} else {
+	// 		var end = frames.length - 1 - offset;
+	// 		frames.splice(end, 0, frames[end]);
+	// 		offset++;
+	// 	}
+	// 	front = !front;
+	// }
+
+	// round the frames
+	console.log('found', oldframes);
+	for (var j = 0; j < 10; j++) {
+		var roundedIndex = Math.floor((j / 10) * oldframes.length);
+		frames.push(oldframes[roundedIndex]);
 	}
+	console.log('padded to', frames);
 
 	for (var i = 0; i < frames.length; i++) {
 		cp.push('cp processing/frames/' + folder + '/' + getPad(frames[i], 3) + '.jpg processing/renamedframes/' + folder + '/' + getPad(i, 3) + '.jpg');
@@ -323,14 +332,16 @@ var chopGif = function(doc) {
     var fileroot = doc.order_id + '_' + doc._id,
 		size = getSize(doc.size),
 		mkdir = "mkdir processing/frames/{folder}; mkdir processing/renamedframes/{folder};".replace("{folder}", fileroot).replace("{folder}", fileroot),
-    	cmd = "convert ./processing/images/{input} -coalesce -background white -alpha Remove -adaptive-resize {size} -quality 90% {border} 'processing/frames/{output}/%03d.jpg'",
+		// if we want a custom background use hex like -background '#f1f7f7'
+    	cmd = "convert ./processing/images/{input} -coalesce -background white -alpha Remove -adaptive-resize {size} -quality 90% {rotate} {border} 'processing/frames/{output}/%03d.jpg'",
     	// cmd = "convert ./processing/images/{input} -coalesce -quality 90% 'processing/frames/{output}/%03d.jpg'", // no resize
     	makegif = 'convert ./processing/frames/{folder}/%03d.jpg[{frames}] ./processing/choppt/{output}.gif; {cp_exec}';
 
     var cmd_exec = mkdir + cmd.replace("{input}", getFilename(doc, 'gif'))
     					.replace("{size}", size)
     					.replace("{output}", fileroot)
-						.replace("{border}", BORDER_VALUE ? '-bordercolor black -border ' + BORDER_VALUE + 'x' + BORDER_VALUE : '');
+    					.replace("{rotate}", ROTATE ? '-rotate 90' : '')
+							.replace("{border}", BORDER_VALUE ? '-bordercolor black -border ' + BORDER_VALUE + 'x' + BORDER_VALUE : '');
 
     console.log('>>>> chopping:\t\t', cmd_exec);
     exec(cmd_exec, function(err, stdout, stderr) {
@@ -659,6 +670,7 @@ var makeFullOrderRequest = function(order_details) {
 var ORDER_ID = null,
 	DEBUG = false,
 	PREP = false,
+	ROTATE = false,
 	FORCE = false,
 	FORCE_MONTH = null,
 	FORCE_DATE = null,
@@ -688,6 +700,10 @@ process.argv.forEach(function (val, index, array) {
 	else if (val == '-force') {
 		console.log('running in force mode, regenerating files');
 		FORCE = true;
+	}
+	else if (val == '-rotate') {
+		console.log('rotating 90 degrees');
+		ROTATE = true;
 	}
 	else if (val.search("date=") == 0) {
 		FORCE_DATE = val.split("date=")[1];
