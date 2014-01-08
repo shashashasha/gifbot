@@ -114,6 +114,14 @@ var processGifs = function(gifs, order) {
 
 	var resultsToProcess = [];
 	gifs.forEach(function(gif, i) {
+		if (ONLY_LINEID && gif.id != ONLY_LINEID) {
+			return;
+		}
+
+		if (ONLY_SELFMADE && gif.type == 'artist') {
+			return;
+		}
+
 		resultsToProcess.push(processRow(gif));
 	});
 
@@ -583,6 +591,13 @@ var makeFullOrderRequest = function(order_details) {
 		var amazon_url = 'http://' + config.S3Bucket + '/' + getCurrentUploadFolder() + gif.order_id + '_' + gif.id,
 			thumbnail_url = 'http://gifbot.gifpop.io/' + gif.type + '/' + gif.id + '/preview.gif';
 
+		if (ONLY_LINEID != null && gif.id != ONLY_LINEID) {
+			return;
+		}
+		if (ONLY_SELFMADE && gif.type == 'artist') {
+			return;
+		}
+
 		var item = {
 			lineId: gif.id,
 			productId: getProductId(gif.size),
@@ -671,6 +686,8 @@ var ORDER_ID = null,
 	DEBUG = false,
 	PREP = false,
 	ROTATE = false,
+	ONLY_LINEID = null,
+	ONLY_SELFMADE = null,
 	FORCE = false,
 	FORCE_MONTH = null,
 	FORCE_DATE = null,
@@ -704,6 +721,14 @@ process.argv.forEach(function (val, index, array) {
 	else if (val == '-rotate') {
 		console.log('rotating 90 degrees');
 		ROTATE = true;
+	}
+	else if (val == '-noartist') {
+		console.log('not submitting artist prints');
+		ONLY_SELFMADE = true;
+	}
+	else if (val.search("lineid=") == 0) {
+		ONLY_LINEID = val.split("lineid=")[1];
+		console.log('only processing lineid', ONLY_LINEID);
 	}
 	else if (val.search("date=") == 0) {
 		FORCE_DATE = val.split("date=")[1];
