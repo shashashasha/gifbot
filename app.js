@@ -147,6 +147,15 @@ app.get('/process-url/', function(req, res) {
           if (videoURL.charAt(0) == '/') {
             videoURL = 'http:' + videoURL;
           }
+          else {
+            videoURL = videoURL.replace('https', 'http');
+          }
+
+          if (!videoURL) {
+            console.log('ERROR: no vine source?');
+            res.json({ success: "false", error  : "no-image-type" });
+            return;
+          }
 
           imageHandler.processVideo(videoURL, function(tempURL) {
             uploader.saveAndGifChop(tempURL, 'vine', res);
@@ -167,6 +176,7 @@ app.get('/process-url/', function(req, res) {
                && meta[key].attribs.property
                && meta[key].attribs.property === 'og:video') {
               videoURL = meta[key].attribs.content;
+              videoURL = videoURL.replace('https', 'http');
             }
           });
 
