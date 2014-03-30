@@ -483,6 +483,9 @@ var getSize = function(size) {
 		case 'Portrait Postcard':
 			return "1050x1500^";
 
+		case 'Artist Large':
+			return "3000x3000^";
+
 		case 'Large Square':
 			return "1500x1500^";
 
@@ -516,9 +519,10 @@ var getProductId = function(size) {
 
 	switch (realsize) {
 		case 'Business Card':
-		case 'Business Card 10+':
 			return "AA10110A3";
-		case 'Postcard 2+':
+		case 'Portrait Business Card':
+			return "AA10110A31";
+
 		case 'Postcard ':
 		case 'Postcard':
 		case 'Landscape Postcard':
@@ -556,9 +560,11 @@ var getShippingMethod = function(order) {
 		var code = order.shipping_lines[0].code;
 		switch (code) {
 			case '2 Day':
+			case 'Fedex 2-Day':
 			case "Fedex International Shipping, 2-3 Days":
 				return '2day';
 			case 'Priority':
+			case 'USPS Priority — With Tracking Number':
 				return 'priority';
 			case 'Overnight':
 				return 'overnight';
@@ -613,6 +619,7 @@ var makeFullOrderRequest = function(order_details) {
 			item.picture1 = amazon_url + '_001.jpg';
 		} else if (gif.type == 'gifchop' ) {
 			item.pictures = amazon_url + '.zip';
+			// item.thumbnail = amazon_url + '.jpg'; // just for this one bulk run
 		} else if (gif.type == 'artist') {
 			item.pictures  = artist_info[gif.artist.toUpperCase()][gif.id];
 			item.thumbnail = artist_info[gif.artist.toUpperCase()][gif.thumb];

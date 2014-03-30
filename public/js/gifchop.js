@@ -74,7 +74,6 @@ var gifchopper = function() {
         j++;
       }
 
-      console.log(frames);
       return frames;
   };
 
@@ -167,7 +166,7 @@ var gifchopper = function() {
       }
 
       // cap them still just in case we have less than 10 frames
-      stop = Math.min(length < 10 ? length : length - 1, stop);
+      stop = Math.min(length <= 10 ? length : length - 1, stop);
       start = Math.max(0, start);
 
       drawSelection();
