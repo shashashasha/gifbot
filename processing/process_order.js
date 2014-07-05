@@ -204,8 +204,8 @@ var downloadImages = function(doc) {
 	var deferred = Q.defer();
 
 	var tempimages = 'processing/renamedframes/' + doc.order_id + '_' + doc._id,
-		filename0 = './' + tempimages + '/frame0.' + doc.url0.split('.').pop(),
-		filename1 = './' + tempimages + '/frame1.' + doc.url1.split('.').pop();
+		filename0 = './' + tempimages + '/000.' + doc.url0.split('.').pop(),
+		filename1 = './' + tempimages + '/001.' + doc.url1.split('.').pop();
 
 	console.log('>>>> made directory:\t', tempimages);
 	exec('mkdir ' + tempimages, function(err, stdout, stderr) {
