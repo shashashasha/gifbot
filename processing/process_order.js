@@ -2,8 +2,6 @@ var gm = require('gm')
   , fs = require('fs')
   , config = JSON.parse(fs.readFileSync('./settings.json'))
   , artist_info = JSON.parse(fs.readFileSync('./artists.json'))
-
-  // , process = require('process')
   , path = require('path')
   , http = require('http')
   , https = require('https')
@@ -67,9 +65,26 @@ var getOrderGifs = function(order_id) {
 					type: product_name == 'FLIP FLOP' ? 'flipflop' : 'gifchop',
 					effect: product_name == 'FLIP FLOP' ? '2FLIP' : 'MOVIE'
 				});
-			} else if (variant == '3&#189; x 3&#189;\"' || variant == '10x10\"' || variant == '10 x 10"' || variant == '10x10"') {
+			} else {
 				console.log(order_id, 'artist gif!');
-				var artist_size = variant == '3&#189; x 3&#189;\"' ? 'Artist Small' : 'Artist Large';
+
+				var artist_size = 'Artist Large';
+				switch (variant) {
+					case 'Large Square':
+					case '5x5\"':
+						artist_size = 'Large Square';
+						break;
+
+					case '3&#189; x 3&#189;\"':
+						artist_size = 'Artist Small';
+						break;
+
+					case '10x10\"':
+					case '10 x 10"':
+					case '10x10"':
+						artist_size = 'Artist Large';
+						break;
+				}
 
 				gifs.push({
 					order_id: order_id,
@@ -82,9 +97,6 @@ var getOrderGifs = function(order_id) {
 					type: 'artist',
 					effect: 'MOVIE'
 				});
-
-			} else {
-				console.log(order_id, 'doc-id not found');
 			}
 		});
 
@@ -173,7 +185,6 @@ var processRow = function(row) {
 			console.log('>>>> processing as flipflop');
 			downloadImages(doc)
 				.then(processFlip)
-				// .then(uploadZip)
 				.then(uploadFlip)
 				.then(saveDoc);
 		} else {
@@ -305,17 +316,6 @@ var getTenFrames = function(doc, folder) {
 		offset = 0,
 		cp = [];
 
-	// while (frames.length < 10) {
-	// 	if (front) {
-	// 		frames.splice(offset, 0, frames[offset]);
-	// 	} else {
-	// 		var end = frames.length - 1 - offset;
-	// 		frames.splice(end, 0, frames[end]);
-	// 		offset++;
-	// 	}
-	// 	front = !front;
-	// }
-
 	// round the frames
 	console.log('found', oldframes);
 	for (var j = 0; j < 10; j++) {
@@ -327,7 +327,7 @@ var getTenFrames = function(doc, folder) {
 	for (var i = 0; i < frames.length; i++) {
 		cp.push('cp processing/frames/' + folder + '/' + getPad(frames[i], 3) + '.jpg processing/renamedframes/' + folder + '/' + getPad(i, 3) + '.jpg');
 	}
-	// console.log(cp);
+
 	return cp.join(';');
 };
 /*
@@ -349,7 +349,8 @@ var chopGif = function(doc) {
     					.replace("{size}", size)
     					.replace("{output}", fileroot)
     					.replace("{rotate}", ROTATE ? '-rotate 90' : '')
-							.replace("{border}", BORDER_VALUE ? '-bordercolor black -border ' + BORDER_VALUE + 'x' + BORDER_VALUE : '');
+    					// -bordercolor can be #fef6e5 for hex
+							.replace("{border}", BORDER_VALUE ? '-bordercolor "#ffffff" -border ' + 100 + 'x' + BORDER_VALUE : '');
 
     console.log('>>>> chopping:\t\t', cmd_exec);
     exec(cmd_exec, function(err, stdout, stderr) {
@@ -384,14 +385,10 @@ var zipGifChop = function(doc) {
 		size = getSize(doc.size);
 
 	// in case we want to change the frames in the admin, we don't assume ranges here
-    var frames = doc.frames.split(','),
-    	selection = '',
-    	i = 0;
+  var frames = doc.frames.split(','),
+  	selection = '',
+  	i = 0;
 
-    // frames.forEach(function(frame) {
-    // 	selection += getPad(i, 3) + '.jpg ';
-    // 	i++;
-    // });
 	for (var j = 0; j < 10; j++) {
 		selection += getPad(j, 3) + '.jpg ';
 	}
@@ -483,6 +480,7 @@ var getSize = function(size) {
 		case 'Portrait Postcard':
 			return "1050x1500^";
 
+		case 'Artist Print':
 		case 'Artist Large':
 			return "3000x3000^";
 
@@ -532,6 +530,7 @@ var getProductId = function(size) {
 			return "AA20110A31";
 
 		case 'Large Square':
+		case '5x5\"':
 			return "AAS01A003";
 
 		case 'Artist Small':
@@ -619,7 +618,7 @@ var makeFullOrderRequest = function(order_details) {
 			item.picture1 = amazon_url + '_001.jpg';
 		} else if (gif.type == 'gifchop' ) {
 			item.pictures = amazon_url + '.zip';
-			// item.thumbnail = amazon_url + '.jpg'; // just for this one bulk run
+			// item.thumbnail = amazon_url + '.jpg'; // just for bulk_process.js
 		} else if (gif.type == 'artist') {
 			item.pictures  = artist_info[gif.artist.toUpperCase()][gif.id];
 			item.thumbnail = artist_info[gif.artist.toUpperCase()][gif.thumb];

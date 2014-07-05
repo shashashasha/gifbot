@@ -153,7 +153,7 @@ var saveUpload = function(card) {
     source: 'frames',
     job_name: card.job_name,
     order_id: card.order_id,
-    size: 'Portrait Postcard',
+    size: 'Artist Large',
     frames: card.frames.join(','),
     url: card.url,
     zip_url: card.zip_url
@@ -163,7 +163,7 @@ var saveUpload = function(card) {
        "fulfillment_service": "manual",
        "fulfillment_status": null,
        "grams": 227,
-       "id": 438875797,
+       "id": 451324909,
        "price": "15.00",
        "product_id": 118058266,
        "quantity": 1,
@@ -171,15 +171,15 @@ var saveUpload = function(card) {
        "sku": "",
        "taxable": false,
        "title": "GIF CHOP",
-       "variant_id": 428647353,
-       "variant_title": "Portrait Postcard",
+       "variant_id": 281911490,
+       "variant_title": "Artist Large",
        "vendor": "shabinx",
-       "name": "GIF CHOP - Portrait Postcard",
+       "name": "GIF CHOP - Artist Large",
        "variant_inventory_management": "",
        "properties": [
            {
                "name": "doc-id",
-               "value": "user_1395520549174_K3H5IwQXSxCeoJtlKDXQ"
+               "value": "user_1396826228908_AzkIm1PJTyOPnSsxtDLM"
            }
        ],
        "product_exists": true,
