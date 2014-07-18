@@ -593,8 +593,14 @@ var makeFullOrderRequest = function(order_details) {
 
 	// attach all gifpop product information
 	gifs.forEach(function(gif, i) {
+
 		var amazon_url = 'http://' + config.S3Bucket + '/' + getCurrentUploadFolder() + gif.order_id + '_' + gif.id,
+
+			// default thumbnail url generation
 			thumbnail_url = 'http://gifbot.gifpop.io/' + gif.type + '/' + gif.id + '/preview.gif';
+
+			// just with bulk_process_flip.js
+			// thumbnail_url = amazon_url + '_000.jpg';
 
 		if (ONLY_LINEID != null && gif.id != ONLY_LINEID) {
 			return;
