@@ -350,7 +350,7 @@ var chopGif = function(doc) {
     					.replace("{output}", fileroot)
     					.replace("{rotate}", ROTATE ? '-rotate 90' : '')
     					// -bordercolor can be #fef6e5 for hex
-							.replace("{border}", BORDER_VALUE ? '-bordercolor "#ffffff" -border ' + 100 + 'x' + BORDER_VALUE : '');
+							.replace("{border}", BORDER_VALUE ? '-bordercolor "#ffffff" -border ' + BORDER_VALUE + 'x' + 100 : '');
 
     console.log('>>>> chopping:\t\t', cmd_exec);
     exec(cmd_exec, function(err, stdout, stderr) {
