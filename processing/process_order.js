@@ -134,6 +134,13 @@ var processGifs = function(gifs, order) {
 			return;
 		}
 
+		// only process a few line_item's at a time, only use this while -prep'ing
+		if (LINE_ITEM_START !== undefined && LINE_ITEM_END !== undefined) {
+			if (i < LINE_ITEM_START || i > LINE_ITEM_END) {
+				return;
+			}
+		}
+
 		resultsToProcess.push(processRow(gif));
 	});
 
@@ -751,6 +758,11 @@ process.argv.forEach(function (val, index, array) {
 	} else if (val.search("border=") == 0) {
 		BORDER_VALUE = val.split("border=")[1];
 		console.log('adding a black border of ', BORDER_VALUE);
+	} else if (val.search("line_item_range=") == 0) {
+		var range = val.split('=')[1].split('-');
+		LINE_ITEM_START = +range[0];
+		LINE_ITEM_END = +range[1];
+		console.log('only processing ', LINE_ITEM_START, 'to', LINE_ITEM_END);
 	}
 });
 
