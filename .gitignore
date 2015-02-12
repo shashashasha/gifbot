@@ -13,6 +13,11 @@ pids
 logs
 results
 
+processing/choppt
+processing/frames
+processing/images
+processing/renamedframes
+
 npm-debug.log
 
 node_modules
