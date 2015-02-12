@@ -86,6 +86,9 @@ var getOrderGifs = function(order_id) {
 						break;
 				}
 
+				console.log('product_id', item.product_id, item.title);
+				console.log(artist_info[item.title.toUpperCase()]['print_' + item.product_id]);
+
 				gifs.push({
 					order_id: order_id,
 					id: 'print_' + item.product_id,
@@ -135,7 +138,7 @@ var processGifs = function(gifs, order) {
 		}
 
 		// only process a few line_item's at a time, only use this while -prep'ing
-		if (LINE_ITEM_START !== undefined && LINE_ITEM_END !== undefined) {
+		if (LINE_ITEM_START !== null && LINE_ITEM_END !== null) {
 			if (i < LINE_ITEM_START || i > LINE_ITEM_END) {
 				return;
 			}
@@ -161,6 +164,7 @@ var processRow = function(row) {
 
 	db.get(row.id, function(err, doc) {
 		// keep track of the size with the gif doc
+		console.log(doc.order_id + ' - ' + doc._id);
 		doc.size = row.size;
 		doc.status = 'ordered';
 		doc.order_id = row.order_id;
@@ -357,7 +361,7 @@ var chopGif = function(doc) {
     					.replace("{output}", fileroot)
     					.replace("{rotate}", ROTATE ? '-rotate 90' : '')
     					// -bordercolor can be #fef6e5 for hex
-							.replace("{border}", BORDER_VALUE ? '-bordercolor "#ffffff" -border ' + BORDER_VALUE + 'x' + 100 : '');
+							.replace("{border}", BORDER_VALUE ? '-bordercolor "#E1D7CC" -border ' + BORDER_VALUE + 'x' + BORDER_VALUE : '');
 
     console.log('>>>> chopping:\t\t', cmd_exec);
     exec(cmd_exec, function(err, stdout, stderr) {
@@ -600,11 +604,12 @@ var makeFullOrderRequest = function(order_details) {
 
 	// attach all gifpop product information
 	gifs.forEach(function(gif, i) {
-
 		var amazon_url = 'http://' + config.S3Bucket + '/' + getCurrentUploadFolder() + gif.order_id + '_' + gif.id,
 
 			// default thumbnail url generation
 			thumbnail_url = 'http://gifbot.gifpop.io/' + gif.type + '/' + gif.id + '/preview.gif';
+			// can also hack to just grab the image url instead of forcing the server to do work
+			// thumbnail_url = docs[i].url;
 
 			// just with bulk_process_flip.js
 			// thumbnail_url = amazon_url + '_000.jpg';
@@ -612,12 +617,12 @@ var makeFullOrderRequest = function(order_details) {
 		if (ONLY_LINEID != null && gif.id != ONLY_LINEID) {
 			return;
 		}
-		if (ONLY_SELFMADE && gif.type == 'artist') {
+		if (ONLY_SELFMADE != null && gif.type == 'artist') {
 			return;
 		}
 
 		var item = {
-			lineId: gif.id,
+			lineId: gif.id + gif.size.toLowerCase().split(' ').join(''),
 			productId: getProductId(gif.size),
 			productInfo: gif.size,
 			productName: gif.product_name,
@@ -713,7 +718,9 @@ var ORDER_ID = null,
 	FORCE_SUFFIX = '',
 	BORDER_VALUE = null,
 	ORDER_START = null,
-	ORDER_END = null;
+	ORDER_END = null,
+	LINE_ITEM_START = null,
+	LINE_ITEM_END = null;
 process.argv.forEach(function (val, index, array) {
 	if (index == 2 && val != null) {
 		if (val.split('-').length > 1) {
