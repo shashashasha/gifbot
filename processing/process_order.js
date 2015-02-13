@@ -243,26 +243,18 @@ var processFlip = function(doc) {
 	var deferred = Q.defer();
 	var fileroot = doc.order_id + '_' + doc._id,
 		size = getSize(doc.size),
-		input = 'processing/renamedframes/' + fileroot + '/frame*',
+		input = 'processing/renamedframes/' + fileroot + '/*',
 		output = 'processing/renamedframes/' + fileroot + '/%03d.jpg',
-		cmd = "convert {input} -adaptive-resize {size} -quality 90% {output}",
+		cmd = "convert {input} {rotate} -adaptive-resize {size} -quality 90% {output}",
 		cmd_exec = cmd.replace("{folder}", 'processing/renamedframes/' + fileroot)
 						.replace("{input}", input)
 						.replace("{output}", output)
+  					.replace("{rotate}", ROTATE ? '-rotate 90' : '')
 						.replace("{size}", "'" + size + "'");
 
-	console.log('>>>> exporting frames:\t', fileroot);
+	console.log('>>>> exporting frames:\t', cmd_exec);
 	exec(cmd_exec, function(err, stdout, stderr) {
 		deferred.resolve(doc);
-		// var zip = "cd {folder}; zip {output} {input}",
-		// 	zip_exec = zip.replace("{folder}", 'processing/renamedframes/' + fileroot)
-		// 					.replace("{output}", getFilename(doc, 'zip'))
-		// 					.replace("{input}", "flip*.jpg");
-
-		// console.log('>>>> zipping:\t\t', fileroot);
-		// exec(zip_exec, function(err, stdout, stderr) {
-		// 	deferred.resolve(doc);
-		// });
 	});
 
 	return deferred.promise;
