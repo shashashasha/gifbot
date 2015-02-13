@@ -112,8 +112,12 @@ var saveOrderToCouch = function(order) {
 };
 
 process.argv.forEach(function (val, index, array) {
-	if (index == 2 && val != null) {
+	if (index == 2 && val !== null) {
 		console.log("loading shopify orders page", val);
 		getOrderGifsFromShopify(val);
+	}
+	if (index == 0) {
+		console.log("no page specified, loading first page of orders");
+		getOrderGifsFromShopify(1);
 	}
 });
