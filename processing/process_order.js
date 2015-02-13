@@ -598,10 +598,17 @@ var makeFullOrderRequest = function(order_details) {
 	gifs.forEach(function(gif, i) {
 		var amazon_url = 'http://' + config.S3Bucket + '/' + getCurrentUploadFolder() + gif.order_id + '_' + gif.id,
 
-			// default thumbnail url generation
-			// thumbnail_url = 'http://gifbot.gifpop.io/' + gif.type + '/' + gif.id + '/preview.gif';
-			// can also hack to just grab the image url instead of forcing the server to do work
-			thumbnail_url = docs[i].url;
+			// STATIC_THUMBNAILS flag
+			// Setting this to true means that we bypass the dynamic thumbnail
+			// generation and just use the url of the uploaded asset as the thumbnail
+			// to send to the manufacturer. This is helpful for large gifs that
+			// are expensive to process dynamically or large batch orders that can
+			// clog the manufacturer's pipeline.
+			if (STATIC_THUMBNAILS) {
+				thumbnail_url = docs[i].url;
+			} else {
+				thumbnail_url = 'http://gifbot.gifpop.io/' + gif.type + '/' + gif.id + '/preview.gif';
+			}
 
 			// just with bulk_process_flip.js
 			// thumbnail_url = amazon_url + '_000.jpg';
@@ -680,21 +687,6 @@ var makeFullOrderRequest = function(order_details) {
 			console.log(err, body);
 
 		});
-
-		// https.request({
-		// 	method: 'GET',
-		// 	hostname: 'www.tracerpix.com',
-		// 	path: '/api/order?format=json',
-		// 	// uri: config.REQUESTENDPOINT_LIVE,
-		// 	json: full_order
-	 //    }, function(err, res, body) {
-	 //    	if (!err) {
-		// 		console.log('-------------------------------------');
-		// 		console.log('------- order-' + order.order_number + ' SUBMITTED! -------');
-		// 		console.log('-------------------------------------');
-	 //    	}
-		// 	console.log(err, body);
-		// });
 	}
 };
 
@@ -708,6 +700,7 @@ var ORDER_ID = null,
 	FORCE_MONTH = null,
 	FORCE_DATE = null,
 	FORCE_SUFFIX = '',
+	STATIC_THUMBNAILS = null,
 	BORDER_VALUE = null,
 	BORDER_HEX = null,
 	ORDER_START = null,
@@ -744,6 +737,10 @@ process.argv.forEach(function (val, index, array) {
 	else if (val == '-noartist') {
 		console.log('not submitting artist prints');
 		ONLY_SELFMADE = true;
+	}
+	else if (val == '-static_thumbnails') {
+		console.log('not using dynamic thumbnail generation');
+		STATIC_THUMBNAILS = true;
 	}
 	else if (val.search("lineid=") == 0) {
 		ONLY_LINEID = val.split("lineid=")[1];

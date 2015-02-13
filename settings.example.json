@@ -1,0 +1,20 @@
+{
+  "PORT": 3000, "HOST": "http://127.0.0.1:3000",
+  "S3Bucket" : "cdn.gifpop.io",
+  "AWSSecret": "secret",
+  "AWSCDNSecret": "secret",
+  "AWSCDNAccessKey": "secret",
+  "AWSAccessKeyId": "secret",
+  "AWSPolicy" : "secret",
+  "AWSSignature" : "secret",
+  "DATABASE" : "secret",
+  "TEMP" : "./public/images/temporary/",
+  "ORDERS": "secret",
+  "REQUEST": {
+    "vendorId" : "",
+    "retailerId": "",
+    "method": "submitFullOrder"
+  },
+  "REQUESTENDPOINT_LIVE": "secret",
+  "REQUESTENDPOINT": "secret"
+}
