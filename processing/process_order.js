@@ -353,7 +353,7 @@ var chopGif = function(doc) {
     					.replace("{output}", fileroot)
     					.replace("{rotate}", ROTATE ? '-rotate 90' : '')
     					// -bordercolor can be #fef6e5 for hex
-							.replace("{border}", BORDER_VALUE ? '-bordercolor "#E1D7CC" -border ' + BORDER_VALUE + 'x' + BORDER_VALUE : '');
+							.replace("{border}", BORDER_VALUE ? '-bordercolor "#' + BORDER_HEX + '" -border ' + BORDER_VALUE + 'x' + BORDER_VALUE : '');
 
     console.log('>>>> chopping:\t\t', cmd_exec);
     exec(cmd_exec, function(err, stdout, stderr) {
@@ -599,9 +599,9 @@ var makeFullOrderRequest = function(order_details) {
 		var amazon_url = 'http://' + config.S3Bucket + '/' + getCurrentUploadFolder() + gif.order_id + '_' + gif.id,
 
 			// default thumbnail url generation
-			thumbnail_url = 'http://gifbot.gifpop.io/' + gif.type + '/' + gif.id + '/preview.gif';
+			// thumbnail_url = 'http://gifbot.gifpop.io/' + gif.type + '/' + gif.id + '/preview.gif';
 			// can also hack to just grab the image url instead of forcing the server to do work
-			// thumbnail_url = docs[i].url;
+			thumbnail_url = docs[i].url;
 
 			// just with bulk_process_flip.js
 			// thumbnail_url = amazon_url + '_000.jpg';
@@ -709,6 +709,7 @@ var ORDER_ID = null,
 	FORCE_DATE = null,
 	FORCE_SUFFIX = '',
 	BORDER_VALUE = null,
+	BORDER_HEX = null,
 	ORDER_START = null,
 	ORDER_END = null,
 	LINE_ITEM_START = null,
@@ -756,7 +757,14 @@ process.argv.forEach(function (val, index, array) {
 		console.log('forcing suffix', FORCE_SUFFIX);
 	} else if (val.search("border=") == 0) {
 		BORDER_VALUE = val.split("border=")[1];
+
+		// set border color to black by default, overridden by borderhex=
+		BORDER_HEX = BORDER_HEX ? BORDER_HEX : '000000';
+
 		console.log('adding a black border of ', BORDER_VALUE);
+	} else if (val.search("borderhex=") == 0) {
+		BORDER_HEX = val.split("borderhex=")[1];
+		console.log('setting border hex color to', BORDER_HEX);
 	} else if (val.search("line_item_range=") == 0) {
 		var range = val.split('=')[1].split('-');
 		LINE_ITEM_START = +range[0];

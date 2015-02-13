@@ -71,29 +71,6 @@ var getOrderGifsFromShopify = function(page) {
 	  		var orders = JSON.parse(full_order).orders;
 
 			orders.forEach(saveOrderToCouch);
-			// orders.forEach(function(order) {
-			// 	var order_id = "order-" + order.order_number;
-			// 	db_orders.get(order_id, function(err, order_doc) {
-			// 		if (err) {
-			// 			console.log(order_id, err);
-			// 			return;
-			// 		}
-			// 		// console.log(order);
-			// 		order_doc.line_items.forEach(function(item) {
-			// 			var item_id;
-			// 			// console.log(order_id, item.variant_title);
-			// 			if (item.variant_title == '3&#189; x 3&#189;"' || item.variant_title == '10x10"' || item.variant_title == '10 x 10"') {
-			// 				item_id = 'print_' + item.product_id;
-			// 			}
-			// 			else if (item.properties.length) {
-			// 				item_id = item.properties[0].value;
-			// 			}
-
-			// 			var product_id = getProductId(item.variant_title);
-			// 			console.log(order_id + ',' + item_id + ',' + product_id);
-			// 		});
-			// 	});
-			// });
 	  });
 	}).on('error', function(e) {
 	  console.error(e);
@@ -104,10 +81,18 @@ var saveOrderToCouch = function(order) {
 	var order_id = "order-" + order.name.split('#').pop();
 	db_orders.insert(order, order_id, function(error, response) {
 		if (error) {
-			console.log(order_id, ":", error.reason);
-			return;
+
+			// If Couch returns 'Document update conflict.' that means
+			// we already have the record in the db, and don't overwrite it.
+			// We want to log other errors that come up incase of weirdness.
+			if (error.reason != 'Document update conflict.') {
+				console.log(order_id, ":", error.reason);
+			}
+		} else {
+
+			// Log the order_id that we've saved from Shopify to Couch
+			console.log(order_id, ": saved!");
 		}
-		console.log(order_id, ": saved!");
 	});
 };
 
