@@ -1,0 +1,12 @@
+body {
+  font-family: Helvetica, sans-serif;
+  margin: 20px;
+}
+
+.order-preview {
+  float: left;
+  margin: 0 20px 20px 0;
+}
+.order-preview img {
+  width: 500px;
+}

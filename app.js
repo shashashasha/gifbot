@@ -24,7 +24,7 @@ var express = require('express')
   , exec = require('child_process').exec
 
   // cleaning up temp files
-  , tempfiles = require("tempfiles")
+  , tempfiles = require('tempfiles')
 
   // database and storage information
   , config = JSON.parse(fs.readFileSync('./settings.json'))
@@ -48,7 +48,7 @@ app.engine('ejs', engine);
 app.configure(function() {
   app.set('port', config.PORT || 3000); // 28171 on webfaction
 
-  // view templates
+  // View templates
   app.set('views', __dirname + '/views');
   app.set('view engine', 'ejs');
 
@@ -64,8 +64,7 @@ app.configure(function() {
       // Request headers you wish to allow
       res.set('Access-Control-Allow-Headers', 'X-Requested-With,content-type,Content-Type');
 
-      // Set to true if you need the website to include cookies in the requests sent
-      // to the API (e.g. in case you use sessions)
+      // Set to true if you need the website to include cookies in the requests sent to the API (e.g. in case you use sessions)
       res.set('Access-Control-Allow-Credentials', true);
 
       // Pass to next layer of middleware
@@ -75,7 +74,7 @@ app.configure(function() {
   app.use(express.logger('dev'));
 
   // app.use(express.bodyParser());
-  // because http://andrewkelley.me/post/do-not-use-bodyparser-with-express-js.html
+  // http://andrewkelley.me/post/do-not-use-bodyparser-with-express-js.html
   app.use(connect.json());
   app.use(connect.urlencoded());
 
@@ -83,7 +82,7 @@ app.configure(function() {
   app.use(app.router);
 
 
-  // static assets
+  // Static assets
   app.use(express.static(path.join(__dirname, 'public')));
 });
 
@@ -91,20 +90,19 @@ app.configure('development', function(){
   app.use(express.errorHandler());
 });
 
-// index page
+// Index page
 app.get('/', function(req, res) {
   res.render('index');
 });
 
 app.get('/process-url/', function(req, res) {
-  // var url = req.body.url; // used for POSTing
   var url = req.query['url'].replace('https', 'http').split('?')[0],
       uploadFolder = uploader.getCurrentUploadFolder(),
       domain = url.split('http://').join('').split('/')[0];
 
   console.log('PROCESS URL:', url, uploadFolder, domain);
 
-  // prefix with http just in case it doesn't have it
+  // Prefix with http just in case it doesn't have it
   if (url.search('http') < 0) {
     url = 'http://' + url;
   }
@@ -142,7 +140,7 @@ app.get('/process-url/', function(req, res) {
             return;
           }
 
-          // video tag
+          // Video tag
           var videoURL = source[0].attribs.src;
           if (videoURL.charAt(0) == '/') {
             videoURL = 'http:' + videoURL;
@@ -164,12 +162,12 @@ app.get('/process-url/', function(req, res) {
         break;
       case 'instagram.com':
         request(url, function(err, response, body) {
-          // grab meta tags
+          // Grab meta tags
           var $ = cheerio.load(body),
               meta = $('meta'),
               keys = Object.keys(meta);
 
-          // find the opengraph video tag
+          // Find the opengraph video tag
           var videoURL;
           keys.forEach(function(key){
             if (  meta[key].attribs
@@ -214,7 +212,7 @@ var uploadForm = function(res, form, img_uri, doc_id) {
   };
 
   /*
-    these two options are for the second flip flop form to
+    These two options are for the second flip flop form to
     be able to show the right image
   */
   if (img_uri) {
@@ -256,7 +254,7 @@ app.get('/gifchop', function(req, res) {
     , url = base.replace('{key}', key);
 
 
-  // save the uploaded gif information
+  // Save the uploaded gif information
   var doc = {
     url: url,
     date: JSON.stringify(new Date()),
@@ -273,7 +271,7 @@ app.get('/gifchop', function(req, res) {
 
     console.log("GIFCHOP: docid", docId, util.inspect(docId));
 
-    // render the uploaded page if we've saved the gif info to the db
+    // Render the uploaded page if we've saved the gif info to the db
     res.render('gifchop', {
       title: 'GifPOP',
       image_url: url,
@@ -325,8 +323,8 @@ app.post('/gifchop', function(req, res) {
 });
 
 /*
-  this is the actual page where we show the flipflop
-  (basically we're just showing a preview, no editing has to be done)
+  This is the actual page where we show the flipflop
+  (Basically we're just showing a preview, no editing has to be done)
 */
 app.get('/flipflop', function(req, res) {
   var docId = req.query["id"]
@@ -335,8 +333,6 @@ app.get('/flipflop', function(req, res) {
     , base = 'http://cdn.gifpop.io/{key}'
     , url0 = base.replace('{key}', key0)
     , url1 = base.replace('{key}', key1);
-
-  // saveAndRender(docId0, details, template, templatevars);
 
   // save the uploaded gif information
   var doc = {
@@ -708,8 +704,6 @@ app.get('/gifchop/:doc/preview.gif', function(req, res) {
         frameoutput = uploader.getTempFilename(docId, "%03d", "jpg");
 
     // d10 is 100ms delay, -l0 is loop infinitely
-    // exec("gifsicle --colors=255 -U " + dest + " --resize-width 120 -d10 -l0 " + frames + "  -o " + output, function(err, stdout, stderr) {
-    // exec("convert -delay 20 -loop 0 -coalesce " + dest + "[" + doc.frames + "] -adaptive-resize 120x80 " + output, function(err, stdout, stderr) {
     exec("gifsicle --colors=255 -U " + dest + " --resize-width 120 -d10 -l0 " + frames + "  -o " + output, function(err, stdout, stderr) {
       if (err) {
         console.log('new error', err);
@@ -723,6 +717,7 @@ app.get('/gifchop/:doc/preview.gif', function(req, res) {
     });
   });
 });
+
 
 app.get('/gifchop/:doc/:start/:end', function(req, res) {
   console.log('CHOPPING GIF:', req.params.doc);
@@ -750,12 +745,69 @@ app.get('/gifchop/:doc/:start/:end', function(req, res) {
   });
 });
 
+var auth = express.basicAuth(config.PIPELINE_USER, config.PIPELINE_AUTH);
+app.get('/orders/:order', auth, function(req, res) {
+
+  db_orders.get('order-' + req.params.order, function(err, order) {
+
+    var uploadedImages = [];
+
+    // Grab all the doc-id's from Shopify
+    for (var i = 0; i < order.line_items.length; i++) {
+      if (order.line_items[i].properties.length) {
+        var doc = order.line_items[i].properties[0];
+        uploadedImages.push(doc.value);
+      }
+    }
+
+    res.render('orders-gifs', {
+      order: req.params.order,
+      line_items: order.line_items.length,
+      images: uploadedImages });
+  });
+});
+
+app.get('/orders/:doc/original.gif', function(req, res) {
+  console.log('PREVIEW NO SCALING:', req.params.doc);
+  var docId = req.params.doc,
+      tempFile = uploader.getTempFilename(docId, 'url'),
+      tempFilename = uploader.getTempFilename(docId, 'preview', 'gif'),
+      tempFilename0 = uploader.getTempFilename(docId, 'url0', 'jpg'),
+      tempFilename1 = uploader.getTempFilename(docId, 'url1', 'jpg'),
+      outputFilename = uploader.getTempFilename(docId, 'flipflop-preview', 'gif');
+
+  db.get(docId, function(err, doc) {
+    if (err) { console.log(err); return; }
+
+    // Grab both images and make a gif
+    else if (doc.type == "flip") {
+      imageHandler.grabImage(doc.url0, tempFilename0, function() {
+        imageHandler.grabImage(doc.url1, tempFilename1, function() {
+          exec("convert -delay 100 -loop 0 '" + tempFile + "*.jpg' " + outputFilename, function(err, stdout, stderr) {
+            if (err) { console.log(err); return; }
+
+            res.sendfile(outputFilename);
+          });
+        });
+      });
+    }
+
+    // Just grab the gif that was uploaded
+    else if (doc.type == "gif") {
+      imageHandler.grabImage(doc.url, tempFilename, function() {
+        res.sendfile(tempFilename);
+      });
+    }
+
+  });
+});
+
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
 });
 
 /*
-  flush the temporary images folder every 10 minutes
+  Flush the temporary images folder every 10 minutes
 */
 tempfiles.cleanPeriodically(config.TEMP, 600, function(err, timer){
     if(!err)

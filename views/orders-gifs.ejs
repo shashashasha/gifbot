@@ -1,0 +1,11 @@
+<% layout('base') -%>
+
+<% stylesheet('/css/orders.css') %>
+
+<h1>#<%=order%>, <%=line_items%> animations</h1>
+
+<% for(var i=0; i < images.length; i++) {%>
+<div class="order-preview">
+<img src="/orders/<%= images[i] %>/original.gif"/>
+</div>
+<% } %>

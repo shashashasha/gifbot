@@ -75,6 +75,7 @@ var getOrderGifs = function(order_id) {
 						artist_size = 'Large Square';
 						break;
 
+					case 'Small Square':
 					case '3&#189; x 3&#189;\"':
 						artist_size = 'Artist Small';
 						break;
@@ -597,21 +598,22 @@ var makeFullOrderRequest = function(order_details) {
 	// attach all gifpop product information
 	gifs.forEach(function(gif, i) {
 		var amazon_url = 'http://' + config.S3Bucket + '/' + getCurrentUploadFolder() + gif.order_id + '_' + gif.id,
+			thumbnail_url = '';
 
-			// STATIC_THUMBNAILS flag
-			// Setting this to true means that we bypass the dynamic thumbnail
-			// generation and just use the url of the uploaded asset as the thumbnail
-			// to send to the manufacturer. This is helpful for large gifs that
-			// are expensive to process dynamically or large batch orders that can
-			// clog the manufacturer's pipeline.
-			if (STATIC_THUMBNAILS) {
-				thumbnail_url = docs[i].url;
-			} else {
-				thumbnail_url = 'http://gifbot.gifpop.io/' + gif.type + '/' + gif.id + '/preview.gif';
-			}
+		// STATIC_THUMBNAILS flag
+		// Setting this to true means that we bypass the dynamic thumbnail
+		// generation and just use the url of the uploaded asset as the thumbnail
+		// to send to the manufacturer. This is helpful for large gifs that
+		// are expensive to process dynamically or large batch orders that can
+		// clog the manufacturer's pipeline.
+		if (STATIC_THUMBNAILS) {
+			thumbnail_url = docs[i].url;
+		} else {
+			thumbnail_url = 'http://gifbot.gifpop.io/' + gif.type + '/' + gif.id + '/preview.gif';
+		}
 
-			// just with bulk_process_flip.js
-			// thumbnail_url = amazon_url + '_000.jpg';
+		// just with bulk_process_flip.js
+		// thumbnail_url = amazon_url + '_000.jpg';
 
 		if (ONLY_LINEID != null && gif.id != ONLY_LINEID) {
 			return;
