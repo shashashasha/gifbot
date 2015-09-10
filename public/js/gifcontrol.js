@@ -22,13 +22,17 @@ var gifcontrol = function(gif, maxheight) {
 
   var frames = [];
 
+  // Previewing the gifs with a crop that is closer to our actual bleed
+  // margins. (Our frontend canvas objects displays 100 pixels per inch,
+  // so 25 a pixel crop shows what would be a 1/4" bleed)
+  var crop = 25;
+
   var clear = function() {
     transparency = null;
     delay = null;
     lastDisposalMethod = disposalMethod;
     disposalMethod = null;
     frame = null;
-    //frame = tmpCanvas.getContext('2d');
   };
 
   // XXX: There's probably a better way to handle catching exceptions when
@@ -199,7 +203,7 @@ var gifcontrol = function(gif, maxheight) {
     frame.putImageData(cData, img.leftPos, img.topPos);
 
     // drawing from the tmpCanvas to do the scaling to the proper canvas size.
-    ctx.drawImage(tmpCanvas, 0, 0, tmpCanvas.width, tmpCanvas.height, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(tmpCanvas, 0, 0, tmpCanvas.width, tmpCanvas.height, -crop, -crop, canvas.width + (crop * 2), canvas.height + (crop * 2));
   };
 
   var doPlay = (function() {
@@ -281,7 +285,8 @@ var gifcontrol = function(gif, maxheight) {
 
           ctx.fillStyle = 'rgba(255,255,255,1)';
           ctx.fillRect(0, 0, canvas.width, canvas.height);
-          ctx.drawImage(tmpCanvas, 0, 0, tmpCanvas.width, tmpCanvas.height, 0, 0, canvas.width, canvas.height);
+          // drawing from the tmpCanvas to do the scaling to the proper canvas size.
+          ctx.drawImage(tmpCanvas, 0, 0, tmpCanvas.width, tmpCanvas.height, -crop, -crop, canvas.width + (crop * 2), canvas.height + (crop * 2));
 
           // ctx.putImageData(frames[i].data, 0, 0);
         }

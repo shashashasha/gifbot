@@ -565,6 +565,7 @@ var getShippingMethod = function(order) {
 		var code = order.shipping_lines[0].code;
 		switch (code) {
 			case '2 Day':
+			case 'FedEx 2-Day':
 			case 'Fedex 2-Day':
 			case "Fedex International Shipping, 2-3 Days":
 				return '2day';
