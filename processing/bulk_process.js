@@ -153,7 +153,7 @@ var saveUpload = function(card) {
     source: 'frames',
     job_name: card.job_name,
     order_id: card.order_id,
-    size: 'Artist Large',
+    size: 'Artist Print',
     frames: card.frames.join(','),
     url: card.url,
     zip_url: card.zip_url
@@ -172,9 +172,9 @@ var saveUpload = function(card) {
        "taxable": false,
        "title": "GIF CHOP",
        "variant_id": 281911490,
-       "variant_title": "Artist Large",
+       "variant_title": "Artist Print",
        "vendor": "shabinx",
-       "name": "GIF CHOP - Artist Large",
+       "name": "GIF CHOP - Artist Print",
        "variant_inventory_management": "",
        "properties": [
            {
@@ -269,7 +269,7 @@ var nextCard = function() {
   }
 
   setTimeout(function() {
-    processFolder(JOB_NAME, getPad(ORDER_INDEX, 3), ORDER_ID)
+    processFolder(JOB_NAME, 'sheet' + getPad(ORDER_INDEX, 3), ORDER_ID)
       .then(zipFolder)
       .then(uploadCard)
       .then(saveUpload)

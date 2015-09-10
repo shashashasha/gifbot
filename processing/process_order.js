@@ -20,6 +20,8 @@ var gm = require('gm')
 	  bucket: config.S3Bucket
 	});
 
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
+
 /*
 	load an order
 	and grab the doc_id's associated with it, and render them
@@ -130,7 +132,7 @@ var processGifs = function(gifs, order) {
 
 	var resultsToProcess = [];
 	gifs.forEach(function(gif, i) {
-		if (ONLY_LINEID && gif.id != ONLY_LINEID) {
+		if (ONLY_LINEID && i != ONLY_LINEID) {
 			return;
 		}
 
@@ -253,7 +255,7 @@ var processFlip = function(doc) {
   					.replace("{rotate}", ROTATE ? '-rotate 90' : '')
 						.replace("{size}", "'" + size + "'");
 
-	console.log('>>>> exporting frames:\t', cmd_exec);
+	// console.log('>>>> exporting frames:\t', cmd_exec);
 	exec(cmd_exec, function(err, stdout, stderr) {
 		deferred.resolve(doc);
 	});
@@ -354,9 +356,9 @@ var chopGif = function(doc) {
     					.replace("{output}", fileroot)
     					.replace("{rotate}", ROTATE ? '-rotate 90' : '')
     					// -bordercolor can be #fef6e5 for hex
-							.replace("{border}", BORDER_VALUE ? '-bordercolor "#' + BORDER_HEX + '" -border ' + BORDER_VALUE + 'x' + BORDER_VALUE : '');
+							.replace("{border}", BORDER_VALUE ? '-bordercolor "#' + BORDER_HEX + '" -border ' + BORDER_VALUE : '');
 
-    console.log('>>>> chopping:\t\t', cmd_exec);
+    // console.log('>>>> chopping:\t\t', cmd_exec);
     exec(cmd_exec, function(err, stdout, stderr) {
     	var gif_exec = makegif.replace("{folder}", fileroot)
 					    	.replace("{folder}", fileroot)
@@ -567,6 +569,7 @@ var getShippingMethod = function(order) {
 			case "Fedex International Shipping, 2-3 Days":
 				return '2day';
 			case 'Priority':
+			case 'USPS Priority':
 			case 'USPS Priority — With Tracking Number':
 				return 'priority';
 			case 'Overnight':
@@ -606,8 +609,13 @@ var makeFullOrderRequest = function(order_details) {
 		// to send to the manufacturer. This is helpful for large gifs that
 		// are expensive to process dynamically or large batch orders that can
 		// clog the manufacturer's pipeline.
-		if (STATIC_THUMBNAILS) {
-			thumbnail_url = docs[i].url;
+		if (STATIC_THUMBNAILS && gif.type !== 'artist') {
+
+			if (gif.type == 'flipflop') {
+				thumbnail_url = docs[i].url0;
+			} else {
+				thumbnail_url = docs[i].url;
+			}
 		} else {
 			thumbnail_url = 'http://gifbot.gifpop.io/' + gif.type + '/' + gif.id + '/preview.gif';
 		}
@@ -622,6 +630,8 @@ var makeFullOrderRequest = function(order_details) {
 			return;
 		}
 
+		console.log(docs[i]);
+
 		var item = {
 			lineId: gif.id + gif.size.toLowerCase().split(' ').join(''),
 			productId: getProductId(gif.size),
@@ -633,10 +643,12 @@ var makeFullOrderRequest = function(order_details) {
 		};
 
 		if (gif.type == 'flipflop') {
-			item.picture0 = amazon_url + '_000.jpg';
-			item.picture1 = amazon_url + '_001.jpg';
+			item.picture0 = docs[i].url0;
+			item.picture1 = docs[i].url1;
 		} else if (gif.type == 'gifchop' ) {
-			item.pictures = amazon_url + '.zip';
+			item.pictures = docs[i].zip_url;
+
+			// item.pictures = amazon_url + '.zip';
 			// item.thumbnail = amazon_url + '.jpg'; // just for bulk_process.js
 		} else if (gif.type == 'artist') {
 			item.pictures  = artist_info[gif.artist.toUpperCase()][gif.id];
@@ -688,6 +700,7 @@ var makeFullOrderRequest = function(order_details) {
 	    	}
 			console.log(err, body);
 
+			// db_orders.get()
 		});
 	}
 };
@@ -702,7 +715,7 @@ var ORDER_ID = null,
 	FORCE_MONTH = null,
 	FORCE_DATE = null,
 	FORCE_SUFFIX = '',
-	STATIC_THUMBNAILS = null,
+	STATIC_THUMBNAILS = true, // default this
 	BORDER_VALUE = null,
 	BORDER_HEX = null,
 	ORDER_START = null,
@@ -760,7 +773,7 @@ process.argv.forEach(function (val, index, array) {
 		// set border color to black by default, overridden by borderhex=
 		BORDER_HEX = BORDER_HEX ? BORDER_HEX : '000000';
 
-		console.log('adding a black border of ', BORDER_VALUE);
+		console.log('adding a border of', BORDER_VALUE);
 	} else if (val.search("borderhex=") == 0) {
 		BORDER_HEX = val.split("borderhex=")[1];
 		console.log('setting border hex color to', BORDER_HEX);
