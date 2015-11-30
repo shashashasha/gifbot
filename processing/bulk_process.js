@@ -269,7 +269,7 @@ var nextCard = function() {
   }
 
   setTimeout(function() {
-    processFolder(JOB_NAME, 'sheet' + getPad(ORDER_INDEX, 3), ORDER_ID)
+    processFolder(JOB_NAME, getPad(ORDER_INDEX, 3), ORDER_ID)
       .then(zipFolder)
       .then(uploadCard)
       .then(saveUpload)

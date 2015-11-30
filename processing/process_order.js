@@ -762,6 +762,10 @@ process.argv.forEach(function (val, index, array) {
 		ONLY_LINEID = val.split("lineid=")[1];
 		console.log('only processing lineid', ONLY_LINEID);
 	}
+	else if (val.search("line_id=") == 0) {
+		ONLY_LINEID = val.split("line_id=")[1];
+		console.log('only processing lineid', ONLY_LINEID);
+	}
 	else if (val.search("date=") == 0) {
 		FORCE_DATE = val.split("date=")[1];
 		console.log('forcing date', FORCE_DATE);
