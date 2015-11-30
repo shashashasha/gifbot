@@ -493,7 +493,7 @@ app.post('/ordered', function(req, res) {
       db_orders.insert(req.body, orderDoc, function (err, body) {
         if (err) {
           console.log('ORDERED: error inserting!', err);
-          return;
+          res.status(500).send(err);
         }
 
         updateDocs(req.body);
@@ -567,7 +567,7 @@ imageHandler.processVideo = function(url, callback) {
     exec("ffmpeg -i " + tempURL + " -r 10 -vf scale=640:-1 " + output + "%03d.jpg", function(err, stdout, stderr) {
       if (err) {
         console.log(err);
-        return;
+        res.status(500).send(err);
       }
 
       var finaloutput = uploader.getTempFilename('', 'videogif', 'gif');
@@ -575,7 +575,7 @@ imageHandler.processVideo = function(url, callback) {
       exec("convert -delay 100 -loop 0 " + output + "*.jpg " + finaloutput, function(err, stdout, stderr) {
         if (err) {
           console.log(err);
-          return;
+          res.status(500).send(err);
         }
         if (callback) {
           callback(finaloutput);
@@ -600,7 +600,7 @@ imageHandler.grabImage = function(url, dest, callback) {
       fs.writeFile(dest, imagedata, 'binary', function(err) {
         if (err) {
           console.log('GRABIMAGE: Write error: ', err);
-          return;
+          res.status(500).send(err);
         }
 
         callback(dest);
@@ -613,7 +613,7 @@ imageHandler.grabImage = function(url, dest, callback) {
 
 imageHandler.processImage = function(id, url, dest, callback) {
   db.get(id, function(err, doc) {
-    if (err) return;
+    if (err) res.status(500).send(err);
 
     imageHandler.grabImage(doc[url], dest, function() {
       if (callback) {
@@ -661,7 +661,7 @@ app.get('/flipflop/:doc/preview.gif', function(req, res) {
   db.get(docId, function(err, doc) {
     if (err) {
       console.log(err);
-      return;
+      res.status(500).send(err);
     }
 
     console.log("PREVIEW FLIPFLOP: getting images", doc.url0, doc.url1);
@@ -672,7 +672,7 @@ app.get('/flipflop/:doc/preview.gif', function(req, res) {
         exec("convert -delay 100 -geometry x76 '" + tempFile + "*.jpg' " + outputFilename, function(err, stdout, stderr) {
           if (err) {
             console.log(err);
-            return;
+            res.status(500).send(err);
           }
           console.log("PREVIEW FLIPFLOP: converted gif", outputFilename);
 
@@ -738,7 +738,7 @@ app.get('/gifchop/:doc/:start/:end', function(req, res) {
     exec("gifsicle -U " + dest + " " + frames + " -o " + output, function(err, stdout, stderr) {
       if (err) {
         console.log(err);
-        return;
+        res.status(500).send(err);
       }
 
       res.sendfile(output);
@@ -778,7 +778,7 @@ app.get('/orders/:doc/original.gif', function(req, res) {
       outputFilename = uploader.getTempFilename(docId, 'flipflop-preview', 'gif');
 
   db.get(docId, function(err, doc) {
-    if (err) { console.log(err); return; }
+    if (err) { console.log(err); res.status(500).send(err); }
 
     // Grab both images and make a gif
     else if (doc.type == "flip") {
@@ -787,7 +787,7 @@ app.get('/orders/:doc/original.gif', function(req, res) {
           // Slash modifier on -adaptive-resize means only resize flip images if above 1000x1000 image area
           console.log("convert -delay 100 '" + tempFile + "*.jpg' -adaptive-resize 1000x1000\\\> " + outputFilename);
           exec("convert -delay 100 '" + tempFile + "*.jpg' -adaptive-resize 1000x1000\\\> " + outputFilename, function(err, stdout, stderr) {
-            if (err) { console.log(err); return; }
+            if (err) { console.log(err); res.status(500).send(err); }
 
             res.sendfile(outputFilename);
           });
