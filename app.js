@@ -783,7 +783,7 @@ app.get('/orders/:doc/original.gif', function(req, res) {
     else if (doc.type == "flip") {
       imageHandler.grabImage(doc.url0, tempFilename0, function() {
         imageHandler.grabImage(doc.url1, tempFilename1, function() {
-          exec("convert -delay 100 -loop 0 '" + tempFile + "*.jpg''[64x64\>]' " + outputFilename, function(err, stdout, stderr) {
+          exec("convert -delay 100 -loop 0 '" + tempFile + "*.jpg''[64x64]' " + outputFilename, function(err, stdout, stderr) {
             if (err) { console.log(err); return; }
 
             res.sendfile(outputFilename);
