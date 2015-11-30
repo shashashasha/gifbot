@@ -785,8 +785,8 @@ app.get('/orders/:doc/original.gif', function(req, res) {
       imageHandler.grabImage(doc.url0, tempFilename0, function() {
         imageHandler.grabImage(doc.url1, tempFilename1, function() {
           // Slash modifier on -adaptive-resize means only resize flip images if above 1000x1000 image area
-          console.log("convert -delay 100 '" + tempFile + "*.jpg' -adaptive-resize 1000x1000\> " + outputFilename);
-          exec("convert -delay 100 '" + tempFile + "*.jpg' -adaptive-resize 1000x1000\> " + outputFilename, function(err, stdout, stderr) {
+          console.log("convert -delay 100 '" + tempFile + "*.jpg' -adaptive-resize 1000x1000\\\> " + outputFilename);
+          exec("convert -delay 100 '" + tempFile + "*.jpg' -adaptive-resize 1000x1000\\\> " + outputFilename, function(err, stdout, stderr) {
             if (err) { console.log(err); return; }
 
             res.sendfile(outputFilename);
