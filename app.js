@@ -598,7 +598,7 @@ imageHandler.grabImage = function(url, dest, callback) {
 
     response.on('end', function() {
       fs.writeFile(dest, imagedata, 'binary', function(err) {
-        if (err) {
+        if (err || err == null) {
           console.log('GRABIMAGE: Write error: ', err);
           return;
         }
@@ -632,6 +632,7 @@ imageHandler.saveImage = function(url, callback) {
   var tempFilename = uploader.getTempFilename('', 'external', suffix);
   imageHandler.grabImage(url, tempFilename, callback);
 };
+
 
 app.get('/flipflop/:doc/:image/preview.jpg', function(req, res) {
   var docId = req.params.doc,
@@ -668,7 +669,7 @@ app.get('/flipflop/:doc/preview.gif', function(req, res) {
     imageHandler.grabImage(doc.url0, tempFilename0, function() {
       imageHandler.grabImage(doc.url1, tempFilename1, function() {
         console.log(tempFile);
-        exec("convert -delay 100 -loop 0 -geometry x76 '" + tempFile + "*.jpg' " + outputFilename, function(err, stdout, stderr) {
+        exec("convert -delay 100 -geometry x76 '" + tempFile + "*.jpg' " + outputFilename, function(err, stdout, stderr) {
           if (err) {
             console.log(err);
             return;
@@ -768,7 +769,7 @@ app.get('/orders/:order', auth, function(req, res) {
 });
 
 app.get('/orders/:doc/original.gif', function(req, res) {
-  console.log('PREVIEW NO SCALING:', req.params.doc);
+  console.log('PREVIEW NO SCALING UNLESS LARGE FLIPFLOPS:', req.params.doc);
   var docId = req.params.doc,
       tempFile = uploader.getTempFilename(docId, 'url'),
       tempFilename = uploader.getTempFilename(docId, 'preview', 'gif'),
@@ -783,7 +784,8 @@ app.get('/orders/:doc/original.gif', function(req, res) {
     else if (doc.type == "flip") {
       imageHandler.grabImage(doc.url0, tempFilename0, function() {
         imageHandler.grabImage(doc.url1, tempFilename1, function() {
-          exec("convert -delay 100 -loop 0 '" + tempFile + "*.jpg''[64x64]' " + outputFilename, function(err, stdout, stderr) {
+          // Slash modifier on -adaptive-resize means only resize flip images if above 1000x1000 image area
+          exec("convert -delay 100 -adaptive-resize 1000x1000\> '" + tempFile + "*.jpg' " + outputFilename, function(err, stdout, stderr) {
             if (err) { console.log(err); return; }
 
             res.sendfile(outputFilename);
