@@ -598,7 +598,7 @@ imageHandler.grabImage = function(url, dest, callback) {
 
     response.on('end', function() {
       fs.writeFile(dest, imagedata, 'binary', function(err) {
-        if (err || err == null) {
+        if (err) {
           console.log('GRABIMAGE: Write error: ', err);
           return;
         }
