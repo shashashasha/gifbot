@@ -55,9 +55,14 @@ var makeZips = function(start, end) {
     // if (i < 10) folders.push('00' + i);
     // else if (i < 100) folders.push('0' + i);
     // else  folder.push(i.toString());
+
+    // pad folder numbers
     if (i < 10) cardsToProcess.push(processFolder('00' + i));
     else if (i < 100) cardsToProcess.push(processFolder('0' + i));
     else  cardsToProcess.push(processFolder(i.toString()));
+
+    // don't pad folder numbers
+    // cardsToProcess.push(processFolder(i.toString()));
   }
 
   Q.all(cardsToProcess)
@@ -87,7 +92,6 @@ var processFolder = function(job_name, folder, order_id) {
 
 var zipFolder = function(card) {
   var deferred = Q.defer();
-  console.log('zipping folder', card.folder);
 
   var zip = "cd {folder}; zip {output} {input}",
     zip_exec = zip.replace("{folder}", 'processing/' + card.job_name + '/' + card.folder)
@@ -153,43 +157,32 @@ var saveUpload = function(card) {
     source: 'frames',
     job_name: card.job_name,
     order_id: card.order_id,
-    size: 'Artist Print',
+    size: ORDER_SIZE,
     frames: card.frames.join(','),
     url: card.url,
     zip_url: card.zip_url
   };
 
   var line_item = {
-       "fulfillment_service": "manual",
-       "fulfillment_status": null,
        "grams": 227,
        "id": 451324909,
        "price": "15.00",
        "product_id": 118058266,
        "quantity": 1,
        "requires_shipping": true,
-       "sku": "",
        "taxable": false,
        "title": "GIF CHOP",
        "variant_id": 281911490,
-       "variant_title": "Artist Print",
-       "vendor": "shabinx",
-       "name": "GIF CHOP - Artist Print",
-       "variant_inventory_management": "",
+       "variant_title": ORDER_SIZE,
+       "name": "GIF CHOP - " + ORDER_SIZE,
        "properties": [
            {
                "name": "doc-id",
                "value": "user_1396826228908_AzkIm1PJTyOPnSsxtDLM"
            }
-       ],
-       "product_exists": true,
-       "tax_lines": [
        ]
    };
   line_item.properties[0].value = id;
-
-  console.log(JSON.stringify(line_item) + ',');
-  fs.appendFile('processing/' + card.job_name + '.txt', JSON.stringify(line_item) + ',', function (err) { console.log(err); });
 
   if (DEBUG) {
     console.log(doc);
@@ -198,7 +191,15 @@ var saveUpload = function(card) {
     db.insert(doc, id, function(err) {
       if (err) console.log(err);
 
-      console.log('>>>> saved doc-id:\t', id);
+      console.log('**** SAVED DOC-ID:\t', id);
+
+      console.log(JSON.stringify(line_item) + ',');
+      fs.appendFile('processing/' + card.job_name + '.txt', JSON.stringify(line_item) + ',', function (err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+
       deferred.resolve(doc);
     });
   }
@@ -207,10 +208,48 @@ var saveUpload = function(card) {
 };
 
 
+var getOrderSize = function(size) {
+
+  switch (size) {
+    case 'business_card':
+      return "Business Card";
+    case 'portrait_business_card':
+      return "Portrait Business Card";
+
+    case 'postcard':
+    case '3x5':
+      return "Landscape Postcard";
+
+    case '5x3':
+    case 'portrait_postcard':
+      return "Portrait Postcard";
+
+    case 'large_square':
+    case '5x5':
+      return "Large Square";
+
+    case 'artist_print':
+    case 'artist_large':
+    case '10x10':
+      return "Artist Print";
+
+    case 'small_square':
+    case '2x2':
+    case '3x3':
+      return "Small Square";
+
+    case 'small_sticker':
+      return "Small Sticker";
+
+    default:
+      console.log("unable to find", size);
+      return "unknown";
+  }
+};
+
 var ORDER_ID = null,
   JOB_NAME = null,
   DEBUG = false,
-  PREP = false,
   ONLY_LINEID = null,
   ONLY_SELFMADE = null,
   FORCE = false,
@@ -219,7 +258,8 @@ var ORDER_ID = null,
   FORCE_SUFFIX = '',
   ORDER_START = null,
   ORDER_END = null,
-  ORDER_INDEX = null;
+  ORDER_INDEX = null,
+  ORDER_SIZE = null;
 process.argv.forEach(function (val, index, array) {
   if (index == 2 && val != null) {
     if (val.split('-').length > 1) {
@@ -234,10 +274,6 @@ process.argv.forEach(function (val, index, array) {
     console.log('running in debug mode, no uploading or saving to database');
     DEBUG = true;
   }
-  else if (val == '-prep') {
-    console.log('running in prep mode, uploading to s3 and saving to db, but not pushing to manufacturer');
-    PREP = true;
-  }
   else if (val == '-force') {
     console.log('running in force mode, regenerating files');
     FORCE = true;
@@ -245,6 +281,10 @@ process.argv.forEach(function (val, index, array) {
   else if (val.search("job_name=") == 0) {
     JOB_NAME = val.split("job_name=")[1];
     console.log('setting job_name', JOB_NAME);
+  }
+  else if (val.search("size=") == 0) {
+    ORDER_SIZE = getOrderSize(val.split("size=")[1]);
+    console.log('setting order_size', ORDER_SIZE)
   }
   else if (val.search("order=") == 0) {
     ORDER_ID = val.split("order=")[1];

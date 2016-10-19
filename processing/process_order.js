@@ -347,6 +347,7 @@ var chopGif = function(doc) {
 		size = getSize(doc.size),
 		mkdir = "mkdir processing/frames/{folder}; mkdir processing/renamedframes/{folder};".replace("{folder}", fileroot).replace("{folder}", fileroot),
 		// if we want a custom background use hex like -background '#f1f7f7'
+		// this crops from one side of the image: "-gravity East -chop 100x0"
     	cmd = "convert ./processing/images/{input} -coalesce -background white -alpha Remove -adaptive-resize {size} -quality 90% {rotate} {border} 'processing/frames/{output}/%03d.jpg'",
     	// cmd = "convert ./processing/images/{input} -coalesce -quality 90% 'processing/frames/{output}/%03d.jpg'", // no resize
     	makegif = 'convert ./processing/frames/{folder}/%03d.jpg[{frames}] ./processing/choppt/{output}.gif; {cp_exec}';
@@ -478,12 +479,15 @@ var getSize = function(size) {
 
 	switch (realsize) {
 		case 'Business Card':
+			// return "4860x3060^"; // 1440 dpi
 			return "1012x637^";
 		case 'Postcard':
 		case 'Landscape Postcard':
+			// return "7200x5040^"; // 1440 dpi
 			return "1500x1050^";
 
 		case 'Portrait Postcard':
+			// return "5040x7200^"; // 1440 dpi
 			return "1050x1500^";
 
 		case 'Artist Print':
@@ -491,14 +495,18 @@ var getSize = function(size) {
 			return "3000x3000^";
 
 		case 'Large Square':
+			// return "3000x3000^"; // 600 dpi
+			// return "7200x7200^"; // 1440 dpi
 			return "1500x1500^";
 
 		case 'Small Square':
+			// return "3960x3960^"; // 1440 dpi
 			return "825x825^";
 
 		default:
 			console.log("unable to find", size);
-			return "825x825^";
+			// return "825x825^";
+			return "700x700^";
 	}
 };
 
@@ -552,6 +560,9 @@ var getProductId = function(size) {
 		case 'Small Square':
 			return "CAP01A0A3";
 
+		case 'Small Sticker':
+			return "STKQ00";
+
 		default:
 			console.log("unable to find", size);
 			return "unknown";
@@ -566,7 +577,7 @@ var getShippingMethod = function(order) {
 		switch (code) {
 			case '2 Day':
 			case 'FedEx 2-Day':
-			case 'Fedex 2-Day':
+			case 'Fedex 2-Day International':
 			case "Fedex International Shipping, 2-3 Days":
 				return '2day';
 			case 'Priority':
@@ -634,7 +645,7 @@ var makeFullOrderRequest = function(order_details) {
 		console.log(docs[i]);
 
 		var item = {
-			lineId: gif.id + gif.size.toLowerCase().split(' ').join(''),
+			lineId: gif.id + gif.size.toLowerCase().split(' ').join('') + i.toString(),
 			productId: getProductId(gif.size),
 			productInfo: gif.size,
 			productName: gif.product_name,

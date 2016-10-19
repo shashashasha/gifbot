@@ -13,10 +13,19 @@ pids
 logs
 results
 
+processing
 processing/choppt
 processing/frames
 processing/images
 processing/renamedframes
+
+request.json
+bucket_policy.js
+
+corsfiles
+
+# Project specific files
+versions.sh
 
 npm-debug.log
 

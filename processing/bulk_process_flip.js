@@ -164,7 +164,7 @@ var saveUpload = function(card) {
     source: 'frames',
     job_name: card.job_name,
     order_id: card.order_id,
-    size: 'Artist Large',
+    size: 'Large Square',
     frames: card.frames.join(','),
     url0: card.url0,
     url1: card.url1,
@@ -184,9 +184,9 @@ var saveUpload = function(card) {
        "taxable": false,
        "title": "FLIP FLOP",
        "variant_id": 281911490,
-       "variant_title": "Artist Large",
+       "variant_title": "Large Square",
        "vendor": "shabinx",
-       "name": "FLIP FLOP - Artist Large",
+       "name": "FLIP FLOP - Large Square",
        "variant_inventory_management": "",
        "properties": [
            {

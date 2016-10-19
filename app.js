@@ -189,6 +189,16 @@ app.get('/process-url/', function(req, res) {
           });
         });
         break;
+      case 'phhhoto.com':
+
+        var phhhotoResource = url.split('/').pop(),
+            phhhotoBase = 'http://images.phhhoto.com/2/{id}/gif',
+            phhhotoURL = phhhotoBase.replace('{id}', phhhotoResource);
+
+        imageHandler.saveImage(phhhotoURL, function(tempURL, imageData) {
+          uploader.saveAndGifChop(tempURL, 'phhhoto', res);
+        });
+        break;
       default:
         console.log('ERROR: image type not found, sorry!');
         res.json({
