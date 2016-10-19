@@ -634,8 +634,9 @@ imageHandler.processImage = function(id, url, dest, callback) {
 };
 
 imageHandler.saveImage = function(url, callback) {
-  var suffix = url.split('?')[0].split('.').pop(),
-      fileRoot = url.split('/').pop().split('.')[0],
+  // Some URLs end in /gif for some bizarre reason, and we need to clean them
+  var cleanURL = url.search('/gif') ? url.replace('/gif', '.gif') : url,
+      suffix = cleanURL.split('?')[0].split('.').pop(),
       tempFilename = config.TEMP + new Date().getTime() + '.' + suffix;
   console.log('SAVEIMAGE: downloading', url);
 
