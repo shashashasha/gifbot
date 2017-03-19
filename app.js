@@ -621,7 +621,7 @@ imageHandler.grabImage = function(url, dest, callback) {
   });
 };
 
-imageHandler.processImage = function(id, url, dest, callback) {
+imageHandler.processImage = function(id, url, dest, res, callback) {
   db.get(id, function(err, doc) {
     if (err) res.status(500).send(err);
 
@@ -651,7 +651,7 @@ app.get('/flipflop/:doc/:image/preview.jpg', function(req, res) {
     temp = uploader.getTempFilename(docId, 'flipflop', 'jpg'),
     output = uploader.getTempFilename(docId, 'flipflop-thumbnail', 'jpg');
 
-  imageHandler.processImage(docId, image, temp, function(dest, doc) {
+  imageHandler.processImage(docId, image, temp, res, function(dest, doc) {
     // graphicsmagick-node library
     gm(temp).resize(120)
       .write(output, function (err) {
@@ -701,7 +701,7 @@ app.get('/gifchop/:doc/preview.gif', function(req, res) {
     filename = req.params.doc + '-preview.gif',
     tempFilename = uploader.getTempFilename(docId, 'preview', 'gif');
 
-  imageHandler.processImage(docId, 'url', tempFilename, function(dest, doc) {
+  imageHandler.processImage(docId, 'url', tempFilename, res, function(dest, doc) {
     if (!doc || !doc.frames) {
       console.log("PREVIEW GIFCHOP ERROR: no frames selected");
       return;
@@ -738,7 +738,7 @@ app.get('/gifchop/:doc/:start/:end', function(req, res) {
     id = req.params.doc,
     tempFolder = uploader.getTempFilename(id, 'chop', 'gif');
 
-  imageHandler.processImage(id, 'url', temp, function(dest, doc) {
+  imageHandler.processImage(id, 'url', temp, res, function(dest, doc) {
 
     var framenums = ["frames", start, end].join('-'),
         frames = "'#" + start + "-" + end + "'",

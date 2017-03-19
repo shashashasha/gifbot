@@ -3,9 +3,8 @@
     <link href="css/style.css" media="screen" rel="stylesheet" type="text/css">
 
     <script src="//api.filepicker.io/v1/filepicker.js"></script>
-	<script src="lib/jquery.min.js"></script>
+		<script src="lib/jquery.min.js"></script>
     <script src="js/helper.js"></script>
-
 
 	<style>
 		.wrapper {
@@ -58,7 +57,7 @@
 	   		var id = InkBlobs[0].url.split("/").pop();
 	   			clean_id = 'user_' + new Date().getTime() + '_' + id,
 	   			key0 = encodeURIComponent(InkBlobs[0].key);
-	   		window.location = "/static/upload-flipflop2.html?id=" + clean_id + "&key0=" + key0 + "&img_id=" + img_id;
+	   		window.location = "https://s3.amazonaws.com/cdn.gifpop.io/static/upload-flipflop2.html?id=" + clean_id + "&key0=" + key0 + "&img_id=" + img_id;
 		},function(FPError){ console.log(FPError); }
 	);
 

@@ -3,10 +3,10 @@
     <link href="css/style.css" media="screen" rel="stylesheet" type="text/css">
 
     <script src="lib/jsgif/gif.js"></script>
-	<script src="lib/jquery.min.js"></script>
+  <script src="lib/jquery.min.js"></script>
     <script src="js/helper.js"></script>
-	<script src="js/gifcontrol.js"></script>
-	<script src="js/gifchop.js"></script>
+  <script src="js/gifcontrol.js"></script>
+  <script src="js/gifchop.js"></script>
 
   </head>
   <body class="done">
@@ -16,164 +16,164 @@
     <div class="wrapper">
 
 
-		<div class="bg">
-			<div id="gif-container">
-				<img id="gif" style="margin-left: -10000px;">
-			</div>
-			<div id="gif-controls">
-				<div id="timeline" class="scrubbable"></div>
-				<div id="doc_id" style="display: none;"></div>
-				<div id="selection"></div>
-				<div id="playhead"></div>
-				<div id="gif-ui">
-					<div id="instructions" class="large-helper-text" style="display: none;">Click to select a clip</div>
-					<div id="finalize" class="large-helper-text" style="display: none;">
-						<span id="finalize-text">Click or drag to adjust, then hit</span> <button id="gif-submit">DONE!</button>
-					</div>
-				</div>
-			</div>
-		</div>
+    <div class="bg">
+      <div id="gif-container">
+        <img id="gif" style="margin-left: -10000px;">
+      </div>
+      <div id="gif-controls">
+        <div id="timeline" class="scrubbable"></div>
+        <div id="doc_id" style="display: none;"></div>
+        <div id="selection"></div>
+        <div id="playhead"></div>
+        <div id="gif-ui">
+          <div id="instructions" class="large-helper-text" style="display: none;">Click to select a clip</div>
+          <div id="finalize" class="large-helper-text" style="display: none;">
+            <span id="finalize-text">Click or drag to adjust, then hit</span> <button id="gif-submit">DONE!</button>
+          </div>
+        </div>
+      </div>
+    </div>
     </div>
 
 <script type="text/javascript">
 
-	var doc_id = helper.getURLParameter('id'),
-		key = helper.getURLParameter('key'),
-		image_url = 'http://cdn.gifpop.io/' + key;
+  var doc_id = helper.getURLParameter('id'),
+    key = helper.getURLParameter('key'),
+    image_url = 'https://s3.amazonaws.com/cdn.gifpop.io/' + key;
 
-	var image = document.getElementById('gif');
+  var image = document.getElementById('gif');
 
-	var doc_div = document.getElementById('doc_id');
-	doc_div.innerHTML = doc_id;
-	image.src = image_url;
+  var doc_div = document.getElementById('doc_id');
+  doc_div.innerHTML = doc_id;
+  image.src = image_url;
 
-	image.onload = function() {
-		gifchopper.load(image_url, image, doc_id);
-	};
+  image.onload = function() {
+    gifchopper.load(image_url, image, doc_id);
+  };
 
-	function displayMessage (evt) {
-		$("#gif-rotation-preview").attr("class",evt.data);
-		var preview = $("#gif-rotation-preview")[0];
-		preview.width = $("#gif-rotation-preview").width();
-		preview.height = $("#gif-rotation-preview").height();
+  function displayMessage (evt) {
+    $("#gif-rotation-preview").attr("class",evt.data);
+    var preview = $("#gif-rotation-preview")[0];
+    preview.width = $("#gif-rotation-preview").width();
+    preview.height = $("#gif-rotation-preview").height();
 
-		redrawCanvas();
-	}
+    redrawCanvas();
+  }
 
-	if (window.addEventListener) {
-		window.addEventListener("message", displayMessage, false);
-	}
-	else {
-		window.attachEvent("onmessage", displayMessage);
-	}
+  if (window.addEventListener) {
+    window.addEventListener("message", displayMessage, false);
+  }
+  else {
+    window.attachEvent("onmessage", displayMessage);
+  }
 
-	/*
-		save to db
-	*/
-	helper.send("gifchop", {
-		id: doc_id,
-		key: key
-	});
+  /*
+    save to db
+  */
+  helper.send("gifchop", {
+    id: doc_id,
+    key: key
+  });
 
-	// save the doc id immediately
+  // save the doc id immediately
     if (parent)
-    	parent.postMessage("doc_id|" + doc_id, 'http://gifpop.io');
+      parent.postMessage("doc_id|" + doc_id, 'https://gifpop.io');
 
 
-	// grab the current frames, give them to couch
-	function saveFrames() {
-		var frames = gifchopper.getFrames().toString();
-		helper.send("selected", {
-			id: doc_id,
-			frames: frames
-		});
+  // grab the current frames, give them to couch
+  function saveFrames() {
+    var frames = gifchopper.getFrames().toString();
+    helper.send("selected", {
+      id: doc_id,
+      frames: frames
+    });
 
-		$("#gif-controls").slideUp();
-		$("body").addClass("done");
+    $("#gif-controls").slideUp();
+    $("body").addClass("done");
 
-		if (parent)
-			parent.postMessage("save_frames|" + frames, 'http://gifpop.io');
+    if (parent)
+      parent.postMessage("save_frames|" + frames, 'https://gifpop.io');
 
-		previewGif();
-	}
+    previewGif();
+  }
 
-	function previewGif() {
-		// add a new canvas so we can transform it freely
-		var previewCanvas = document.createElement('canvas');
-		previewCanvas.id = "gif-rotation-preview";
-		$("#gif-container").append(previewCanvas);
+  function previewGif() {
+    // add a new canvas so we can transform it freely
+    var previewCanvas = document.createElement('canvas');
+    previewCanvas.id = "gif-rotation-preview";
+    $("#gif-container").append(previewCanvas);
 
-		// hide existing gif stuff
-		var wrapperHeight = $(".gif-wrapper").height();
-		$(".gif-wrapper").css("margin-left", "10000px");
+    // hide existing gif stuff
+    var wrapperHeight = $(".gif-wrapper").height();
+    $(".gif-wrapper").css("margin-left", "10000px");
 
-		// interaction over the actual gif
-		$("#gif-container").mouseenter(function() {
-			stopPingPoinging();
-		}).mousemove(function(e) {
-			currentPercent = Math.max(1 - (e.pageY / wrapperHeight),0);
-			seek(currentPercent);
-		}).mouseleave(function() {
-			startPingPoinging();
-		});
+    // interaction over the actual gif
+    $("#gif-container").mouseenter(function() {
+      stopPingPoinging();
+    }).mousemove(function(e) {
+      currentPercent = Math.max(1 - (e.pageY / wrapperHeight),0);
+      seek(currentPercent);
+    }).mouseleave(function() {
+      startPingPoinging();
+    });
 
-		// fake the initial click on the business cards
-		displayMessage({ data: 's_Bus'});
-		startPingPoinging();
-	}
+    // fake the initial click on the business cards
+    displayMessage({ data: 's_Bus'});
+    startPingPoinging();
+  }
 
-	var intervalID = null,
-		forwards = true,
-		currentPercent = 0;
-	function startPingPoinging() {
-		intervalID = setInterval(function() {
-			if (forwards == true && currentPercent >= 1) {
-				forwards = false;
-			} if (forwards == false && currentPercent <= 0) {
-				forwards = true;
-			}
+  var intervalID = null,
+    forwards = true,
+    currentPercent = 0;
+  function startPingPoinging() {
+    intervalID = setInterval(function() {
+      if (forwards == true && currentPercent >= 1) {
+        forwards = false;
+      } if (forwards == false && currentPercent <= 0) {
+        forwards = true;
+      }
 
-			currentPercent = forwards ? currentPercent + .05 : currentPercent - .05;
-			seek(currentPercent);
-		}, 40);
-	}
+      currentPercent = forwards ? currentPercent + .05 : currentPercent - .05;
+      seek(currentPercent);
+    }, 40);
+  }
 
-	function stopPingPoinging() {
-		if (intervalID) {
-			clearInterval(intervalID);
-		}
-	}
+  function stopPingPoinging() {
+    if (intervalID) {
+      clearInterval(intervalID);
+    }
+  }
 
-	function seek(percent) {
-		gifchopper.stopIdling();
-		gifchopper.seekPercentOfSelection(percent);
+  function seek(percent) {
+    gifchopper.stopIdling();
+    gifchopper.seekPercentOfSelection(percent);
 
-		var transform = "perspective(500) rotateX("+(10-(percent*20))+"deg)";
-		$("#gif-rotation-preview").css("-webkit-transform", transform);
+    var transform = "perspective(500) rotateX("+(10-(percent*20))+"deg)";
+    $("#gif-rotation-preview").css("-webkit-transform", transform);
 
-		redrawCanvas();
-	}
+    redrawCanvas();
+  }
 
-	/*
-		copy the jsgif canvas over to our preview canvas
-		this way we can apply transforms and not end up with total fucking weirdness
-	*/
-	function redrawCanvas() {
-		var canvas = $("#gif-canvas")[0],
-			previewCanvas = $("#gif-rotation-preview")[0],
-			previewContext = previewCanvas.getContext('2d'),
-			ratio = canvas.width / canvas.height,
-			ph = $("#gif-rotation-preview").height(),
-			pw = $("#gif-rotation-preview").width(),
-			pr = pw / ph,
-			dh = ratio >= pr ? ph : pw / ratio,
-			dw = ratio >= pr ? ratio * dh : pw;
+  /*
+    copy the jsgif canvas over to our preview canvas
+    this way we can apply transforms and not end up with total fucking weirdness
+  */
+  function redrawCanvas() {
+    var canvas = $("#gif-canvas")[0],
+      previewCanvas = $("#gif-rotation-preview")[0],
+      previewContext = previewCanvas.getContext('2d'),
+      ratio = canvas.width / canvas.height,
+      ph = $("#gif-rotation-preview").height(),
+      pw = $("#gif-rotation-preview").width(),
+      pr = pw / ph,
+      dh = ratio >= pr ? ph : pw / ratio,
+      dw = ratio >= pr ? ratio * dh : pw;
 
-		previewContext.drawImage(canvas, (pw - dw) / 2, (ph - dh) / 2, dw, dh);
-	}
+    previewContext.drawImage(canvas, (pw - dw) / 2, (ph - dh) / 2, dw, dh);
+  }
 
-	// update db with frame numbers
-	$("#gif-submit").click(saveFrames);
+  // update db with frame numbers
+  $("#gif-submit").click(saveFrames);
 </script>
     <footer>
 

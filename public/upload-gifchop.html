@@ -23,8 +23,8 @@
 <div id="flipflop" class="chop-option">
 	<h2>Flip Between Two Images</h2>
 	<p class="caps">If you don't have a gif, just upload two images!</p>
-	<img src="images/diagrams/upload_flipflop.jpg" class="diagram">
-	<img src="images/diagrams/upload_flipflop_hover.gif" class="diagram">
+	<img src="images/diagrams/upload-flipflop-black-a-blank.jpg" class="diagram">
+	<img src="images/diagrams/upload-flipflop-black-hover.gif" class="diagram">
 </div>
 <form class="chop-option">
 	<h2>Enter in a URL</h2>
@@ -44,6 +44,7 @@
 		text-transform: uppercase;
 		text-align: center;
 		font-weight: normal;
+		color: white;
 	}
 	h2 {
 		color: #808080;
@@ -89,19 +90,21 @@
 		cursor: pointer;
 	}
 	.chop-option {
-		width: 50%;
+		width: 49%;
 		height: 242px;
-		background-color: #eee;
+		background-color: #000;
 		font-family: Futura, Helvetia, sans-serif;
 		float: left;
 		box-sizing: border-box;
 		-moz-box-sizing: border-box;
 	}
 	.chop-option:nth-child(even) {
-		border-left: 5px solid white;
+		/*border-left: 5px solid transparent;*/
+		margin-left: 1%;
 	}
 	.chop-option:nth-child(odd) {
-		border-right: 5px solid white;
+		/*border-right: 5px solid transparent;*/
+		margin-right: 1%;
 	}
 	.chop-option p {
 		color: #808080;
@@ -141,7 +144,6 @@
 	.loading img {
 		margin-left: 3px;
 	}
-
 </style>
 
 <script type="text/javascript">
@@ -263,7 +265,11 @@
 	   		var img = InkBlobs[0];
 	   		var id = img.url.split("/").pop(),
 	   			clean_id = 'user_' + new Date().getTime() + '_' + id;
-	   		window.location = "/static/gifchop.html?id=" + clean_id + "&key="+img.key;
+
+	   		var destination = "https://s3.amazonaws.com/cdn.gifpop.io/static/gifchop.html?id=" + clean_id + "&key="+img.key;
+
+	   		console.log(id, destination);
+	   		window.location = destination;
 		},function(FPError){ console.log(FPError); }
 	);
 

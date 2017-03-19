@@ -71,7 +71,7 @@
 <script type="text/javascript">
 	var doc_id = helper.getURLParameter('id'),
 		img_id = helper.getURLParameter('img_id');
-	var image_url = 'http://cdn.gifpop.io/' + helper.getURLParameter('key0');
+	var image_url = 'https://s3.amazonaws.com/cdn.gifpop.io/' + helper.getURLParameter('key0');
 	$("#img-box").css("background-image", "url(" + image_url + ")");
 
 	filepicker.setKey("ANJF2Mj9QFWWDgDmjmCWzz");
@@ -86,7 +86,7 @@
 	   		var key0 = helper.getURLParameter('key0'),
 	   			key1 = encodeURIComponent(InkBlobs[0].key);
 
-	   		window.location = "flipflop.html?id=" + doc_id + "&key0=" + key0 + "&key1=" + key1;
+	   		window.location = "https://s3.amazonaws.com/cdn.gifpop.io/static/flipflop.html?id=" + doc_id + "&key0=" + key0 + "&key1=" + key1;
 		},function(FPError){ console.log(FPError); }
 	);
 
