@@ -623,7 +623,11 @@ imageHandler.grabImage = function(url, dest, callback) {
 
 imageHandler.processImage = function(id, url, dest, res, callback) {
   db.get(id, function(err, doc) {
-    if (err) res.status(500).send(err);
+    if (err) {
+      console.log(err);
+      res.status(500).send(err);
+      return;
+    }
 
     imageHandler.grabImage(doc[url], dest, function() {
       if (callback) {
@@ -673,6 +677,7 @@ app.get('/flipflop/:doc/preview.gif', function(req, res) {
     if (err) {
       console.log(err);
       res.status(500).send(err);
+      return;
     }
 
     console.log("PREVIEW FLIPFLOP: getting images", doc.url0, doc.url1);
