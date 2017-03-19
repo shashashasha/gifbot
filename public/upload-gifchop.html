@@ -1,9 +1,12 @@
-<html><head>
+<html>
+	<head>
     <title></title>
     <link href="css/style.css" media="screen" rel="stylesheet" type="text/css">
 
-    <script src="//api.filepicker.io/v1/filepicker.js"></script>
-	<script src="lib/jquery.min.js"></script>
+    <script src="https://api.filepicker.io/v1/filepicker.js"></script>
+		<!-- <script src="https://static.filestackapi.com/v3/filestack-0.2.0.js"></script> -->
+
+		<script src="lib/jquery.min.js"></script>
 
   </head>
   <body>
@@ -33,13 +36,6 @@
 	<div class="loading"><span id="url-loading-text">Loading...</span> <img id="url-loading-image" src="images/icons/loading.gif"></div>
 </form>
 <p class="note">Respect the rights of others. Please ensure that you have the right to use the images you upload.</p>
-<!-- <div id="fileFromURL">
-    <h2>Or paste a URL to a gif here</h2>
-    <input id="urlInput"></input>
-    <div id="urlSubmit"></div>
-    <p>(links to your Vines or Instagram videos also work!)</p>
-</div> -->
-<!-- <div id="url"></div> -->
 
 <style>
 	h1, h2 {
@@ -146,11 +142,9 @@
 		margin-left: 3px;
 	}
 
-
 </style>
 
 <script type="text/javascript">
-
 	function getUploadFolder() {
 	  var d = new Date(),
 	      date = ("0" + d.getDate()).slice(-2),
@@ -238,11 +232,26 @@
 		});
 	}
 
-	// filepicker.setKey("AYkBZ0oUOTTqvkwhxMx3Ez");
 	filepicker.setKey("ANJF2Mj9QFWWDgDmjmCWzz");
 
 	// pretty dumb right here but less dumb than filepicker not cleaning up filenames for emoji
 	var img_id = 'gifchop_' + new Date().getTime() + '_' + Math.round(Math.random() * 100);
+
+  // var client = filestack.init('ANJF2Mj9QFWWDgDmjmCWzz');
+  // client.pick({
+  // 	accept: '.gif',
+  // 	fromSources: ['local_file_system', 'facebook', 'instagram', 'flickr'],
+  // 	maxSize: 20971520, // 20 mb
+  // 	transformOptions: {
+  // 		maxDimensions: [3000, 3000]
+  // 	},
+  // 	maxFiles: 1,
+  // 	storeTo: {
+  // 		location: 's3',
+  // 		path: getUploadFolder() + img_id + '.gif',
+  // 		access: 'public'
+  // 	}
+  // });
 
 	filepicker.pickAndStore({
 			extension: '.gif',
@@ -258,9 +267,9 @@
 		},function(FPError){ console.log(FPError); }
 	);
 
-</script>    </div><iframe name="filepicker_comm_iframe" id="filepicker_comm_iframe" src="https://www.filepicker.io/dialog/comm_iframe/" style="display: none;"></iframe>
-    <footer>
+</script>
 
+    <footer>
     </footer>
 
 </body></html>

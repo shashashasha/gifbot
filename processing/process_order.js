@@ -183,7 +183,7 @@ var processRow = function(row) {
 				db.insert(doc, doc._id, function(err) {
 					if (err) console.log(err);
 
-					console.log('>>>> saved doc-id:\t', doc._id);
+					if (VERBOSE) { console.log('>>>> saved doc-id:\t', doc._id); }
 					deferred.resolve(result);
 				});
 			}
@@ -221,19 +221,19 @@ var downloadImages = function(doc) {
 		filename0 = './' + tempimages + '/000.' + doc.url0.split('.').pop(),
 		filename1 = './' + tempimages + '/001.' + doc.url1.split('.').pop();
 
-	console.log('>>>> made directory:\t', tempimages);
+	if (VERBOSE) { console.log('>>>> made directory:\t', tempimages); }
 	exec('mkdir ' + tempimages, function(err, stdout, stderr) {
 		var file0 = fs.createWriteStream(filename0),
 			file1 = fs.createWriteStream(filename1);
 
-		console.log('>>>> downloading url0:\t', doc.url0);
+		if (VERBOSE) { console.log('>>>> downloading url0:\t', doc.url0); }
 
 		request(doc.url0).pipe(file0);
 		file0.on('finish', function(){
-			console.log('>>>> downloading url1:\t', doc.url1);
+			if (VERBOSE) { console.log('>>>> downloading url1:\t', doc.url1); }
 			request(doc.url1).pipe(file1);
 			file1.on('finish', function() {
-				console.log('>>>> downloaded both flip images!');
+				if (VERBOSE) { console.log('>>>> downloaded both flip images!'); }
 				deferred.resolve(doc);
 			});
 		});
@@ -272,7 +272,7 @@ var uploadFlip = function(doc) {
 		destination = getCurrentUploadFolder() + doc.order_id + '_' + doc._id + '_';
 
 	doc.zip_url = 'http://' + config.S3Bucket + '/' + destination;
-	console.log('>>>> uploading to s3:\t', doc.zip_url);
+	if (VERBOSE) { console.log('>>>> uploading to s3:\t', doc.zip_url); }
 
 	if (DEBUG) {
 		console.log('>>>> skipping upload because DEBUG');
@@ -282,7 +282,7 @@ var uploadFlip = function(doc) {
 		    if (!err) {
 		    	s3.putFile(filename1, destination + '001.jpg', function(err, response) {
 		    		if (!err) {
-				    	console.log('>>>> uploaded!\t\t', doc.order_id, doc._id);
+				    	if (VERBOSE) { console.log('>>>> uploaded!\t\t', doc.order_id, doc._id); }
 				    	deferred.resolve(doc);
 		    		} else {
 		    			console.log(err);
@@ -306,7 +306,7 @@ var downloadGif = function(doc) {
 		filename = tempimages + getFilename(doc, 'gif'),
 		file = fs.createWriteStream(filename);
 
-	console.log('>>>> downloading:\t', doc.url);
+	if (VERBOSE) { console.log('>>>> downloading:\t', doc.url); }
 	request(doc.url).pipe(file);
 	file.on('finish', function(){
 		deferred.resolve(doc);
@@ -322,13 +322,15 @@ var getTenFrames = function(doc, folder) {
 		offset = 0,
 		cp = [];
 
+	if (VERBOSE) { console.log('>>>> found', oldframes); }
+
 	// round the frames
-	console.log('found', oldframes);
 	for (var j = 0; j < 10; j++) {
 		var roundedIndex = Math.floor((j / 10) * oldframes.length);
 		frames.push(oldframes[roundedIndex]);
 	}
-	console.log('padded to', frames);
+
+	if (VERBOSE) { console.log('>>>> padded to', frames); }
 
 	for (var i = 0; i < frames.length; i++) {
 		cp.push('cp processing/frames/' + folder + '/' + getPad(frames[i], 3) + '.jpg processing/renamedframes/' + folder + '/' + getPad(i, 3) + '.jpg');
@@ -367,9 +369,9 @@ var chopGif = function(doc) {
     						.replace("{output}", fileroot)
     						.replace("{cp_exec}", getTenFrames(doc, fileroot));
 
-    	console.log('>>>> making gif:\t', fileroot);
+    	if (VERBOSE) { console.log('>>>> making gif:\t', fileroot); }
     	exec(gif_exec, function(err, stdout, stderr) {
-    		console.log('>>>> made gif!');
+    		if (VERBOSE) { console.log('>>>> made gif!'); }
 			deferred.resolve(doc);
     	});
     });
@@ -405,7 +407,7 @@ var zipGifChop = function(doc) {
 						.replace("{output}", getFilename(doc, 'zip'))
 						.replace("{input}", selection);
 
-	console.log('>>>> zipping:\t\t', selection);
+	if (VERBOSE) { console.log('>>>> zipping:\t\t', selection); }
 	exec(zip_exec, function(err, stdout, stderr) {
 		deferred.resolve(doc);
 	});
@@ -421,7 +423,7 @@ var uploadZip = function(doc) {
 		destination = getCurrentUploadFolder() + getFilename(doc, 'zip');
 
 	doc.zip_url = 'http://' + config.S3Bucket + '/' + destination;
-	console.log('>>>> uploading to s3:\t', doc.zip_url);
+	if (VERBOSE) { console.log('>>>> uploading to s3:\t', doc.zip_url); }
 
 	if (DEBUG) {
 		console.log('>>>> skipping upload because DEBUG');
@@ -429,7 +431,7 @@ var uploadZip = function(doc) {
 	} else {
 		s3.putFile(filename, destination, function(err, response) {
 		    if (!err) {
-		    	console.log('>>>> uploaded!\t\t', doc.order_id, doc._id);
+		    	if (VERBOSE) { console.log('>>>> uploaded!\t\t', doc.order_id, doc._id); }
 		    	deferred.resolve(doc);
 		    }
 		    else {
@@ -574,17 +576,19 @@ var getShippingMethod = function(order) {
 
 	if (order.shipping_lines && order.shipping_lines[0] && order.shipping_lines[0].code) {
 		var code = order.shipping_lines[0].code;
-		switch (code) {
-			case '2 Day':
-			case 'FedEx 2-Day':
-			case 'Fedex 2-Day International':
-			case "Fedex International Shipping, 2-3 Days":
+		switch (code.toLowerCase()) {
+			case '2day':
+			case '2 day':
+			case 'fedex 2-day':
+			case 'fedex 2 day':
+			case 'fedex 2-day international':
+			case "fedex international shipping, 2-3 days":
 				return '2day';
-			case 'Priority':
-			case 'USPS Priority':
-			case 'USPS Priority — With Tracking Number':
+			case 'priority':
+			case 'usps priority':
+			case 'usps priority — with tracking number':
 				return 'priority';
-			case 'Overnight':
+			case 'overnight':
 				return 'overnight';
 		}
 	}
@@ -720,6 +724,7 @@ var makeFullOrderRequest = function(order_details) {
 var ORDER_ID = null,
 	DEBUG = false,
 	PREP = false,
+	VERBOSE = false,
 	ROTATE = false,
 	ONLY_LINEID = null,
 	ONLY_SELFMADE = null,
@@ -752,6 +757,10 @@ process.argv.forEach(function (val, index, array) {
 	else if (val == '-prep') {
 		console.log('running in prep mode, uploading to s3 and saving to db, but not pushing to manufacturer');
 		PREP = true;
+	}
+	else if (val == '-verbose') {
+		console.log('running in verbose mode, printing lots of text');
+		VERBOSE = true;
 	}
 	else if (val == '-force') {
 		console.log('running in force mode, regenerating files');
@@ -793,7 +802,7 @@ process.argv.forEach(function (val, index, array) {
 	} else if (val.search("borderhex=") == 0) {
 		BORDER_HEX = val.split("borderhex=")[1];
 		console.log('setting border hex color to', BORDER_HEX);
-	} else if (val.search("line_item_range=") == 0) {
+	} else if (val.search("line_item_range=") == 0 || val.search("line_id_range=") == 0) {
 		var range = val.split('=')[1].split('-');
 		LINE_ITEM_START = +range[0];
 		LINE_ITEM_END = +range[1];
@@ -812,7 +821,7 @@ if (ORDER_ID) {
 					.then(makeFullOrderRequest);
 			};
 		};
-		setTimeout(makeOrder(i), (i - ORDER_START) * 60000);
+		setTimeout(makeOrder(i), (i - ORDER_START) * 30000);
 			// .then(makeFullOrderRequest); // not submitting for now just processing
 	}
 }
