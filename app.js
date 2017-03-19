@@ -13,6 +13,7 @@ var express = require('express')
   , connect = require('connect')
   , request = require('request')
   , cheerio = require('cheerio')
+  , cors = require('cors')
 
   // logging
   , util = require('util')
@@ -53,23 +54,30 @@ app.configure(function() {
   app.set('view engine', 'ejs');
 
   // Add headers
-  app.use(function (req, res, next) {
+  // app.use(function (req, res, next) {
 
-      // Website you wish to allow to connect
-      res.set('Access-Control-Allow-Origin', 'http://cdn.gifpop.io');
+  //     // Website you wish to allow to connect
+  //     res.set('Access-Control-Allow-Origin', 'http://cdn.gifpop.io');
 
-      // Request methods you wish to allow
-      res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT');
+  //     // Website you wish to allow to connect
+  //     res.set('Access-Control-Allow-Origin', 'https://s3.amazonaws.com/cdn.gifpop.io/');
 
-      // Request headers you wish to allow
-      res.set('Access-Control-Allow-Headers', 'X-Requested-With,content-type,Content-Type');
+  //     // Request methods you wish to allow
+  //     res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT');
 
-      // Set to true if you need the website to include cookies in the requests sent to the API (e.g. in case you use sessions)
-      res.set('Access-Control-Allow-Credentials', true);
+  //     // Request headers you wish to allow
+  //     res.set('Access-Control-Allow-Headers', 'X-Requested-With,content-type,Content-Type');
 
-      // Pass to next layer of middleware
-      next();
-  });
+  //     // Set to true if you need the website to include cookies in the requests sent to the API (e.g. in case you use sessions)
+  //     res.set('Access-Control-Allow-Credentials', true);
+
+  //     // Pass to next layer of middleware
+  //     next();
+  // });
+
+  // CORS-enabled for all origins!
+  // https://www.npmjs.com/package/cors
+  app.use(cors());
 
   app.use(express.logger('dev'));
 

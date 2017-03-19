@@ -10,6 +10,7 @@
     "ejs": "*",
     "ejs-locals": "~1.0.2",
     "gm": "~1.8.1",
-    "felix-couchdb": "~1.0.6"
+    "felix-couchdb": "~1.0.6",
+    "cors": "~2.8.1"
   }
 }
