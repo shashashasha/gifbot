@@ -10,6 +10,7 @@ var express = require('express')
 
   // grabbing urls and elements
   , http = require('http')
+  , https = require('https')
   , connect = require('connect')
   , request = require('request')
   , cheerio = require('cheerio')
@@ -779,8 +780,44 @@ app.get('/orders/:order', auth, function(req, res) {
 
     res.render('orders-gifs', {
       order: req.params.order,
+      status: order.status,
       line_items: order.line_items.length,
       images: uploadedImages });
+  });
+});
+
+// Show the last 50 orders and their statuses
+app.get('/orders', auth, function(req, res) {
+
+  var full_order = '';
+
+  // load the last 50 orders by default
+  https.get(config.ORDERS + '?page=1', function(response) {
+
+    response.on('data', function(d) {
+      full_order += d;
+    });
+
+    response.on('end', function(d) {
+      var orders = JSON.parse(full_order).orders;
+
+      var orderIds = [];
+      orders.forEach(function(order) {
+        orderIds.push("order-" + order.order_number);
+      });
+
+      // using a bulk query on the database for the recent 50 orders
+      db_orders.fetch({ "keys": orderIds }, function(err, orderDocs) {
+        if (err) { console.log(err); res.status(500).send(err); }
+
+        // display the recent order statuses
+        res.render('orders-statuses', {
+          orders: orderDocs.rows
+        });
+      });
+    });
+  }).on('error', function(e) {
+    console.error(e);
   });
 });
 

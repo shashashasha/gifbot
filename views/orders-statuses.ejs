@@ -1,0 +1,7 @@
+<% layout('base') -%>
+
+<% stylesheet('/css/orders.css') %>
+
+<% for(var i=0; i < orders.length; i++) {%>
+  <h2>order-<%= orders[i].doc.order_number %> - <%= orders[i].doc.status %></h2>
+<% } %>

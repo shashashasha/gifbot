@@ -568,6 +568,17 @@ var makeFullOrderRequest = function(order_details) {
 				csv.push(body.desc);
 				fs.appendFile('processing/render_logs.txt', csv.join(','), function (err) { });
 	    	}
+
+	    	// update the database with the submission status
+	    	order.status = err ? err.desc : 'Submitted ' + full_order.orderDate.split('T')[0];
+
+	    	db_orders.insert(order, order._id, function(err) {
+					if (err) {
+						console.log(err);
+						return;
+					}
+				});
+
 			console.log(err, body);
 		});
 	}

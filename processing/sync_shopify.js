@@ -4,59 +4,8 @@ var fs = require('fs')
   , https = require('https')
   , nano = require('nano')(config.DATABASE)
   , db_orders = nano.db.use('gifpop-orders')
-  , Q = require('q');
-
-// manufacturer's internal product ids
-// 2.75 Instagram Motion Print	CAP01A0A
-// 3.5 Instagram Motion Print	CAQ01A0A
-// Large Motion Print			AA20110A
-// Wallet Motion Print			AA10110A
-// 5” x 5”						AAS01A00
-// 10” x 10”					AAT01A00
-var getProductId = function(size) {
-	var words = size.split(' '),
-		realsize = [];
-
-	words.forEach(function(word, i) {
-		if (word.charAt(word.length-1) != '+') {
-			realsize.push(word);
-		}
-	});
-
-	realsize = realsize.join(' ');
-
-	switch (realsize) {
-		case 'Business Card':
-			return "AA10110A3";
-		case 'Postcard 2+':
-		case 'Postcard ':
-		case 'Postcard':
-		case 'Landscape Postcard':
-			return "AA20110A3";
-
-		case 'Portrait Postcard':
-			return "AA20110A31";
-
-		case 'Large Square':
-			return "AAS01A003";
-
-		case 'Artist Small':
-		case '3&#189; x 3&#189;\"':
-			return "CAQ01A0A3";
-
-		case 'Artist Large':
-		case 'Artist Print':
-		case '10 x 10\"':
-			return "AAT01A003"
-
-		case 'Small Square':
-			return "CAP01A0A3";
-
-		default:
-			console.log("unable to find", size);
-			return "unknown";
-	}
-};
+  , Q = require('q')
+  , gifpop_utils = require('./process_utils');
 
 var getOrderGifsFromShopify = function(page) {
 	var full_order = '';
@@ -68,7 +17,7 @@ var getOrderGifsFromShopify = function(page) {
 	  });
 
 	  res.on('end', function(d) {
-	  		var orders = JSON.parse(full_order).orders;
+  		var orders = JSON.parse(full_order).orders;
 
 			orders.forEach(saveOrderToCouch);
 	  });
