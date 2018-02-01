@@ -128,3 +128,8 @@ pm2 logs
 ~/bin/couchdb
 # couch config
 /home/meshu/etc/couchdb/local.ini
+
+
+#########
+# Webfaction uses gifbot_610 to run https://gifbot.gifpop.io
+#########

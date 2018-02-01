@@ -82,8 +82,8 @@
 	var doc_id = helper.getURLParameter('id');
 	var key0 = helper.getURLParameter('key0'),
 		key1 = helper.getURLParameter('key1'),
-		image_url0 = 'http://cdn.gifpop.io/' + key0,
-		image_url1 = 'http://cdn.gifpop.io/' + key1;
+		image_url0 = 'https://s3.amazonaws.com/cdn.gifpop.io/' + key0,
+		image_url1 = 'https://s3.amazonaws.com/cdn.gifpop.io/' + key1;
 	$("#b1").css("background-image", "url(" + image_url0 + ")");
 	$("#b2").css("background-image", "url(" + image_url1 + ")");
 
@@ -120,8 +120,8 @@
 	// save the doc-id to the line-item properties field of the shopify page
 	// do this on load because we don't need to do any "selected" buttons on the flip flop page
 	if (parent) {
-		parent.postMessage("doc_id|" + doc_id, 'http://gifpop.io');
-		parent.postMessage("save_frames|", 'http://gifpop.io');
+		parent.postMessage("doc_id|" + doc_id, 'https://gifpop.io');
+		parent.postMessage("save_frames|", 'https://gifpop.io');
 	}
 </script>
     <footer>
