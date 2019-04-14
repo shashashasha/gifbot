@@ -126,7 +126,7 @@ $.fn.S3Uploader = function(options) {
       }
     });
   };
-  
+
   build_content_object = function($uploadForm, file, result) {
     var content, domain;
     content = {};

@@ -4,6 +4,7 @@ html {
 body{
 	margin: 0;
 	padding: 0;
+	background-color: #000000;
 }
 
 ::-moz-selection { background: #ff9900; color: #fff; text-shadow: none; }
@@ -200,6 +201,12 @@ body{
 	height: 350px;
 	margin-top: 125px;
 	margin-left: -175px;
+}
+#gif-rotation-preview.s_Art {
+	width: 700px !important;
+	height: 700px;
+	margin-top: 50px;
+	margin-left: -350px;
 }
 .jsgif canvas {
 	width: 100%;

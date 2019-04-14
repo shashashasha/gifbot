@@ -15,7 +15,7 @@ helper.getURLParameter = function(name) {
 helper.send = function(endpoint, data, success, error) {
 	$.ajax({
 		type: "POST",
-		url: "https://gifbot.gifpop.io/" + endpoint,
+		url: "http://gifbot.gifpop.io/" + endpoint,
 		data: data,
 		dataType: "json",
 		success: function() {

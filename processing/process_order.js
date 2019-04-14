@@ -40,7 +40,8 @@ var getOrderGifs = function(order_id) {
 
 		if (order.note != null && order.note != '') {
 			console.log("has note:", order.note);
-			return;
+			// not ending if there's a note
+			// return;
 		}
 
 		var items = order.line_items;
@@ -150,7 +151,8 @@ var processRow = function(row) {
 	}
 
 	db.get(row.id, function(err, doc) {
-		// keep track of the size with the gif doc
+		// keep track of the size with the gif docs
+		console.log(err);
 		console.log(doc.order_id + ' - ' + doc._id);
 		doc.size = row.size;
 		doc.status = 'ordered';

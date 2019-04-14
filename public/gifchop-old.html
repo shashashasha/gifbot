@@ -1,9 +1,9 @@
 <html><head>
     <title></title>
     <link href="css/style.css" media="screen" rel="stylesheet" type="text/css">
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
 
     <script src="lib/jsgif/gif.js"></script>
+  <script src="lib/jquery.min.js"></script>
     <script src="js/helper.js"></script>
   <script src="js/gifcontrol.js"></script>
   <script src="js/gifchop.js"></script>
@@ -39,7 +39,7 @@
 
   var doc_id = helper.getURLParameter('id'),
     key = helper.getURLParameter('key'),
-    image_url = 'https://s3.amazonaws.com/cdn.gifpop.io/' + key;
+    image_url = 'http://cdn.gifpop.io/' + key;
 
   var image = document.getElementById('gif');
 
@@ -76,8 +76,8 @@
   });
 
   // save the doc id immediately
-  if (parent)
-    parent.postMessage("doc_id|" + doc_id, 'https://gifpop.io');
+    if (parent)
+      parent.postMessage("doc_id|" + doc_id, 'http://gifpop.io');
 
 
   // grab the current frames, give them to couch
@@ -92,7 +92,7 @@
     $("body").addClass("done");
 
     if (parent)
-      parent.postMessage("save_frames|" + frames, 'https://gifpop.io');
+      parent.postMessage("save_frames|" + frames, 'http://gifpop.io');
 
     previewGif();
   }

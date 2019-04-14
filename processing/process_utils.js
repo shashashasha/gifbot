@@ -157,5 +157,6 @@ var getShippingMethod = function(order) {
 module.exports = {
   getSize: getSize,
   getProductId: getProductId,
+  getArtistSize: getArtistSize,
   getShippingMethod: getShippingMethod
 };
