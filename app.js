@@ -414,9 +414,11 @@ app.post('/flipflop', function(req, res) {
       if (err) {
         console.log('Error while Flipflopping:', err);
 
-        res.render('error', {
-          error: 'Error saving flip flop to database.'
-        })
+        res.jsonp({
+          success: 'false',
+          message: 'Error saving flip images to database.'
+        });
+        return;
       }
       else {
 
@@ -429,6 +431,7 @@ app.post('/flipflop', function(req, res) {
           image_url0: url0,
           image_url1: url1
         });
+        return;
       }
     });
   });

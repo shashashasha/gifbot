@@ -1,14 +1,15 @@
-<html><head>
-    <title></title>
-    <link href="css/style.css" media="screen" rel="stylesheet" type="text/css">
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
+<html>
+<head>
+  <title></title>
+  <link href="css/style.css" media="screen" rel="stylesheet" type="text/css">
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
 
-    <script src="lib/jsgif/gif.js"></script>
-    <script src="js/helper.js"></script>
+  <script src="lib/jsgif/gif.js"></script>
+  <script src="js/helper.js"></script>
   <script src="js/gifcontrol.js"></script>
   <script src="js/gifchop.js"></script>
 
-  </head>
+</head>
   <body class="done">
     <header>
 
@@ -31,6 +32,10 @@
             <span id="finalize-text">Click or drag to adjust, then hit</span> <button id="gif-submit">DONE!</button>
           </div>
         </div>
+      </div>
+      <div id="error" class="large-helper-text" style="display: none;">
+          <div id="error-message">Error displaying gif.</div>
+          <a href="upload-gifchop.html">Try again.</a>
       </div>
     </div>
     </div>
@@ -83,7 +88,11 @@
 
     } else {
 
-      $(".jsgif").text(response.message);
+      // prevent user from continuing if there was an error saving
+      $("#gif-container").hide();
+      $("#gif-controls").hide();
+      $("#error").show();
+      $("#error-message").text(response.message);
     }
   });
 

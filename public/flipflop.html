@@ -1,69 +1,76 @@
-<html><head>
-    <title></title>
-    <link href="css/style.css" media="screen" rel="stylesheet" type="text/css">
+<html>
+<head>
+	<title></title>
+	<link href="css/style.css" media="screen" rel="stylesheet" type="text/css">
 
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
-    <script src="js/helper.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
+	<script src="js/helper.js"></script>
 
-  </head>
-  <body>
-    <header>
+	<style type="text/css">
+		.bg {
+			width: 875px;
+		}
+		.box, #b2-wrapper {
+			width: 100%;
+			height: 100%;
+			position: absolute;
+			overflow: hidden;
+		}
+		#wrapper {
+			width: 500px;
+			height: 500px;
+			position: relative;
+			margin: 10px auto;
+			-webkit-animation: skew 5s infinite;
+		}
+		#b1, #b2 {
+			background-size: cover;
+			background-position: center;
+		}
+		#b2-wrapper {
+			-webkit-animation: wipe 5s infinite;
+			-webkit-mask-size: 1040px 1040px;
+			-webkit-mask-image: -webkit-gradient(linear, left 0%, left bottom,
+					color-stop(0.00,  rgba(0,0,0,1)),
+					color-stop(0.45,  rgba(0,0,0,1)),
+					color-stop(0.50,  rgba(0,0,0,0)),
+					color-stop(0.55,  rgba(0,0,0,0)),
+					color-stop(1.00,  rgba(0,0,0,0)));
+		}
+		@-webkit-keyframes wipe {
+			0% {
+				-webkit-mask-position: -500px -500px;
+			}
+			50% {
+				-webkit-mask-position: 0 0;
+			}
+			100% {
+				-webkit-mask-position: -500px -500px;
+			}
+		}
+	</style>
 
-    </header>
-    <div class="wrapper">
+</head>
+<body>
+  <header>
+
+  </header>
+  <div class="wrapper">
 		<div class="bg">
-			<div id="wrapper" class="box">
-				<div id="b1" class="box"></div>
-				<div id="b2-wrapper" class="box">
-					<div id="b2" class="box"></div>
+			<div id="flip-container">
+				<div id="wrapper" class="box">
+					<div id="b1" class="box"></div>
+					<div id="b2-wrapper" class="box">
+						<div id="b2" class="box"></div>
+					</div>
 				</div>
 			</div>
+      <div id="error" class="large-helper-text" style="display: none;">
+          <div id="error-message">Error displaying flip.</div>
+          <a href="upload-flipflop1.html">Try again.</a>
+      </div>
 		</div>
 	</div>
-
-<style>
-	.bg {
-		width: 875px;
-	}
-	.box, #b2-wrapper {
-		width: 100%;
-		height: 100%;
-		position: absolute;
-		overflow: hidden;
-	}
-	#wrapper {
-		width: 500px;
-		height: 500px;
-		position: relative;
-		margin: 10px auto;
-		-webkit-animation: skew 5s infinite;
-	}
-	#b1, #b2 {
-		background-size: cover;
-		background-position: center;
-	}
-	#b2-wrapper {
-		-webkit-animation: wipe 5s infinite;
-		-webkit-mask-size: 1040px 1040px;
-		-webkit-mask-image: -webkit-gradient(linear, left 0%, left bottom,
-				color-stop(0.00,  rgba(0,0,0,1)),
-				color-stop(0.45,  rgba(0,0,0,1)),
-				color-stop(0.50,  rgba(0,0,0,0)),
-				color-stop(0.55,  rgba(0,0,0,0)),
-				color-stop(1.00,  rgba(0,0,0,0)));
-	}
-	@-webkit-keyframes wipe {
-		0% {
-			-webkit-mask-position: -500px -500px;
-		}
-		50% {
-			-webkit-mask-position: 0 0;
-		}
-		100% {
-			-webkit-mask-position: -500px -500px;
-		}
-	}
-</style>
 
 <script type="text/javascript">
 
@@ -77,6 +84,26 @@
 	}
 	else {
 		window.attachEvent("onmessage", displayMessage);
+	}
+
+	function initiateFlipFlop() {
+		var imgHeight = $("#wrapper").height();
+		$(document).mouseenter(function() {
+			$("#wrapper").css("-webkit-animation","none");
+			$("#b2-wrapper").css("-webkit-animation","none");
+		}).mousemove(function(e){
+			var imgY = parseInt($("#wrapper").css('marginTop')),
+				current = Math.max(Math.min(e.pageY - imgY, imgHeight), 0),
+				percentage = Math.max(1 - (current / imgHeight),0),
+				maskPosition = -(500 - ((1 - percentage) * $("#wrapper").height()));
+
+			$("#wrapper").css("-webkit-transform","perspective(500) rotateX(" + (10-(percentage*20)) + "deg)");
+
+			$("#b2-wrapper").css("-webkit-mask-position", maskPosition + "px " +  maskPosition + "px");
+		}).mouseleave(function(){
+			$("#wrapper").css("-webkit-animation","skew 5s infinite");
+			$("#b2-wrapper").css("-webkit-animation","wipe 5s infinite");
+		});
 	}
 
 	var doc_id = helper.getURLParameter('id');
@@ -94,38 +121,33 @@
 		id: doc_id,
 		key0: key0,
 		key1: key1
-	});
+	}, function(response) {
+    console.log(response);
+    if (response.success == "true") {
 
-	var imgHeight = $("#wrapper").height();
-	$(document).mouseenter(function() {
-		$("#wrapper").css("-webkit-animation","none");
-		$("#b2-wrapper").css("-webkit-animation","none");
-	}).mousemove(function(e){
-		var imgY = parseInt($("#wrapper").css('marginTop')),
-			current = Math.max(Math.min(e.pageY - imgY, imgHeight), 0),
-			percentage = Math.max(1 - (current / imgHeight),0),
-			maskPosition = -(500 - ((1 - percentage) * $("#wrapper").height()));
+			// save the doc-id to the line-item properties field of the shopify page
+			// do this on load because we don't need to do any "selected" buttons on the flip flop page
+			if (parent) {
+				parent.postMessage("doc_id|" + doc_id, 'https://gifpop.io');
+				parent.postMessage("save_frames|", 'https://gifpop.io');
+			}
 
-		$("#wrapper").css("-webkit-transform","perspective(500) rotateX(" + (10-(percentage*20)) + "deg)");
+			initiateFlipFlop();
 
-		$("#b2-wrapper").css("-webkit-mask-position", maskPosition + "px " +  maskPosition + "px");
-	}).mouseleave(function(){
-		$("#wrapper").css("-webkit-animation","skew 5s infinite");
-		$("#b2-wrapper").css("-webkit-animation","wipe 5s infinite");
-	});
+    } else {
 
+      // prevent user from continuing if there was an error saving
+      $("#flip-container").hide();
+      $("#error").show();
+      $("#error-message").text(response.message);
+    }
+  });
 	// fake the initial click on the business cards
 	displayMessage({ data: 's_Bus'});
-
-	// save the doc-id to the line-item properties field of the shopify page
-	// do this on load because we don't need to do any "selected" buttons on the flip flop page
-	if (parent) {
-		parent.postMessage("doc_id|" + doc_id, 'https://gifpop.io');
-		parent.postMessage("save_frames|", 'https://gifpop.io');
-	}
 </script>
-    <footer>
+<footer>
 
-    </footer>
+</footer>
 
-</body></html>
+</body>
+</html>
