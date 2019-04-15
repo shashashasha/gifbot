@@ -275,19 +275,25 @@ app.get('/gifchop', function(req, res) {
   };
 
   db.insert(doc, docId, function(err, body) {
+    // Errored when saving
     if (err) {
       console.log('GIFCHOP:', err);
       util.puts(err);
+      res.render('error', {
+        error: 'Error saving animation to database.'
+      })
     }
+    // Saved successfully
+    else {
+      console.log("GIFCHOP: docid", docId, util.inspect(docId));
 
-    console.log("GIFCHOP: docid", docId, util.inspect(docId));
-
-    // Render the uploaded page if we've saved the gif info to the db
-    res.render('gifchop', {
-      title: 'GifPOP',
-      image_url: url,
-      doc_id: docId
-    });
+      // Render the uploaded page if we've saved the gif info to the db
+      res.render('gifchop', {
+        title: 'GifPOP',
+        image_url: url,
+        doc_id: docId
+      });
+    }
   });
 });
 
@@ -345,7 +351,7 @@ app.get('/flipflop', function(req, res) {
     , url0 = base.replace('{key}', key0)
     , url1 = base.replace('{key}', key1);
 
-  // save the uploaded gif information
+  // Save the uploaded flip image information
   var doc = {
     url0: url0,
     url1: url1,
@@ -356,19 +362,27 @@ app.get('/flipflop', function(req, res) {
   };
 
   db.insert(doc, docId, function(err, body) {
+    // Errored when saving
     if (err) {
+      console.log('GIFCHOP:', err);
       util.puts(err);
+      res.render('error', {
+        error: 'Error saving flip image to database.'
+      })
     }
-    console.log("FLIPFLOP: uploaded ", url0, url1);
-    console.log("FLIPFLOP: doc_id ", docId);
+    // Saved successfully
+    else {
+      console.log("FLIPFLOP: uploaded ", url0, url1);
+      console.log("FLIPFLOP: doc_id ", docId);
 
-    // render the uploaded page if we've saved the gif info to the db
-    res.render('flipflop', {
-      title: 'GifPop',
-      doc_id: docId,
-      image_url0: url0,
-      image_url1: url1
-    });
+      // render the uploaded page if we've saved the gif info to the db
+      res.render('flipflop', {
+        title: 'GifPop',
+        doc_id: docId,
+        image_url0: url0,
+        image_url1: url1
+      });
+    }
   });
 });
 
