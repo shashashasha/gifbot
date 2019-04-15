@@ -18,10 +18,10 @@ helper.send = function(endpoint, data, success, error) {
 		url: "https://gifbot.gifpop.io/" + endpoint,
 		data: data,
 		dataType: "json",
-		success: function() {
+		success: success || function(args) {
 			console.log('success', endpoint, arguments);
 		},
-		error: function() {
+		error: error || function() {
 			console.log('error', endpoint, arguments);
 		}
 	});

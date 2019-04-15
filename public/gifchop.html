@@ -73,6 +73,13 @@
   helper.send("gifchop", {
     id: doc_id,
     key: key
+  }, function(response) {
+    console.log(response);
+    if (response.success == "true") {
+
+    } else {
+
+    }
   });
 
   // save the doc id immediately

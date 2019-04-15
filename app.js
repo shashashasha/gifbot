@@ -277,8 +277,7 @@ app.get('/gifchop', function(req, res) {
   db.insert(doc, docId, function(err, body) {
     // Errored when saving
     if (err) {
-      console.log('GIFCHOP:', err);
-      console.log(err);
+      console.log('ERROR GETTING GIFCHOP:', err);
       res.render('error', {
         error: 'Error saving animation to database.'
       })
@@ -325,16 +324,22 @@ app.post('/gifchop', function(req, res) {
 
     db.insert(doc, docId, function(err, body) {
       if (err) {
-        console.log('Error Gifchopping', err);
+        console.log('Error while Gifchopping:', err);
+
+        res.jsonp({
+          success: 'false',
+          error: 'Error saving animation to database.'
+        });
       }
+      else {
+        console.log("GIFCHOP: uploaded ", docId, url, util.inspect(docId));
 
-      console.log("GIFCHOP: uploaded ", docId, url, util.inspect(docId));
-
-      res.jsonp({
-        success: 'true',
-        doc_id: docId,
-        image_url: url
-      });
+        res.jsonp({
+          success: 'true',
+          doc_id: docId,
+          image_url: url
+        });
+      }
     });
   });
 });
@@ -364,7 +369,7 @@ app.get('/flipflop', function(req, res) {
   db.insert(doc, docId, function(err, body) {
     // Errored when saving
     if (err) {
-      console.log('GIFCHOP:', err);
+      console.log('ERROR GETTING FLIPFLOP:', err);
       res.render('error', {
         error: 'Error saving flip image to database.'
       })
@@ -406,18 +411,24 @@ app.post('/flipflop', function(req, res) {
 
     db.insert(doc, docId, function(err, body) {
       if (err) {
-        console.log(err);
+        console.log('Error while Flipflopping:', err);
+
+        res.render('error', {
+          error: 'Error saving flip flop to database.'
+        })
       }
+      else {
 
-      console.log("FLIPFLOP: uploaded ", url0, url1);
-      console.log("FLIPFLOP: doc_id ", docId);
+        console.log("FLIPFLOP: uploaded ", url0, url1);
+        console.log("FLIPFLOP: doc_id ", docId);
 
-      res.jsonp({
-        success: 'true',
-        doc_id: docId,
-        image_url0: url0,
-        image_url1: url1
-      });
+        res.jsonp({
+          success: 'true',
+          doc_id: docId,
+          image_url0: url0,
+          image_url1: url1
+        });
+      }
     });
   });
 });
