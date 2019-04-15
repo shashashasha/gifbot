@@ -278,7 +278,7 @@ app.get('/gifchop', function(req, res) {
     // Errored when saving
     if (err) {
       console.log('GIFCHOP:', err);
-      util.puts(err);
+      console.log(err);
       res.render('error', {
         error: 'Error saving animation to database.'
       })
@@ -325,7 +325,7 @@ app.post('/gifchop', function(req, res) {
 
     db.insert(doc, docId, function(err, body) {
       if (err) {
-        util.puts(err);
+        console.log('Error Gifchopping', err);
       }
 
       console.log("GIFCHOP: uploaded ", docId, url, util.inspect(docId));
@@ -365,7 +365,6 @@ app.get('/flipflop', function(req, res) {
     // Errored when saving
     if (err) {
       console.log('GIFCHOP:', err);
-      util.puts(err);
       res.render('error', {
         error: 'Error saving flip image to database.'
       })
@@ -407,7 +406,7 @@ app.post('/flipflop', function(req, res) {
 
     db.insert(doc, docId, function(err, body) {
       if (err) {
-        util.puts(err);
+        console.log(err);
       }
 
       console.log("FLIPFLOP: uploaded ", url0, url1);

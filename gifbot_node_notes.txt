@@ -133,3 +133,8 @@ pm2 logs
 #########
 # Webfaction uses gifbot_610 to run https://gifbot.gifpop.io
 #########
+
+
+//app.js
+-  , config = JSON.parse(fs.readFileSync('./settings.json'))
++  , config = JSON.parse(fs.readFileSync('/home/meshu/webapps/gifbot_610/gifbot/settings.json'))
