@@ -328,8 +328,9 @@ app.post('/gifchop', function(req, res) {
 
         res.jsonp({
           success: 'false',
-          error: 'Error saving animation to database.'
+          message: 'Error saving animation to database.'
         });
+        return;
       }
       else {
         console.log("GIFCHOP: uploaded ", docId, url, util.inspect(docId));
