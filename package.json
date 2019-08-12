@@ -1,16 +1,20 @@
 {
-  "name": "application-name",
+  "name": "gifbot",
   "version": "0.0.1",
   "private": true,
   "scripts": {
     "start": "node app"
   },
   "dependencies": {
-    "express": "3.0.6",
+    "cheerio": "^1.0.0-rc.3",
+    "cors": "~2.8.1",
     "ejs": "*",
     "ejs-locals": "~1.0.2",
-    "gm": "~1.8.1",
+    "express": "3.0.6",
     "felix-couchdb": "~1.0.6",
-    "cors": "~2.8.1"
+    "gm": "~1.8.1",
+    "knox": "^0.9.2",
+    "nano": "^8.1.0",
+    "tempfiles": "^0.1.0"
   }
 }
